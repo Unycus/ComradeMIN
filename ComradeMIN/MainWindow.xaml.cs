@@ -21,6 +21,15 @@ namespace ComradeMIN
             InitializeComponent();
         }
     }
+
+} ddd
+
+#Test
+нкнкнкнкн
+
+#ФЫВАПРОЛД
+ывдшлаопршвоы
+
 фыва
-        фыва
-            фыва
+фыва
+фыва
