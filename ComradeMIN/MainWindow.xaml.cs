@@ -21,7 +21,7 @@ namespace ComradeMIN
             InitializeComponent();
         }
     }
-}
+} ddd
 
 #Test
 нкнкнкнкн
