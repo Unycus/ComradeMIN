@@ -21,6 +21,7 @@ namespace ComradeMIN
             InitializeComponent();
         }
     }
+
 } ddd
 
 #Test
@@ -29,3 +30,6 @@ namespace ComradeMIN
 #ФЫВАПРОЛД
 ывдшлаопршвоы
 
+фыва
+фыва
+фыва
