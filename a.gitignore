@@ -1,0 +1,41 @@
+# Системные файлы
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Папки сборки
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+Debug/
+Release/
+x64/
+x86/
+[Aa][Rr][Mm]/
+
+# Пакеты NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+# Автогенерируемые файлы
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.vspscc
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.tmp
+*.csproj.user
+
+# Rider / Resharper
+.idea/
+*.DotSettings.user
