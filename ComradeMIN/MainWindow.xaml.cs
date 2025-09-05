@@ -21,6 +21,9 @@ namespace ComradeMIN
             InitializeComponent();
         }
     }
-}
+}выап
 #ФЫВАПРОЛД
 ывдшлаопршвоы
+    выаплори
+    ывапорвыашолпр
+ывапордыва
