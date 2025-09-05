@@ -1,5 +1,6 @@
 {
   "Version": 1,
+<<<<<<< HEAD
   "WorkspaceRootPath": "D:\\Progs\\ComradeMIN\\",
   "Documents": [
     {
@@ -8,6 +9,16 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Progs\\ComradeMIN\\ComradeMIN\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+=======
+  "WorkspaceRootPath": "C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+>>>>>>> 5aaffb621c1ff0e1e9dadb5913b20883fe3476b0
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
@@ -24,9 +35,15 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "MainWindow.xaml",
+<<<<<<< HEAD
               "DocumentMoniker": "D:\\Progs\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
               "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml",
               "ToolTip": "D:\\Progs\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
+=======
+              "DocumentMoniker": "C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
+>>>>>>> 5aaffb621c1ff0e1e9dadb5913b20883fe3476b0
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
@@ -36,11 +53,19 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "MainWindow.xaml.cs",
+<<<<<<< HEAD
               "DocumentMoniker": "D:\\Progs\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml.cs",
               "ToolTip": "D:\\Progs\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAFAAAAAAAAAA==",
+=======
+              "DocumentMoniker": "C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\PPSh-41\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAFAAAAAAAAAA==",
+>>>>>>> 5aaffb621c1ff0e1e9dadb5913b20883fe3476b0
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-05T16:59:55.076Z",
               "EditorCaption": ""
