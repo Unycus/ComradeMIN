@@ -22,4 +22,4 @@ namespace ComradeMIN
         }
     }
 }
-#переможник
+цвфвцвфвфцв
