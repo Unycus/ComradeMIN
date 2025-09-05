@@ -1,5 +1,6 @@
 # Системные файлы
 .vs/
+.vs/*/
 *.user
 *.suo
 *.userosscache
