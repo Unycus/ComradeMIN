@@ -22,8 +22,4 @@ namespace ComradeMIN
         }
     }
 }
-<<<<<<< HEAD
-#dgsdgsdggssssssssssssssssssssыафаыыафафы
-=======
-#победа
->>>>>>> 5aaffb621c1ff0e1e9dadb5913b20883fe3476b0
+#переможник
