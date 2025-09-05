@@ -23,3 +23,4 @@ namespace ComradeMIN
     }
 }
 #переможник
+"вааавыаывавып"
