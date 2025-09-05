@@ -22,5 +22,4 @@ namespace ComradeMIN
         }
     }
 }
-#porosel 
-//SISKI SISKI SISKI SISKI SISKI SISKIIIIIIIIIIIIIII
+#porosel
