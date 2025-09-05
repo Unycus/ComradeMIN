@@ -25,4 +25,4 @@ namespace ComradeMIN
 #porosel 
 //SISKI SISKI SISKI SISKI SISKI SISKIIIIIIIIIIIIIII
 ыыыыыыыыы
-ыывфыыыф я знаю
+блять да ты заебал
