@@ -7,12 +7,12 @@
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\optionspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\79858\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\comrademin\\comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\79858\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\comrademin\\comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\79858\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\comrademin\\comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\79858\\onedrive\\\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\comrademin\\comrademin\\loginpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -54,7 +54,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "LoginPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml.cs",
@@ -115,7 +115,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml.cs",

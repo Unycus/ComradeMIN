@@ -21,5 +21,5 @@ namespace ComradeMIN
             InitializeComponent();
         }
     }
-
+    ывлаопролварп
 }
