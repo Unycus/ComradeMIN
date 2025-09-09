@@ -1,34 +1,38 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\",
+  "WorkspaceRootPath": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\OptionsPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\loginpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\LoginPage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\optionspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\optionspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\UserDataBaseMessengePage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\RegisterPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\userdatabasemessengepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\userdatabasemessengepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\LoginPage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\registerpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\registerpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\loginpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\loginpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\4.3.5\\documents\\github\\comrademin\\comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,88 +42,105 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "App.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\App.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml",
+              "RelativeToolTip": "ComradeMIN\\App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-09-09T10:25:44.65Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "OptionsPage.xaml",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml",
               "RelativeDocumentMoniker": "ComradeMIN\\OptionsPage.xaml",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml",
               "RelativeToolTip": "ComradeMIN\\OptionsPage.xaml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-09-07T15:00:27.663Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "LoginPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml.cs",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
               "RelativeToolTip": "ComradeMIN\\LoginPage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAIAAAAAAAAAAADgvyQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-07T14:59:12.796Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UserDataBaseMessengePage.xaml",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
-              "RelativeDocumentMoniker": "ComradeMIN\\UserDataBaseMessengePage.xaml",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
-              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-07T14:55:32.892Z"
+              "WhenOpened": "2025-09-07T14:59:12.796Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "RegisterPage.xaml",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
-              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
-              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml",
+              "Title": "UserDataBaseMessengePage.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\UserDataBaseMessengePage.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
+              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-07T14:54:45.044Z"
+              "WhenOpened": "2025-09-07T14:55:32.892Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "LoginPage.xaml",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
-              "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
-              "RelativeToolTip": "ComradeMIN\\LoginPage.xaml",
+              "Title": "RegisterPage.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
+              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-07T14:54:18.308Z"
+              "WhenOpened": "2025-09-07T14:54:45.044Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
-              "RelativeToolTip": "ComradeMIN\\MainWindow.xaml",
+              "Title": "LoginPage.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
+              "RelativeToolTip": "ComradeMIN\\LoginPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-05T16:59:58.84Z"
+              "WhenOpened": "2025-09-07T14:54:18.308Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
+              "RelativeToolTip": "ComradeMIN\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-09-05T16:59:58.84Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\79858\\OneDrive\\\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\4.3.5\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml.cs",
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-05T16:59:55.076Z"
+              "WhenOpened": "2025-09-05T16:59:55.076Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -18,7 +18,11 @@ namespace ComradeMIN
     {
         public MainWindow()
         {
-            InitializeComponent();
+              InitializeComponent();
+
+
+              MainFrame.Navigate(new LoginPage());
+            
         }
     }
     
