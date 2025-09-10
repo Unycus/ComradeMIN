@@ -18,6 +18,11 @@
         <Label x:Name="Text_register" Content="РЕГИСТРАЦИЯ" HorizontalAlignment="Left" Margin="493,162,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="103" FontSize="14" Background="Transparent"/>
         <TextBox x:Name="Password_input2" HorizontalAlignment="Left" Margin="422,251,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="254" SelectionOpacity="0" MaxLines="1"/>
         <Label x:Name="Text_password_Копировать" Content="Повторите пароль" HorizontalAlignment="Left" Margin="312,248,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="95" FontSize="10"/>
+        <Image HorizontalAlignment="Left" Height="160" Margin="59,56,0,0" VerticalAlignment="Top" Width="160" Source="/photo_5312402352608771339_y.jpg">
+            <Image.OpacityMask>
+                <ImageBrush ImageSource="/photo_5312402352608771339_y.jpg" Stretch="Uniform" TileMode="None"/>
+            </Image.OpacityMask>
+        </Image>
 
     </Grid>
 </Page>

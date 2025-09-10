@@ -17,6 +17,11 @@
         <Label x:Name="Text_login" Content="Логин" HorizontalAlignment="Left" Margin="351,203,0,0" VerticalAlignment="Top" Height="21" Foreground="Black" Width="56" FontSize="10"/>
         <Label x:Name="Text_password" Content="Пароль" HorizontalAlignment="Left" Margin="351,226,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="56" FontSize="10"/>
         <Label x:Name="Text_Voiti" Content="ВХОД" HorizontalAlignment="Left" Margin="526,162,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="48" FontSize="14" Background="Transparent"/>
+        <Image HorizontalAlignment="Left" Height="160" Margin="59,56,0,0" VerticalAlignment="Top" Width="160" Source="/photo_5312402352608771339_y.jpg">
+            <Image.OpacityMask>
+                <ImageBrush ImageSource="/photo_5312402352608771339_y.jpg" Stretch="Uniform" TileMode="None"/>
+            </Image.OpacityMask>
+        </Image>
 
     </Grid>
 </Page>
