@@ -9,6 +9,27 @@
       Title="UserDataBaseMessengePage">
 
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
+
+        </Grid.ColumnDefinitions>
+        <TextBox HorizontalAlignment="Left" Margin="40,17,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <StackPanel Margin="0,50,600,0">
+            <Button Background="Blue" Content="1"/>
+            <Button Background="White" Content="2"/>
+            <Button Background="Red" Content="3"/>
+        </StackPanel>
+        <StackPanel Margin="220,50,20,0">
+            <Button Background="Blue" Content="1"/>
+            <Button Background="White" Content="2"/>
+            <Button Background="Red" Content="3"/>
+        </StackPanel>
+        <TextBox HorizontalAlignment="Left" Margin="220,0,0,10" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Bottom" Width="560" Height="20"/>
+        <ScrollBar HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top" Width="20" Height="390"/>
+        <ScrollBar HorizontalAlignment="Left" Margin="780,50,0,0" VerticalAlignment="Top" Width="20" Height="370"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="780,420,0,0" VerticalAlignment="Top" Width="20"/>
+
     </Grid>
 </Page>
