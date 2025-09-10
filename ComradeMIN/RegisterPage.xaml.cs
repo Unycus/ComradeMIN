@@ -48,6 +48,8 @@ namespace ComradeMIN
             if (Succes)
             {
                 MessageBox.Show("Вы успешно зарегистрировались");
+                NavigationService.Navigate(new UserDataBaseMessengePage());
+
             }
         }
     }
