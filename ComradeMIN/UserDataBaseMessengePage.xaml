@@ -10,26 +10,39 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="*"/>
-
+            <ColumnDefinition Width="30*"/>
         </Grid.ColumnDefinitions>
-        <TextBox HorizontalAlignment="Left" Margin="40,17,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <StackPanel Margin="0,50,600,0">
-            <Button Background="Blue" Content="1"/>
-            <Button Background="White" Content="2"/>
-            <Button Background="Red" Content="3"/>
-        </StackPanel>
-        <StackPanel Margin="220,50,20,0">
-            <Button Background="Blue" Content="1"/>
-            <Button Background="White" Content="2"/>
-            <Button Background="Red" Content="3"/>
-        </StackPanel>
-        <TextBox HorizontalAlignment="Left" Margin="220,0,0,10" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Bottom" Width="560" Height="20"/>
-        <ScrollBar HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top" Width="20" Height="390"/>
-        <ScrollBar HorizontalAlignment="Left" Margin="780,50,0,0" VerticalAlignment="Top" Width="20" Height="370"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="780,420,0,0" VerticalAlignment="Top" Width="20"/>
-
+        <Grid Grid.Column="0" x:Name="HomoGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" x:Name="TextSearch"/>
+                <RowDefinition Height="9*" x:Name="ComradeList"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" x:Name="IDComradeText"/>
+                    <ColumnDefinition Width="*" x:Name="IDComradeSearchButton"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" x:Name="SearchComradeID" TextWrapping="Wrap" Text="ID товарища:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Center" Width="{Binding ElementName=IDComradeText, Path=ActualWidth}" Height="500" FontFamily="Franklin Gothic Heavy" FontSize="14" TextChanged="SearchComradeID_TextChanged"/>
+                <Button Grid.Column="1" Content="Искать" HorizontalAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="{Binding ElementName=IDComradeSearchButton, Path=ActualWidth}" Height="500"/>
+            </Grid>
+            <Label Content="товарищей нет!" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontFamily="Franklin Gothic Heavy" FontSize="14"/>
+            <StackPanel Grid.Row="1" x:Name="HistoryComradeList" Width="{Binding ElementName=HomoGrid, Path=ActualWidth}" Height="{Binding ElementName=ComradeList, Path=ActualHeight}">
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="9*"/>
+            </Grid.RowDefinitions>
+        </Grid>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="8*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        </Grid>
     </Grid>
 </Page>

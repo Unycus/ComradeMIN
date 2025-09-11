@@ -38,7 +38,7 @@ namespace ComradeMIN
 
             if (Succes)
             {
-                MessageBox.Show("Вы успешно вошли");
+                NavigationService.Navigate(new UserDataBaseMessengePage());
             }
         }
             private void Enter_to_register_Click(object sender, RoutedEventArgs e)

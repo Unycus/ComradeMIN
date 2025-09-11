@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace ComradeMIN
 {
@@ -23,6 +24,11 @@ namespace ComradeMIN
         public UserDataBaseMessengePage()
         {
             InitializeComponent();
+        }
+
+        private void SearchComradeID_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
