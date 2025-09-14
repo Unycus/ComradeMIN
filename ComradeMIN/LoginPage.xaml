@@ -10,13 +10,77 @@
       Title="LoginPage">
 
     <Grid HorizontalAlignment="Right" Width="800" Height="450" VerticalAlignment="Center">
-        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="485,252,0,0" VerticalAlignment="Top" Height="30" Width="127" Click="Enter_Click"/>
-        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="485,287,0,0" VerticalAlignment="Top" Height="30" Width="127" Click="Enter_to_register_Click"/>
-        <TextBox x:Name="Password_input" HorizontalAlignment="Left" Margin="422,228,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="254" SelectionOpacity="0" MaxLines="1"/>
-        <TextBox x:Name="Login_input" HorizontalAlignment="Left" Margin="422,206,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="254" SelectionOpacity="0" MaxLines="1"/>
+        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="556,260,0,0" VerticalAlignment="Top" Height="45" Width="120"
+        Background="Transparent"
+        BorderThickness="0"
+        Foreground="Black"
+        FontSize="16"
+        MouseEnter="Enter_MouseEnter"
+        MouseLeave="Enter_MouseLeave" Click="Enter_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval"
+                         Fill="#E0E0E0"
+                         StrokeThickness="0"
+                         RadiusX="8"
+                         RadiusY="8"
+                         RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+        
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="422,203,0,175" Width="254" Height="22">
+            <TextBox x:Name="Password_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+        </Border>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="422,203,0,225" Width="254" Height="22">
+            <TextBox x:Name="Login_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+        </Border>
+        
         <Label x:Name="Text_login" Content="Логин" HorizontalAlignment="Left" Margin="351,203,0,0" VerticalAlignment="Top" Height="21" Foreground="Black" Width="56" FontSize="10"/>
         <Label x:Name="Text_password" Content="Пароль" HorizontalAlignment="Left" Margin="351,226,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="56" FontSize="10"/>
         <Label x:Name="Text_Voiti" Content="ВХОД" HorizontalAlignment="Left" Margin="526,162,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="48" FontSize="14" Background="Transparent"/>
+        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="422,260,0,0" VerticalAlignment="Top" Height="45" Width="120"
+            Background="Transparent"
+            BorderThickness="0"
+            Foreground="Black"
+            FontSize="16"
+            MouseEnter="Enter_to_register_MouseEnter"
+            MouseLeave="Enter_to_register_MouseLeave" 
+                Click="Enter_to_register_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval2"
+                            Fill="#E0E0E0"
+                            StrokeThickness="0"
+                            RadiusX="8"
+                            RadiusY="8"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
 
     </Grid>
 </Page>
