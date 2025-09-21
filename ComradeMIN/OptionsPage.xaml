@@ -27,18 +27,19 @@
                     <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Картинка профиля"/>
                 </Border>
             </StackPanel>
+            <Border Width="20"/>
             <StackPanel>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                    <TextBox x:Name="Option_Name" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                    <TextBox x:Name="Option_Password" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                    <TextBox x:Name="Option_Status" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="200">
-                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                    <TextBox x:Name="Option_Discription" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
                     <ComboBox/>
