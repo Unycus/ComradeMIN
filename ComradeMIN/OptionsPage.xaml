@@ -9,6 +9,41 @@
       Title="OptionsPage">
 
     <Grid>
-        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+            <StackPanel>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Имя"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Пароль"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Статус"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200">
+                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Описание"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Картинка профиля"/>
+                </Border>
+            </StackPanel>
+            <StackPanel>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
+                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
+                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
+                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="200">
+                    <TextBox Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                </Border>
+                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
+                    <ComboBox/>
+                </Border>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Page>

@@ -16,7 +16,8 @@
         Foreground="Black"
         FontSize="16"
         MouseEnter="Enter_MouseEnter"
-        MouseLeave="Enter_MouseLeave" Click="Enter_Click">
+        MouseLeave="Enter_MouseLeave"
+        Click="Enter_Click">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid>

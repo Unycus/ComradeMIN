@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ComradeMIN")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da6f71e79c846f7d9a693a4e9323c14026fd5e98")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ee4a82c48a671c939cfc60907d72b16d06992dc")]
 [assembly: System.Reflection.AssemblyProductAttribute("ComradeMIN")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ComradeMIN")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
