@@ -10,7 +10,7 @@
       Title="LoginPage">
 
     <Grid HorizontalAlignment="Center" Width="1000" Height="750" VerticalAlignment="Center">
-        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="793,396,0,0" VerticalAlignment="Top" Height="35" Width="120"
+        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="820,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
         Background="Transparent"
         BorderThickness="0"
         Foreground="Black"
@@ -41,22 +41,22 @@
         </Button>
 
 
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="659,365,0,363" Width="254" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,356,0,372" Width="254" Height="22">
             <TextBox x:Name="Password_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="659,340,0,388" Width="254" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,330,0,398" Width="254" Height="22">
             <TextBox x:Name="Login_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="585,340,0,388" Width="40" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="612,330,0,398" Width="40" Height="22">
             <Label x:Name="Text_login" Content="логин" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24" Foreground="Black" Width="41" FontSize="10" Margin="2,-2,0,0"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="585,365,0,363" Width="40" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="612,356,0,372" Width="40" Height="22">
             <Label x:Name="Text_password" Content="пароль" HorizontalAlignment="Center" Margin="0,-2,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="44" FontSize="10"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="741,273,0,446" Width="104">
-            <Label x:Name="Text_Voiti" Content="ВХОД" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="102" FontSize="14" Background="Transparent"/>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="768,264,0,456" Width="104">
+            <Label x:Name="Text_Voiti" Content="ВХОД" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" Height="32" Foreground="Black" Width="102" FontSize="14" Background="Transparent"/>
         </Border>
-        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="659,396,0,0" VerticalAlignment="Top" Height="35" Width="120"
+        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="686,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
             Background="Transparent"
             BorderThickness="0"
             Foreground="Black"
