@@ -8,10 +8,10 @@
       d:DesignHeight="750" d:DesignWidth="1300"
       Title="RegisterPage">
 
-    <Grid Height="450" VerticalAlignment="Center" HorizontalAlignment="Right" Width="800">
+    <Grid Height="750" VerticalAlignment="Center" HorizontalAlignment="Center" Width="1300">
 
-        <Button x:Name="Back" Content="Назад" HorizontalAlignment="Left" Margin="484,314,0,0" 
-                VerticalAlignment="Top" Height="30" Width="127"
+        <Button x:Name="Back" Content="Назад" HorizontalAlignment="Left" Margin="1016,408,0,0" 
+                VerticalAlignment="Top" Height="35" Width="120"
     Background="Transparent"
     BorderThickness="0"
     Foreground="Black"
@@ -42,8 +42,8 @@
             </Button.Template>
         </Button>
 
-        <Button x:Name="Register" Content="Регистрация" HorizontalAlignment="Left" Margin="484,280,0,0" 
-                VerticalAlignment="Top" Height="30" Width="127"
+        <Button x:Name="Register" Content="Регистрация" HorizontalAlignment="Left" Margin="882,408,0,0" 
+                VerticalAlignment="Top" Height="35" Width="120"
 Background="Transparent"
 BorderThickness="0"
 Foreground="Black"
@@ -74,25 +74,25 @@ MouseLeave="Register_Leave"
             </Button.Template>
         </Button>
 
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="422,226,0,202" Width="254" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="882,351,0,377" Width="254" Height="22">
             <TextBox x:Name="Password_input" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
                      TextWrapping="Wrap" VerticalAlignment="Top" Width="254" SelectionOpacity="0" MaxLines="1"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="422,252,0,176" Width="254" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="882,377,0,351" Width="254" Height="22">
             <TextBox x:Name="Password_input2" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
              TextWrapping="Wrap" VerticalAlignment="Center" Width="254" SelectionOpacity="0" MaxLines="1"/>
         </Border>
 
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="422,200,0,228" Width="254" Height="22">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="882,325,0,403" Width="254" Height="22">
             <TextBox x:Name="Login_input" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
              TextWrapping="Wrap" VerticalAlignment="Center" Width="217" SelectionOpacity="0" MaxLines="1"/>
         </Border>
 
-        <Label x:Name="Text_login" Content="Логин" HorizontalAlignment="Left" Margin="368,199,0,0" VerticalAlignment="Top" Height="21" Foreground="Black" Width="56" FontSize="10"/>
-        <Label x:Name="Text_password" Content="Пароль" HorizontalAlignment="Left" Margin="363,226,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="56" FontSize="10"/>
-        <Label x:Name="Text_register" Content="РЕГИСТРАЦИЯ" HorizontalAlignment="Left" Margin="493,162,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="103" FontSize="14" Background="Transparent"/>
+        <Label x:Name="Text_login" Content="Логин" HorizontalAlignment="Left" Margin="808,323,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="41" FontSize="10"/>
+        <Label x:Name="Text_password" Content="Пароль" HorizontalAlignment="Left" Margin="804,349,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="45" FontSize="10"/>
+        <Label x:Name="Text_register" Content="РЕГИСТРАЦИЯ" HorizontalAlignment="Left" Margin="958,276,0,0" VerticalAlignment="Top" Height="29" Foreground="Black" Width="105" FontSize="14" Background="Transparent"/>
 
-        <Label x:Name="Text_password_Копировать" Content="Повторите пароль" HorizontalAlignment="Left" Margin="312,251,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="95" FontSize="10"/>
+        <Label x:Name="Text_password_Копировать" Content="Повторите пароль" HorizontalAlignment="Left" Margin="754,375,0,0" VerticalAlignment="Top" Height="24" Foreground="Black" Width="95" FontSize="10"/>
 
     </Grid>
 </Page>
