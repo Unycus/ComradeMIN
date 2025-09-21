@@ -10,7 +10,7 @@
       Title="LoginPage">
 
     <Grid HorizontalAlignment="Center" Width="1000" Height="750" VerticalAlignment="Center">
-        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="820,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
+        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="686,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
         Background="Transparent"
         BorderThickness="0"
         Foreground="Black"
@@ -56,7 +56,7 @@
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="768,264,0,456" Width="104">
             <Label x:Name="Text_Voiti" Content="ВХОД" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" Height="32" Foreground="Black" Width="102" FontSize="14" Background="Transparent"/>
         </Border>
-        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="686,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
+        <Button x:Name="Enter_to_register" Content="Регистрация" HorizontalAlignment="Left" Margin="820,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
             Background="Transparent"
             BorderThickness="0"
             Foreground="Black"

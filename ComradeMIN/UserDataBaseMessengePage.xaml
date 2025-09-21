@@ -7,42 +7,39 @@
       mc:Ignorable="d" 
       d:DesignHeight="500" d:DesignWidth="1000"
       Title="UserDataBaseMessengePage">
+    <Grid Margin="5,5,5,5">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+            <TextBox x:Name="Login_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+        </Border>
+        <Button x:Name="Enter_to_search" Content="/" HorizontalAlignment="Left" Margin="210,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+    Background="Transparent"
+    BorderThickness="0"
+    Foreground="Black"
+    FontSize="16"
+    MouseEnter="Enter_to_search_MouseEnter"
+    MouseLeave="Enter_to_search_MouseLeave" 
+        Click="Enter_to_search_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval2"
+                    Fill="#E0E0E0"
+                    StrokeThickness="0"
+                    RadiusX="8"
+                    RadiusY="8"
+                    RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="30*"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" x:Name="HomoGrid">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" x:Name="TextSearch"/>
-                <RowDefinition Height="9*" x:Name="ComradeList"/>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*" x:Name="IDComradeText"/>
-                    <ColumnDefinition Width="*" x:Name="IDComradeSearchButton"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" x:Name="SearchComradeID" TextWrapping="Wrap" Text="ID товарища:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Center" Width="{Binding ElementName=IDComradeText, Path=ActualWidth}" Height="500" FontFamily="Franklin Gothic Heavy" FontSize="14" TextChanged="SearchComradeID_TextChanged"/>
-                <Button Grid.Column="1" Content="Искать" HorizontalAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="{Binding ElementName=IDComradeSearchButton, Path=ActualWidth}" Height="500"/>
-            </Grid>
-            <Label Content="товарищей нет!" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontFamily="Franklin Gothic Heavy" FontSize="14"/>
-            <StackPanel Grid.Row="1" x:Name="HistoryComradeList" Width="{Binding ElementName=HomoGrid, Path=ActualWidth}" Height="{Binding ElementName=ComradeList, Path=ActualHeight}">
-            </StackPanel>
-        </Grid>
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="9*"/>
-            </Grid.RowDefinitions>
-        </Grid>
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="8*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-        </Grid>
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
     </Grid>
 </Page>
