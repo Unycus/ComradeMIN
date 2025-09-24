@@ -46,5 +46,35 @@
                 </Border>
             </StackPanel>
         </StackPanel>
+        <Button x:Name="Enter_to_chat" Content="/" HorizontalAlignment="Left" Margin="935,5,0,0" VerticalAlignment="Top" Height="40" Width="40"
+            Background="Transparent"
+            BorderThickness="0"
+            Foreground="Black"
+            FontSize="16"
+            MouseEnter="Enter_to_chat_MouseEnter"
+            MouseLeave="Enter_to_chat_MouseLeave" 
+            Click="Enter_to_chat_Click" RenderTransformOrigin="0.581,0.556">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval_Options"
+                            Fill="#E0E0E0"
+                            StrokeThickness="0"
+                            RadiusX="8"
+                            RadiusY="8"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
     </Grid>
 </Page>
