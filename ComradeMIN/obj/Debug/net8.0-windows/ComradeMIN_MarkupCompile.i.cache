@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\4.3.5\Documents\GitHub\ComradeMIN\ComradeMIN\obj\Debug\net8.0-windows\
+C:\Users\Глеб-Сан\Documents\GitHub\ComradeMIN\ComradeMIN\obj\Debug\net8.0-windows\
 ComradeMIN
 none
 false
-TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-C:\Users\4.3.5\Documents\GitHub\ComradeMIN\ComradeMIN\App.xaml
+TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
+C:\Users\Глеб-Сан\Documents\GitHub\ComradeMIN\ComradeMIN\App.xaml
 5-774990641
 
 10810774292
-1981124507420
+198-192518753
 LoginPage.xaml;MainWindow.xaml;OptionsPage.xaml;RegisterPage.xaml;UserDataBaseMessengePage.xaml;
 
-True
+False
 
