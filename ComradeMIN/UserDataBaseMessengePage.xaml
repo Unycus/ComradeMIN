@@ -29,7 +29,7 @@
                 </Image.Clip>
             </Image>
         </Border>
-        <Button x:Name="Enter_to_search" Content="/" HorizontalAlignment="Left" Margin="210,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+        <Button x:Name="Enter_to_search" Content="🔎" HorizontalAlignment="Left" Margin="210,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
     Background="Transparent"
     BorderThickness="0"
     Foreground="Black"
@@ -59,7 +59,7 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Button x:Name="Enter_to_Options" Content="/" HorizontalAlignment="Left" Margin="930,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+        <Button x:Name="Enter_to_Options" Content="⚙️" HorizontalAlignment="Left" Margin="930,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
     Background="Transparent"
     BorderThickness="0"
     Foreground="Black"

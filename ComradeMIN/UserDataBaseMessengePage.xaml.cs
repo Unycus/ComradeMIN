@@ -94,6 +94,8 @@ namespace ComradeMIN
                     NavigationService.Navigate(new OptionsPage());
                 }
             } // Синия при нажатии
+
+
         }
         private void Enter_to_Options_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -105,5 +107,7 @@ namespace ComradeMIN
         {
             AnimateOvalScale("Oval_Options", 1.0, 150, Enter_to_Options); // вернуть к 1.0 за 150 мс
         }
+
+
     }
 }

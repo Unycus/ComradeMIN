@@ -10,7 +10,7 @@
       Title="LoginPage">
 
     <Grid HorizontalAlignment="Center" Width="1000" Height="750" VerticalAlignment="Center">
-        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="686,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
+        <Button x:Name="Enter" Content="Войти" HorizontalAlignment="Left" Margin="690,388,0,0" VerticalAlignment="Top" Height="34" Width="120"
         Background="Transparent"
         BorderThickness="0"
         Foreground="Black"
@@ -43,7 +43,7 @@
 
 
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,356,0,372" Width="254" Height="22">
-            <TextBox x:Name="Password_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+            <Button x:Name="glazik" Content="🔑" Margin="226,0,8,0" Click="glazik_Click"/>
         </Border>
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,330,0,398" Width="254" Height="22">
             <TextBox x:Name="Login_input" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
@@ -87,6 +87,9 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
+        <TextBox Padding="4" x:Name="Login_input_Копировать" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
+        <TextBox Padding="4" x:Name="Login_input_Копировать1" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
+        <TextBox Padding="4" x:Name="Password_input" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="690,355,88,372"/>
 
     </Grid>
 </Page>

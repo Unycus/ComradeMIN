@@ -89,5 +89,11 @@ namespace ComradeMIN
                 }
             } // Синия при нажатии
         }
+
+        private void Option_Password_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Реализовать вызов пароля из БД
+            Option_Password.Text = "asdasd";
+        }
     }
 }

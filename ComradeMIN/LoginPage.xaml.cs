@@ -91,6 +91,7 @@ namespace ComradeMIN
             if (Succes)
             {
                 NavigationService.Navigate(new UserDataBaseMessengePage());
+                
             }
             else
             {
@@ -117,6 +118,7 @@ namespace ComradeMIN
                     MessageBox.Show("Мало символов, попробуйте ещё раз");
                 }
             }
+
 
         }
 
@@ -179,8 +181,28 @@ namespace ComradeMIN
             NavigationService.Navigate(new RegisterPage());
         }
 
-       
+        private void glazik_Click(object sender, RoutedEventArgs e)
+        {
+            string passhide = ;
+            string stars = "";
+            
+            if (glazik.Content == "🔑")
+            {
 
-
+                for (int i = 1; i <= passhide.Length; i++)
+                {
+                    stars += "*";
+                }
+                
+                Password_input.Text = stars;
+                glazik.Content = "🔐";
+            }
+            else
+            {
+                MessageBox.Show(passhide);
+                Password_input.Text = passhide.ToString();
+                glazik.Content = "🔑";
+            }
+        }
     }
 }

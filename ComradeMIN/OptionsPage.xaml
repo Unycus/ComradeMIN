@@ -33,7 +33,7 @@
                     <TextBox x:Name="Option_Name" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox x:Name="Option_Password" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+                    <TextBox x:Name="Option_Password" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1" TextChanged="Option_Password_TextChanged"/>
                 </Border>
                 <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
                     <TextBox x:Name="Option_Status" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
@@ -46,7 +46,7 @@
                 </Border>
             </StackPanel>
         </StackPanel>
-        <Button x:Name="Enter_to_chat" Content="/" HorizontalAlignment="Left" Margin="935,5,0,0" VerticalAlignment="Top" Height="40" Width="40"
+        <Button x:Name="Enter_to_chat" Content="✖" HorizontalAlignment="Left" Margin="935,5,0,0" VerticalAlignment="Top" Height="40" Width="40"
             Background="Transparent"
             BorderThickness="0"
             Foreground="Black"
