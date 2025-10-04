@@ -5,10 +5,93 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:ComradeMIN"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="500" d:DesignWidth="1000"
       Title="UserDataBaseMessengePage">
+    <Grid Margin="5,5,5,5">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+            <TextBox x:Name="ID_search" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
+        </Border>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="700" Height="40" Margin="270,410,0,0">
+            <TextBox x:Name="Text_for_Comrade" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="5"/>
+        </Border>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="40" Margin="320,0,0,0">
+            <Label x:Name="Comrade_information" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4"/>
+        </Border>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="230" Height="395" Margin="0,55,0,0">
+            <StackPanel x:Name="Fellows">
 
-    <Grid>
-        
+            </StackPanel>
+        </Border>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" Margin="270,0,0,0">
+            <Image Source="Images/IMG_20240206_184757_187.jpg" Width="40" Height="40">
+                <Image.Clip>
+                    <EllipseGeometry Center="20,20" RadiusX="19" RadiusY="19"/>
+                </Image.Clip>
+            </Image>
+        </Border>
+        <Button x:Name="Enter_to_search" Content="🔎" HorizontalAlignment="Left" Margin="210,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+    Background="Transparent"
+    BorderThickness="0"
+    Foreground="Black"
+    FontSize="16"
+    MouseEnter="Enter_to_search_MouseEnter"
+    MouseLeave="Enter_to_search_MouseLeave" 
+        Click="Enter_to_search_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval_ID_search"
+                    Fill="#E0E0E0"
+                    StrokeThickness="0"
+                    RadiusX="8"
+                    RadiusY="8"
+                    RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <Button x:Name="Enter_to_Options" Content="⚙️" HorizontalAlignment="Left" Margin="930,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+    Background="Transparent"
+    BorderThickness="0"
+    Foreground="Black"
+    FontSize="16"
+    MouseEnter="Enter_to_Options_MouseEnter"
+    MouseLeave="Enter_to_Options_MouseLeave" 
+        Click="Enter_to_Options_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <!-- Овал с возможностью масштабирования -->
+                        <Rectangle x:Name="Oval_Options"
+                    Fill="#E0E0E0"
+                    StrokeThickness="0"
+                    RadiusX="8"
+                    RadiusY="8"
+                    RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <!-- Контент (не увеличивается) -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <ScrollBar HorizontalAlignment="Left" Margin="233,55,0,0" VerticalAlignment="Top" Height="395" Width="8"/>
+        <StackPanel x:Name="Reports" Margin="270,55,20,85">
+            
+        </StackPanel>
     </Grid>
 </Page>

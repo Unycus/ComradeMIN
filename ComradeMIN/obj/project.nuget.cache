@@ -1,8 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "Zx22qSh9rnM=",
+  "dgSpecHash": "s7teL7+KXwA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Глеб-Сан\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\ComradeMIN.csproj",
+  "projectFilePath": "C:\\Users\\79858\\OneDrive\\Документы\\ComradeMIN\\ComradeMIN\\ComradeMIN.csproj",
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Ошибка чтения файла кэша C:\\Users\\79858\\OneDrive\\Документы\\ComradeMIN\\ComradeMIN\\obj\\project.nuget.cache: '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\79858\\OneDrive\\Документы\\ComradeMIN\\ComradeMIN\\ComradeMIN.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\79858\\OneDrive\\Документы\\ComradeMIN\\ComradeMIN\\ComradeMIN.csproj",
+      "targetGraphs": []
+    }
+  ]
 }
