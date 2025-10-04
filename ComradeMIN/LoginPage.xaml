@@ -87,9 +87,9 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <TextBox Padding="4" x:Name="Login_input_Копировать" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
-        <TextBox Padding="4" x:Name="Login_input_Копировать1" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
-        <TextBox Padding="4" x:Name="Password_input" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="690,355,88,372"/>
+        <TextBox Padding="4" x:Name="Login_input_copy" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
+        <TextBox Padding="4" x:Name="Login_input_copy1" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="0,0,746,728"/>
+        <TextBox Padding="4" x:Name="Password_input" MaxLines="1" FontSize="12" BorderThickness="0" Background="Transparent" Margin="690,355,88,372" TextChanged="Password_input_TextChanged"/>
 
     </Grid>
 </Page>

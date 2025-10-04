@@ -1,113 +1,334 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace ComradeMIN
 {
-    /// <summary>
-    /// Логика взаимодействия для UserDataBaseMessengePage.xaml
-    /// </summary>
     public partial class UserDataBaseMessengePage : Page
     {
+        private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Void;Integrated Security=True";
+        private int currentUserID;
+        private int currentChatID = 0;
+
         public UserDataBaseMessengePage()
         {
             InitializeComponent();
+
+            // Устанавливаем ID по умолчанию или перенаправляем на логин
+            currentUserID = 1; // Временное решение, можно изменить
+
+            if (Fellows == null || Reports == null || ID_search == null ||
+                Text_for_Comrade == null || Comrade_information == null)
+            {
+                MessageBox.Show("Ошибка загрузки элементов интерфейса");
+                return;
+            }
+
+            LoadUserChats();
+            Text_for_Comrade.KeyDown += Text_for_Comrade_KeyDown;
+        }
+        public UserDataBaseMessengePage(int userID) : this()
+        {
+            currentUserID = userID;
         }
 
-        private void AnimateOvalScale(string ovalName, double targetScale, int durationMs, Button nameOfbutton) // Универсальное изменение масштаба (овала) кнопки
+        // Загрузка чатов пользователя
+        private async void LoadUserChats()
         {
-            if (nameOfbutton.Template.FindName(ovalName, nameOfbutton) is Rectangle oval)
+            try
             {
-                if (oval.RenderTransform.IsFrozen)
-                    oval.RenderTransform = oval.RenderTransform.Clone();
-
-                if (oval.RenderTransform is ScaleTransform scale)
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("GetUserChats", connection))
                 {
-                    var animX = new DoubleAnimation(targetScale, TimeSpan.FromMilliseconds(durationMs))
-                    { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
-                    var animY = new DoubleAnimation(targetScale, TimeSpan.FromMilliseconds(durationMs))
-                    { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IDFellow", currentUserID);
 
-                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, animX);
-                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, animY);
+                    await connection.OpenAsync();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            Fellows.Children.Clear();
+
+                            while (reader.Read())
+                            {
+                                int chatID = reader.GetInt32(0);
+                                string chatName = reader.GetString(1);
+                                AddChatButton(chatID, chatName);
+                            }
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки чатов: {ex.Message}");
+            }
+        }
+
+        // Поиск пользователя по ID и создание чата
+        private async void Enter_to_search_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ID_search.Text))
+            {
+                MessageBox.Show("Введите ID пользователя");
+                return;
+            }
+
+            if (!int.TryParse(ID_search.Text, out int targetUserID))
+            {
+                MessageBox.Show("ID должен быть числом");
+                return;
+            }
+
+            if (targetUserID == currentUserID)
+            {
+                MessageBox.Show("Нельзя создать чат с самим собой");
+                return;
+            }
+
+            try
+            {
+                string userName = "";
+
+                // Проверяем существование пользователя
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("SELECT NickFellow FROM Fellows WHERE IDFellow = @UserID", connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", targetUserID);
+                    await connection.OpenAsync();
+                    var result = await command.ExecuteScalarAsync();
+
+                    if (result == null)
+                    {
+                        MessageBox.Show("Пользователь не найден");
+                        return;
+                    }
+                    userName = result.ToString();
+                }
+
+                // Создаем чат
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("CreateChatBetweenUsers", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserIDs", $"{currentUserID},{targetUserID}");
+                    command.Parameters.AddWithValue("@ChatName", $"Чат с {userName}");
+
+                    await connection.OpenAsync();
+                    int newChatID = (int)await command.ExecuteScalarAsync();
+
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        AddChatButton(newChatID, userName);
+                        ID_search.Text = "";
+                        MessageBox.Show($"Чат с {userName} создан!");
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка создания чата: {ex.Message}");
+            }
+        }
+
+        // Добавление кнопки чата
+        private void AddChatButton(int chatID, string chatName)
+        {
+            Button chatButton = new Button
+            {
+                Content = chatName,
+                Tag = chatID,
+                Height = 40,
+                Margin = new Thickness(5),
+                Background = Brushes.White,
+                BorderThickness = new Thickness(1),
+                BorderBrush = Brushes.Gray,
+                Cursor = Cursors.Hand
+            };
+
+            chatButton.Click += async (s, e) =>
+            {
+                currentChatID = chatID;
+                Comrade_information.Content = $"Чат: {chatName}";
+                await LoadChatMessages(chatID);
+            };
+
+            Fellows.Children.Add(chatButton);
+        }
+
+        // Загрузка сообщений чата (упрощенная версия без прокрутки)
+        private async Task LoadChatMessages(int chatID)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IDChat", chatID);
+
+                    await connection.OpenAsync();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            Reports.Children.Clear();
+
+                            while (reader.Read())
+                            {
+                                string messageText = reader.GetString(1);
+                                DateTime createdDate = reader.GetDateTime(5);
+                                string userNick = reader.GetString(7);
+                                int messageAuthorID = reader.GetInt32(6);
+
+                                // Создаем контейнер для сообщения
+                                Border messageContainer = new Border
+                                {
+                                    Background = messageAuthorID == currentUserID ? Brushes.LightGreen : Brushes.LightBlue,
+                                    Margin = new Thickness(5),
+                                    Padding = new Thickness(10),
+                                    CornerRadius = new CornerRadius(10),
+                                    BorderBrush = Brushes.Gray,
+                                    BorderThickness = new Thickness(1),
+                                    HorizontalAlignment = messageAuthorID == currentUserID ? HorizontalAlignment.Right : HorizontalAlignment.Left,
+                                    MaxWidth = 400
+                                };
+
+                                TextBlock messageTextBlock = new TextBlock
+                                {
+                                    Text = $"{userNick} ({createdDate:HH:mm}): {messageText}",
+                                    FontSize = 12,
+                                    TextWrapping = TextWrapping.Wrap
+                                };
+
+                                messageContainer.Child = messageTextBlock;
+                                Reports.Children.Add(messageContainer);
+                            }
+
+                            // УБРАНА АВТОПРОКРУТКА - пользователь прокрутит сам
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки сообщений: {ex.Message}");
+            }
+        }
+
+        // Отправка сообщения
+        private async void SendMessage()
+        {
+            if (currentChatID == 0)
+            {
+                MessageBox.Show("Выберите чат для отправки сообщения");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Text_for_Comrade.Text))
+            {
+                MessageBox.Show("Введите сообщение");
+                return;
+            }
+
+            string messageText = Text_for_Comrade.Text;
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("SendMessage", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IDChat", currentChatID);
+                    command.Parameters.AddWithValue("@IDFellow", currentUserID);
+                    command.Parameters.AddWithValue("@MessageText", messageText);
+
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        Text_for_Comrade.Text = "";
+                        LoadChatMessages(currentChatID);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка отправки сообщения: {ex.Message}");
+            }
+        }
+
+        // Обработчик нажатия Enter
+        private void Text_for_Comrade_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !Keyboard.IsKeyDown(Key.LeftShift) && !Keyboard.IsKeyDown(Key.RightShift))
+            {
+                SendMessage();
+                e.Handled = true;
+            }
+        }
+
+        // Анимационные обработчики
+        private void Enter_to_search_MouseEnter(object sender, MouseEventArgs e)
+        {
+            AnimateButtonScale(sender, 1.1);
+        }
+
+        private void Enter_to_search_MouseLeave(object sender, MouseEventArgs e)
+        {
+            AnimateButtonScale(sender, 1.0);
+        }
+
+        private void Enter_to_Options_MouseEnter(object sender, MouseEventArgs e)
+        {
+            AnimateButtonScale(sender, 1.1);
+        }
+
+        private void Enter_to_Options_MouseLeave(object sender, MouseEventArgs e)
+        {
+            AnimateButtonScale(sender, 1.0);
+        }
+
+        // Универсальный метод анимации
+        private void AnimateButtonScale(object sender, double scale)
+        {
+            if (sender is Button button)
+            {
+                var template = button.Template;
+                Rectangle oval = null;
+
+                if (button.Name == "Enter_to_search")
+                {
+                    oval = template.FindName("Oval_ID_search", button) as Rectangle;
+                }
+                else if (button.Name == "Enter_to_Options")
+                {
+                    oval = template.FindName("Oval_Options", button) as Rectangle;
+                }
+
+                if (oval != null)
+                {
+                    var animation = new DoubleAnimation(scale, TimeSpan.FromMilliseconds(200));
+                    oval.RenderTransform = new ScaleTransform();
+                    oval.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
+                    oval.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
                 }
             }
         }
-        private void SearchComradeID_TextChanged(object sender, TextChangedEventArgs e)
+
+        private void Enter_to_Options_Click(object sender, RoutedEventArgs e)
         {
-
+            MessageBox.Show("Функция настроек в разработке");
         }
-
-        private void Enter_to_search_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Enter_to_search_MouseEnter(object sender, MouseEventArgs e)
-        {
-            AnimateOvalScale("Oval_ID_search", 1.1, 150, Enter_to_search); // увеличить до 1.1 за 150 мс
-        }
-
-        // Анимация при уходе мыши
-        private void Enter_to_search_MouseLeave(object sender, MouseEventArgs e)
-        {
-            AnimateOvalScale("Oval_ID_search", 1.0, 150, Enter_to_search); // вернуть к 1.0 за 150 мс
-        }
-
-        async private void Enter_to_Options_Click(object sender, RoutedEventArgs e)
-        {
-            if (Enter_to_Options.Template.FindName("Oval_Options", Enter_to_Options) is Rectangle oval1)
-            {
-                // Если кисть заморожена, создаём её копию
-                if (oval1.Fill.IsFrozen)
-                    oval1.Fill = oval1.Fill.Clone();
-
-                // Получаем кисть
-                if (oval1.Fill is SolidColorBrush brush)
-                {
-                    // Анимация цвета от текущего к DeepSkyBlue
-                    var colorAnim = new ColorAnimation
-                    {
-                        To = Colors.DeepSkyBlue,
-                        Duration = TimeSpan.FromMilliseconds(300), // 0.2 секунды
-                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                    };
-
-                    // Запускаем анимацию
-                    brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
-                    double seconds = 0.250; // <-- здесь задаёшь нужное количество секунд задержки
-
-                    // Ждём указанное время, не блокируя UI
-                    await Task.Delay(TimeSpan.FromSeconds(seconds));
-                    NavigationService.Navigate(new OptionsPage());
-                }
-            } // Синия при нажатии
-
-
-        }
-        private void Enter_to_Options_MouseEnter(object sender, MouseEventArgs e)
-        {
-            AnimateOvalScale("Oval_Options", 1.1, 150, Enter_to_Options); // увеличить до 1.1 за 150 мс
-        }
-
-        // Анимация при уходе мыши
-        private void Enter_to_Options_MouseLeave(object sender, MouseEventArgs e)
-        {
-            AnimateOvalScale("Oval_Options", 1.0, 150, Enter_to_Options); // вернуть к 1.0 за 150 мс
-        }
-
-
     }
 }
