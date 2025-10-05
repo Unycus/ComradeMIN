@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\79858\OneDrive\Документы\ComradeMIN\ComradeMIN\App.xaml
-5-774990641
+61458838098
 
-10810774292
+12-1410538403
 199-441382271
-LoginPage.xaml;MainWindow.xaml;OptionsPage.xaml;RegisterPage.xaml;UserDataBaseMessengePage.xaml;
+LoginPage.xaml;MainPage.xaml;MainWindow.xaml;OptionsPage.xaml;RegisterPage.xaml;UserDataBaseMessengePage.xaml;
 
-True
+False
 

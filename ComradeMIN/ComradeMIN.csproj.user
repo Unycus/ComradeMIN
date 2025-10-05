@@ -5,6 +5,9 @@
     <Compile Update="LoginPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="MainPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="OptionsPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

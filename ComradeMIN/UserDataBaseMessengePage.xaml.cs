@@ -21,9 +21,7 @@ namespace ComradeMIN
         public UserDataBaseMessengePage()
         {
             InitializeComponent();
-
-            // Устанавливаем ID по умолчанию или перенаправляем на логин
-            currentUserID = 1; // Временное решение, можно изменить
+            currentUserID = 1; // По умолчанию
 
             if (Fellows == null || Reports == null || ID_search == null ||
                 Text_for_Comrade == null || Comrade_information == null)
@@ -61,7 +59,7 @@ namespace ComradeMIN
                             while (reader.Read())
                             {
                                 int chatID = reader.GetInt32(0);
-                                string chatName = reader.GetString(1);
+                                string chatName = reader.IsDBNull(1) ? "Неизвестный" : reader.GetString(1);
                                 AddChatButton(chatID, chatName);
                             }
                         });
@@ -97,9 +95,8 @@ namespace ComradeMIN
 
             try
             {
-                string userName = "";
-
                 // Проверяем существование пользователя
+                string userName = "";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand("SELECT NickFellow FROM Fellows WHERE IDFellow = @UserID", connection))
                 {
@@ -115,24 +112,43 @@ namespace ComradeMIN
                     userName = result.ToString();
                 }
 
-                // Создаем чат
+                // Создаем приватный чат
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("CreateChatBetweenUsers", connection))
+                using (SqlCommand command = new SqlCommand("CreatePrivateChat", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserIDs", $"{currentUserID},{targetUserID}");
-                    command.Parameters.AddWithValue("@ChatName", $"Чат с {userName}");
+                    command.Parameters.AddWithValue("@CurrentUserID", currentUserID);
+                    command.Parameters.AddWithValue("@TargetUserID", targetUserID);
+
+                    SqlParameter outputParam = new SqlParameter("@NewChatID", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputParam);
 
                     await connection.OpenAsync();
-                    int newChatID = (int)await command.ExecuteScalarAsync();
+                    await command.ExecuteNonQueryAsync();
+
+                    // Проверяем, что чат был создан
+                    if (outputParam.Value == DBNull.Value)
+                    {
+                        MessageBox.Show("Не удалось создать чат");
+                        return;
+                    }
+
+                    int newChatID = (int)outputParam.Value;
 
                     await Dispatcher.InvokeAsync(() =>
                     {
                         AddChatButton(newChatID, userName);
                         ID_search.Text = "";
-                        MessageBox.Show($"Чат с {userName} создан!");
+                        MessageBox.Show($"Приватный чат с {userName} создан!");
                     });
                 }
+            }
+            catch (SqlException sqlEx)
+            {
+                MessageBox.Show($"Ошибка базы данных при создании чата: {sqlEx.Message}");
             }
             catch (Exception ex)
             {
@@ -143,6 +159,15 @@ namespace ComradeMIN
         // Добавление кнопки чата
         private void AddChatButton(int chatID, string chatName)
         {
+            // Проверяем, не существует ли уже кнопки с таким чатом
+            foreach (Button existingButton in Fellows.Children.OfType<Button>())
+            {
+                if ((int)existingButton.Tag == chatID)
+                {
+                    return; // Кнопка уже существует
+                }
+            }
+
             Button chatButton = new Button
             {
                 Content = chatName,
@@ -158,7 +183,7 @@ namespace ComradeMIN
             chatButton.Click += async (s, e) =>
             {
                 currentChatID = chatID;
-                Comrade_information.Content = $"Чат: {chatName}";
+                Comrade_information.Content = $"Связь: {chatName}";
                 await LoadChatMessages(chatID);
             };
 
@@ -190,7 +215,6 @@ namespace ComradeMIN
                                 string userNick = reader.GetString(7);
                                 int messageAuthorID = reader.GetInt32(6);
 
-                                // Создаем контейнер для сообщения
                                 Border messageContainer = new Border
                                 {
                                     Background = messageAuthorID == currentUserID ? Brushes.LightGreen : Brushes.LightBlue,
@@ -213,8 +237,6 @@ namespace ComradeMIN
                                 messageContainer.Child = messageTextBlock;
                                 Reports.Children.Add(messageContainer);
                             }
-
-                            // УБРАНА АВТОПРОКРУТКА - пользователь прокрутит сам
                         });
                     }
                 }
