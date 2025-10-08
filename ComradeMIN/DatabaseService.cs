@@ -9,7 +9,7 @@ namespace ComradeMIN
 {
     public class DatabaseService
     {
-        private string connectionString = "Your_Connection_String_Here";
+        private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Void;Integrated Security=True";
 
         public async Task<bool> RegisterUser(string username, string password)
         {
@@ -119,6 +119,103 @@ namespace ComradeMIN
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при получении ID пользователя: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<int?> ValidateUserAndGetId(string username, string password)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    string query = @"
+                SELECT UserId, PasswordHash 
+                FROM Users 
+                WHERE UserName = @UserName";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserName", username);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                string storedHash = reader.GetString(1);
+                                string inputHash = HashPassword(password);
+
+                                if (storedHash == inputHash)
+                                {
+                                    return reader.GetInt32(0); // Возвращаем UserId
+                                }
+                            }
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при входе: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<int?> RegisterUserAndGetId(string username, string password)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    // Проверяем, не существует ли уже пользователь
+                    string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
+                    using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
+                    {
+                        checkCommand.Parameters.AddWithValue("@UserName", username);
+                        int userCount = (int)await checkCommand.ExecuteScalarAsync();
+
+                        if (userCount > 0)
+                        {
+                            MessageBox.Show("Пользователь с таким логином уже существует");
+                            return null;
+                        }
+                    }
+
+                    // Создаем нового пользователя
+                    string insertUserQuery = @"
+                INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
+                VALUES (@UserName, @PasswordHash, GETDATE());
+                SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
+
+                    using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@UserName", username);
+                        string passwordHash = HashPassword(password);
+                        insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
+
+                        var newUserId = await insertCommand.ExecuteScalarAsync();
+
+                        if (newUserId != null)
+                        {
+                            MessageBox.Show("Регистрация прошла успешно!");
+                            return Convert.ToInt32(newUserId);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Ошибка при создании пользователя");
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при регистрации: {ex.Message}");
                 return null;
             }
         }

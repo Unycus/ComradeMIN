@@ -85,7 +85,6 @@ namespace ComradeMIN
 
                     // Ждём указанное время, не блокируя UI
                     await Task.Delay(TimeSpan.FromSeconds(seconds));
-                    NavigationService.Navigate(new UserDataBaseMessengePage());
                 }
             } // Синия при нажатии
         }

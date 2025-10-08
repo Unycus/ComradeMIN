@@ -136,11 +136,13 @@ namespace ComradeMIN
             // Регистрация в базе данных
             if (success)
             {
-                bool registrationResult = await _databaseService.RegisterUser(username, password);
-                if (registrationResult)
+                int? newUserId = await _databaseService.RegisterUserAndGetId(username, password);
+                if (newUserId.HasValue)
                 {
                     MessageBox.Show("Регистрация прошла успешно!");
-                    NavigationService.Navigate(new LoginPage());
+                    // Переходим сразу в чат с ID нового пользователя
+                    // ИСПРАВЛЕНО: используем newUserId.Value для преобразования int? в int
+                    NavigationService.Navigate(new UserDataBaseMessengePage(newUserId.Value));
                 }
                 else
                 {
