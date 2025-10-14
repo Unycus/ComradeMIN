@@ -9,7 +9,7 @@ namespace ComradeMIN
 {
     public class DatabaseService
     {
-        private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Void;Integrated Security=True";
+        private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
 
         public async Task<bool> RegisterUser(string username, string password)
         {

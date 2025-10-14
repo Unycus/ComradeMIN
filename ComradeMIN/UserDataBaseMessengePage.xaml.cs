@@ -20,12 +20,12 @@ namespace ComradeMIN
 {
     public partial class UserDataBaseMessengePage : Page
     {
-        private string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Void;Integrated Security=True";
+        private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
         private int currentUserID;
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
         private HubConnection _hubConnection;
-        private string _signalRUrl = "http://26.254.64.152:5000/chatHub"; // IP первого устройства
+        private string _signalRUrl = "http://26.19.50.66:5000/chatHub"; // IP первого устройства
         private bool _isSignalRConnected = false;
 
 
