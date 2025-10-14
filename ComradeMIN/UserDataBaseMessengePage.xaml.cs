@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Win32;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,11 +12,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Microsoft.Win32;
-using System.IO;
-using System.Windows.Media.Imaging;
 
 namespace ComradeMIN
 {
@@ -23,6 +24,10 @@ namespace ComradeMIN
         private int currentUserID;
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
+        private HubConnection _hubConnection;
+        private string _signalRUrl = "http://26.254.64.152:5000/chatHub"; // IP первого устройства
+        private bool _isSignalRConnected = false;
+
 
         // Система реального времени
         private DispatcherTimer _updateTimer;
@@ -43,17 +48,15 @@ namespace ComradeMIN
                 return;
             }
 
-            // Инициализация системы обновлений
-            InitializeRealTimeUpdates();
+            // Инициализация SignalR
+            InitializeSignalR();
 
             MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
             LoadUserChats();
             Text_for_Comrade.KeyDown += Text_for_Comrade_KeyDown;
-            // Устанавливаем фокус на поле ввода при загрузке
-            this.Loaded += (s, e) =>
-            {
-                Text_for_Comrade.Focus();
-            };
+
+            this.Loaded += (s, e) => Text_for_Comrade.Focus();
+            this.Unloaded += async (s, e) => await CleanupSignalR();
         }
 
         // Инициализация системы реального времени
@@ -603,6 +606,7 @@ namespace ComradeMIN
 
             try
             {
+                // Сохраняем в БД
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand("SendMessage", connection))
                 {
@@ -613,15 +617,25 @@ namespace ComradeMIN
 
                     await connection.OpenAsync();
                     await command.ExecuteNonQueryAsync();
-
-                    await Dispatcher.InvokeAsync(() =>
-                    {
-                        Text_for_Comrade.Text = "";
-                        Text_for_Comrade.Focus(); // Возвращаем фокус после отправки
-                        _ = LoadChatMessages(currentChatID);
-                        LoadUserChats();
-                    });
                 }
+
+                // Уведомляем через SignalR
+                if (_isSignalRConnected && _hubConnection.State == HubConnectionState.Connected)
+                {
+                    await _hubConnection.SendAsync("SendMessage", currentChatID, currentUserID, messageText);
+
+                    // Также уведомляем об обновлении списка чатов
+                    await _hubConnection.SendAsync("NotifyChatListUpdate", currentUserID);
+                }
+
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    Text_for_Comrade.Text = "";
+                    Text_for_Comrade.Focus();
+
+                    // Локально обновляем сообщения (не ждем SignalR для мгновенного отклика)
+                    _ = LoadChatMessages(currentChatID);
+                });
             }
             catch (Exception ex)
             {
@@ -784,9 +798,25 @@ namespace ComradeMIN
 
             chatBorder.MouseLeftButtonDown += async (s, e) =>
             {
+                // Покидаем предыдущую группу чата
+                if (currentChatID != 0 && _isSignalRConnected)
+                {
+                    await _hubConnection.SendAsync("LeaveChatGroup", currentChatID);
+                }
+
                 currentChatID = chatID;
                 Comrade_information.Content = $"Чат: {chatName}";
+
+                // Входим в группу нового чата
+                if (_isSignalRConnected && _hubConnection.State == HubConnectionState.Connected)
+                {
+                    await _hubConnection.SendAsync("JoinChatGroup", chatID);
+                }
+
                 await LoadChatMessages(chatID);
+
+                // Отмечаем сообщения как прочитанные
+                await MarkMessagesAsRead();
             };
 
             chatBorder.MouseEnter += (s, e) =>
@@ -1082,9 +1112,91 @@ namespace ComradeMIN
             }
         }
 
+        private async void InitializeSignalR()
+        {
+            try
+            {
+                _hubConnection = new HubConnectionBuilder()
+                    .WithUrl(_signalRUrl)
+                    .WithAutomaticReconnect()
+                    .Build();
+
+                // Обработчики событий от сервера
+                _hubConnection.On<int, int, string>("ReceiveMessage", async (chatId, userId, message) =>
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        Debug.WriteLine($"Получено сообщение в чате {chatId} от пользователя {userId}");
+
+                        // Если это текущий открытый чат - обновляем сообщения
+                        if (currentChatID == chatId)
+                        {
+                            await LoadChatMessages(chatId);
+                        }
+
+                        // Всегда обновляем список чатов (для счетчика непрочитанных)
+                        LoadUserChats();
+                    });
+                });
+
+                _hubConnection.On("RefreshChats", () =>
+                {
+                    Dispatcher.Invoke(() => LoadUserChats());
+                });
+
+                _hubConnection.On<int, int>("MessageRead", (messageId, userId) =>
+                {
+                    // Можно обновить UI для отображения прочитанных сообщений
+                    Debug.WriteLine($"Сообщение {messageId} прочитано пользователем {userId}");
+                });
+
+                _hubConnection.Reconnecting += error =>
+                {
+                    Debug.WriteLine($"SignalR переподключение: {error?.Message}");
+                    return Task.CompletedTask;
+                };
+
+                _hubConnection.Reconnected += connectionId =>
+                {
+                    Debug.WriteLine("SignalR переподключен");
+                    // При переподключении входим обратно в группу текущего чата
+                    if (currentChatID != 0)
+                    {
+                        _ = _hubConnection.SendAsync("JoinChatGroup", currentChatID);
+                    }
+                    return Task.CompletedTask;
+                };
+
+                await _hubConnection.StartAsync();
+                _isSignalRConnected = true;
+                Debug.WriteLine("SignalR подключен успешно");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка подключения SignalR: {ex.Message}");
+                _isSignalRConnected = false;
+
+                // Fallback на таймер если SignalR недоступен
+                InitializeRealTimeUpdates();
+            }
+        }
+
+        private async Task CleanupSignalR()
+        {
+            if (_hubConnection != null)
+            {
+                if (currentChatID != 0)
+                {
+                    await _hubConnection.SendAsync("LeaveChatGroup", currentChatID);
+                }
+                await _hubConnection.StopAsync();
+                await _hubConnection.DisposeAsync();
+            }
+        }
+
         private void Text_for_Comrade_TextChanged(object sender, RoutedEventArgs e)
         {
-
+            
         }
     }
 }
