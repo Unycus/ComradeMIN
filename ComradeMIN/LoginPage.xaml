@@ -47,7 +47,7 @@
                             FontSize="12" 
                             Padding="4" 
                             VerticalAlignment="Center" 
-                            Margin="4,0,28,0"/>
+                            Margin="4,0,22,0"/>
 
                 <!-- TextBox для показа пароля (изначально скрыт) -->
                 <TextBox x:Name="PasswordTextBox" 
