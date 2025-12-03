@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -15,6 +16,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Text.Json;
 
 namespace ComradeMIN
 {
@@ -24,21 +26,48 @@ namespace ComradeMIN
         private int currentUserID;
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
-        private HubConnection _hubConnection;
-        private string _signalRUrl = "http://26.19.50.66:5000/chatHub"; // IP первого устройства
-        private bool _isSignalRConnected = false;
+        private bool _isChatJustOpened = false;
 
+        private HubConnection _hubConnection;
+        private string _signalRUrl = "http://26.19.50.66:5000/chatHub";
+        private bool _isSignalRConnected = false;
 
         // Система реального времени
         private DispatcherTimer _updateTimer;
         private DateTime _lastUpdateTime;
         private bool _isPageActive = true;
 
+        // Кэш-менеджер
+        private CacheManager _cacheManager;
+
+        // Класс для хранения информации о файле
+        public class MessageFile
+        {
+            public int FileId { get; set; }
+            public string FileName { get; set; }
+            public string FileType { get; set; }
+            public byte[] FileData { get; set; }
+            public int FileSize { get; set; }
+        }
+
+        // Вспомогательный класс для хранения информации о чате
+        private class ChatInfo
+        {
+            public int ChatId { get; set; }
+            public string ChatName { get; set; }
+            public string LastMessage { get; set; }
+            public int UnreadCount { get; set; }
+            public DateTime LastMessageDate { get; set; }
+        }
+
         public UserDataBaseMessengePage(int userID)
         {
             InitializeComponent();
             currentUserID = userID;
             _lastUpdateTime = DateTime.Now;
+
+            // Инициализация кэш-менеджера
+            _cacheManager = new CacheManager(currentUserID, connectionString);
 
             Debug.WriteLine($"Создана страница чатов для пользователя ID: {currentUserID}");
 
@@ -48,8 +77,8 @@ namespace ComradeMIN
                 return;
             }
 
-            // Инициализация SignalR
-            InitializeSignalR();
+            // Инициализация системы обновлений
+            InitializeRealTimeUpdates();
 
             MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
             LoadUserChats();
@@ -58,22 +87,83 @@ namespace ComradeMIN
             this.Loaded += (s, e) => Text_for_Comrade.Focus();
             this.Unloaded += async (s, e) => await CleanupSignalR();
         }
+        // Инициализация SignalR
+        private async void InitializeSignalR()
+        {
+            try
+            {
+                _hubConnection = new HubConnectionBuilder()
+                    .WithUrl(_signalRUrl)
+                    .WithAutomaticReconnect()
+                    .Build();
+
+                // Обработчики событий от сервера
+                _hubConnection.On<int, int, string>("ReceiveMessage", async (chatId, userId, message) =>
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        Debug.WriteLine($"Получено сообщение в чате {chatId} от пользователя {userId}");
+
+                        // Если это текущий открытый чат - обновляем
+                        if (currentChatID == chatId)
+                        {
+                            await LoadChatMessages(chatId, false);
+                        }
+
+                        LoadUserChats();
+                    });
+                });
+
+                _hubConnection.On("RefreshChats", () =>
+                {
+                    Dispatcher.Invoke(() => LoadUserChats());
+                });
+
+                _hubConnection.On<int, int>("MessageRead", (messageId, userId) =>
+                {
+                    Debug.WriteLine($"Сообщение {messageId} прочитано пользователем {userId}");
+                });
+
+                _hubConnection.Reconnecting += error =>
+                {
+                    Debug.WriteLine($"SignalR переподключение: {error?.Message}");
+                    return Task.CompletedTask;
+                };
+
+                _hubConnection.Reconnected += connectionId =>
+                {
+                    Debug.WriteLine("SignalR переподключен");
+                    if (currentChatID != 0)
+                    {
+                        _ = _hubConnection.SendAsync("JoinChatGroup", currentChatID);
+                    }
+                    return Task.CompletedTask;
+                };
+
+                await _hubConnection.StartAsync();
+                _isSignalRConnected = true;
+                Debug.WriteLine("SignalR подключен успешно");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка подключения SignalR: {ex.Message}");
+                _isSignalRConnected = false;
+            }
+        }
 
         // Инициализация системы реального времени
         private void InitializeRealTimeUpdates()
         {
             _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromSeconds(3); // Проверка каждые 3 секунды
+            _updateTimer.Interval = TimeSpan.FromSeconds(3);
             _updateTimer.Tick += async (s, e) => await CheckForUpdatesAsync();
 
-            // Запускаем таймер когда страница активна
             this.Loaded += (s, e) =>
             {
                 _isPageActive = true;
                 _updateTimer.Start();
             };
 
-            // Останавливаем когда страница неактивна
             this.Unloaded += (s, e) =>
             {
                 _isPageActive = false;
@@ -81,7 +171,7 @@ namespace ComradeMIN
             };
         }
 
-        // Проверка обновлений с оптимизацией
+        // Проверка обновлений
         private async Task CheckForUpdatesAsync()
         {
             if (!_isPageActive) return;
@@ -138,7 +228,7 @@ namespace ComradeMIN
             return false;
         }
 
-        // Обработчик прокрутки (без изменений)
+        // Обработчик прокрутки
         private async void MessagesScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (isAutoScrolling) return;
@@ -150,7 +240,7 @@ namespace ComradeMIN
             }
         }
 
-        // Метод отметки сообщений как прочитанных (без изменений)
+        // Метод отметки сообщений как прочитанных
         private async Task MarkMessagesAsRead()
         {
             if (currentChatID == 0) return;
@@ -184,7 +274,7 @@ namespace ComradeMIN
             }
         }
 
-        // Загрузка чатов пользователя с оптимизацией
+        // Загрузка чатов пользователя
         private async void LoadUserChats()
         {
             try
@@ -202,7 +292,6 @@ namespace ComradeMIN
 
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            // Временный список для сортировки
                             var chatList = new List<ChatInfo>();
 
                             if (reader.HasRows)
@@ -214,9 +303,8 @@ namespace ComradeMIN
                                     string lastMessage = reader.IsDBNull(3) ? "Нет сообщений" : reader.GetString(3);
                                     int unreadCount = reader.IsDBNull(5) ? 0 : reader.GetInt32(5);
 
-                                    // Получаем дату последнего сообщения
                                     DateTime lastMessageDate = reader.IsDBNull(4)
-                                        ? reader.GetDateTime(2) // Используем дату создания чата, если нет сообщений
+                                        ? reader.GetDateTime(2)
                                         : reader.GetDateTime(4);
 
                                     chatList.Add(new ChatInfo
@@ -230,7 +318,6 @@ namespace ComradeMIN
                                 }
                             }
 
-                            // Сортируем список по дате последнего сообщения (от новых к старым)
                             chatList = chatList.OrderByDescending(c => c.LastMessageDate).ToList();
 
                             await Dispatcher.InvokeAsync(() =>
@@ -271,78 +358,57 @@ namespace ComradeMIN
             }
         }
 
-        // Вспомогательный класс для хранения информации о чате
-        private class ChatInfo
-        {
-            public int ChatId { get; set; }
-            public string ChatName { get; set; }
-            public string LastMessage { get; set; }
-            public int UnreadCount { get; set; }
-            public DateTime LastMessageDate { get; set; }
-        }
-
-        // Загрузка сообщений чата с оптимизацией
-        // Загрузка сообщений чата с оптимизацией (ИСПРАВЛЕННАЯ ВЕРСИЯ)
-        private async Task LoadChatMessages(int chatID)
+        // Загрузка сообщений чата с кэшированием
+        private async Task LoadChatMessages(int chatID, bool isOpening = false)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
+                _isChatJustOpened = isOpening;
+
+                // Загружаем кэшированные сообщения
+                var cachedMessages = await _cacheManager.LoadChatMessagesFromCache(chatID);
+
+                // Определяем ID последнего кэшированного сообщения
+                int? lastCachedMessageId = cachedMessages.Count > 0 ?
+                    cachedMessages.Max(m => m.MessageId) : null;
+
+                // Загружаем новые сообщения из БД
+                var newMessages = await GetNewChatMessagesFromDatabase(chatID, lastCachedMessageId);
+
+                // Объединяем сообщения
+                var allMessages = new List<CachedMessage>();
+                allMessages.AddRange(cachedMessages);
+
+                // Добавляем новые сообщения, избегая дубликатов
+                foreach (var newMsg in newMessages)
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@ChatId", chatID);
-
-                    await connection.OpenAsync();
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    if (!allMessages.Any(m => m.MessageId == newMsg.MessageId))
                     {
-                        var messages = new List<(int messageId, string messageText, DateTime createdDate, string userNick, int messageAuthorID)>();
-
-                        // Сначала читаем все сообщения
-                        while (await reader.ReadAsync()) // Используем асинхронное чтение
-                        {
-                            messages.Add((
-                                reader.GetInt32(0),
-                                reader.GetString(4),
-                                reader.GetDateTime(5),
-                                reader.GetString(3),
-                                reader.GetInt32(2)
-                            ));
-                        }
-
-                        // Теперь в UI потоке создаем сообщения
-                        await Dispatcher.InvokeAsync(async () =>
-                        {
-                            Reports.Children.Clear();
-
-                            foreach (var message in messages)
-                            {
-                                // Загружаем файлы для каждого сообщения
-                                var files = await LoadMessageFiles(message.messageId);
-
-                                CreateMessageUI(
-                                    message.messageId,
-                                    message.messageText,
-                                    message.createdDate,
-                                    message.userNick,
-                                    message.messageAuthorID,
-                                    files
-                                );
-                            }
-
-                            // Автоматическая прокрутка вниз
-                            isAutoScrolling = true;
-                            MessagesScrollViewer.ScrollToBottom();
-                            isAutoScrolling = false;
-
-                            // Отмечаем сообщения как прочитанные при открытии чата
-                            _ = MarkMessagesAsRead();
-                        });
+                        allMessages.Add(newMsg);
                     }
                 }
+
+                // Ограничиваем 100 сообщениями (самые новые)
+                allMessages = allMessages
+                    .OrderByDescending(m => m.SendDate)
+                    .Take(100)
+                    .ToList();
+
+                // Сохраняем в кэш
+                await _cacheManager.SaveChatMessagesToCache(chatID, allMessages);
+
+                // Обновляем кэш в БД
+                if (allMessages.Count > 0)
+                {
+                    await UpdateUserCacheInDatabase(chatID, allMessages.Max(m => m.MessageId));
+                }
+
+                // Отображаем сообщения в обратном порядке (новые внизу)
+                await DisplayMessages(allMessages.OrderBy(m => m.SendDate).ToList(), isOpening);
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Ошибка загрузки сообщений: {ex.Message}");
                 await Dispatcher.InvokeAsync(() =>
                 {
                     MessageBox.Show($"Ошибка загрузки сообщений: {ex.Message}");
@@ -350,11 +416,59 @@ namespace ComradeMIN
             }
         }
 
-        // Загрузка файлов сообщения
-        // Загрузка файлов сообщения (ИСПРАВЛЕННАЯ ВЕРСИЯ)
-        private async Task<List<MessageFile>> LoadMessageFiles(int messageId)
+        // Загрузка новых сообщений из БД
+        private async Task<List<CachedMessage>> GetNewChatMessagesFromDatabase(int chatId, int? lastMessageId)
         {
-            var files = new List<MessageFile>();
+            var messages = new List<CachedMessage>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ChatId", chatId);
+
+                    await connection.OpenAsync();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var message = new CachedMessage
+                            {
+                                MessageId = reader.GetInt32(0),
+                                ChatId = reader.GetInt32(1),
+                                UserId = reader.GetInt32(2),
+                                UserName = reader.GetString(3),
+                                MessageText = reader.GetString(4),
+                                SendDate = reader.GetDateTime(5),
+                                IsRead = reader.GetBoolean(6)
+                            };
+
+                            // Загружаем файлы для сообщения
+                            message.Files = await GetMessageFilesFromDatabase(message.MessageId);
+
+                            // Добавляем только если это новое сообщение
+                            if (!lastMessageId.HasValue || message.MessageId > lastMessageId.Value)
+                            {
+                                messages.Add(message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка загрузки сообщений из БД: {ex.Message}");
+            }
+
+            return messages;
+        }
+
+        // Загрузка файлов сообщения
+        private async Task<List<CachedFile>> GetMessageFilesFromDatabase(int messageId)
+        {
+            var files = new List<CachedFile>();
 
             try
             {
@@ -367,30 +481,97 @@ namespace ComradeMIN
                     await connection.OpenAsync();
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync()) // Используем асинхронное чтение
+                        while (await reader.ReadAsync())
                         {
-                            files.Add(new MessageFile
+                            var file = new CachedFile
                             {
                                 FileId = reader.GetInt32(0),
                                 FileName = reader.GetString(1),
                                 FileType = reader.GetString(2),
                                 FileData = (byte[])reader.GetValue(3),
                                 FileSize = reader.GetInt32(4)
-                            });
+                            };
+
+                            // Кэшируем только небольшие файлы
+                            if (file.ShouldCache)
+                            {
+                                files.Add(file);
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка загрузки файлов сообщения: {ex.Message}");
+                Debug.WriteLine($"Ошибка загрузки файлов: {ex.Message}");
             }
 
             return files;
         }
 
-        // Создание UI для сообщения с файлами
-        // Создание UI для сообщения с файлами (УПРОЩЕННАЯ ВЕРСИЯ)
+        // Отображение сообщений
+        private async Task DisplayMessages(List<CachedMessage> messages, bool isOpening)
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                Reports.Children.Clear();
+
+                foreach (var message in messages)
+                {
+                    CreateMessageUI(
+                        message.MessageId,
+                        message.MessageText,
+                        message.SendDate,
+                        message.UserName,
+                        message.UserId,
+                        message.Files.Select(f => new MessageFile
+                        {
+                            FileId = f.FileId,
+                            FileName = f.FileName,
+                            FileType = f.FileType,
+                            FileData = f.FileData,
+                            FileSize = f.FileSize
+                        }).ToList()
+                    );
+                }
+
+                // Прокручиваем вниз только при открытии чата
+                if (isOpening)
+                {
+                    isAutoScrolling = true;
+                    MessagesScrollViewer.ScrollToBottom();
+                    isAutoScrolling = false;
+
+                    // Отмечаем сообщения как прочитанные
+                    _ = MarkMessagesAsRead();
+                }
+            });
+        }
+
+        // Обновление кэша в БД
+        private async Task UpdateUserCacheInDatabase(int chatId, int lastMessageId)
+        {
+            try
+            {
+                // Эта процедура должна быть создана в БД
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("UPDATE UserCache SET LastMessageId = @LastMessageId, CachedDate = GETDATE() WHERE UserId = @UserId AND ChatId = @ChatId", connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", currentUserID);
+                    command.Parameters.AddWithValue("@ChatId", chatId);
+                    command.Parameters.AddWithValue("@LastMessageId", lastMessageId);
+
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка обновления кэша в БД: {ex.Message}");
+            }
+        }
+
+        // Создание UI для сообщения
         private void CreateMessageUI(int messageId, string messageText, DateTime createdDate, string userNick, int messageAuthorID, List<MessageFile> files)
         {
             try
@@ -575,17 +756,21 @@ namespace ComradeMIN
             }
         }
 
-        // Класс для хранения информации о файле
-        private class MessageFile
+
+        private async Task CleanupSignalR()
         {
-            public int FileId { get; set; }
-            public string FileName { get; set; }
-            public string FileType { get; set; }
-            public byte[] FileData { get; set; }
-            public int FileSize { get; set; }
+            if (_hubConnection != null)
+            {
+                if (currentChatID != 0)
+                {
+                    await _hubConnection.SendAsync("LeaveChatGroup", currentChatID);
+                }
+                await _hubConnection.StopAsync();
+                await _hubConnection.DisposeAsync();
+            }
         }
 
-        // Отправка сообщения с обновлением состояния
+        // Отправка сообщения
         private async void SendMessage()
         {
             if (currentChatID == 0)
@@ -623,8 +808,6 @@ namespace ComradeMIN
                 if (_isSignalRConnected && _hubConnection.State == HubConnectionState.Connected)
                 {
                     await _hubConnection.SendAsync("SendMessage", currentChatID, currentUserID, messageText);
-
-                    // Также уведомляем об обновлении списка чатов
                     await _hubConnection.SendAsync("NotifyChatListUpdate", currentUserID);
                 }
 
@@ -633,8 +816,8 @@ namespace ComradeMIN
                     Text_for_Comrade.Text = "";
                     Text_for_Comrade.Focus();
 
-                    // Локально обновляем сообщения (не ждем SignalR для мгновенного отклика)
-                    _ = LoadChatMessages(currentChatID);
+                    // Загружаем сообщения заново
+                    _ = LoadChatMessages(currentChatID, false);
                 });
             }
             catch (Exception ex)
@@ -644,99 +827,15 @@ namespace ComradeMIN
             }
         }
 
-        // Остальные методы остаются без изменений
-        private async void Enter_to_search_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(ID_search.Text))
-            {
-                MessageBox.Show("Введите ID пользователя");
-                return;
-            }
-
-            if (!int.TryParse(ID_search.Text, out int targetUserID))
-            {
-                MessageBox.Show("ID должен быть числом");
-                return;
-            }
-
-            if (targetUserID == currentUserID)
-            {
-                MessageBox.Show("Нельзя создать чат с самим собой");
-                return;
-            }
-
-            try
-            {
-                string userName = "";
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("SELECT UserName FROM Users WHERE UserId = @UserID", connection))
-                {
-                    command.Parameters.AddWithValue("@UserID", targetUserID);
-                    await connection.OpenAsync();
-                    var result = await command.ExecuteScalarAsync();
-
-                    if (result == null)
-                    {
-                        MessageBox.Show("Пользователь не найден");
-                        return;
-                    }
-                    userName = result.ToString();
-                }
-
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("CreatePrivateChat", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@CurrentUserID", currentUserID);
-                    command.Parameters.AddWithValue("@TargetUserID", targetUserID);
-
-                    await connection.OpenAsync();
-                    var result = await command.ExecuteScalarAsync();
-
-                    if (result == null || result == DBNull.Value)
-                    {
-                        MessageBox.Show("Не удалось создать чат");
-                        return;
-                    }
-
-                    int newChatID = Convert.ToInt32(result);
-
-                    await Dispatcher.InvokeAsync(() =>
-                    {
-                        AddChatButton(newChatID, userName, "Новое сообщение", 0);
-                        ID_search.Text = "";
-                        MessageBox.Show($"Приватный чат с {userName} создан!");
-                        LoadUserChats();
-                    });
-                }
-            }
-            catch (SqlException sqlEx)
-            {
-                MessageBox.Show($"{sqlEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка создания чата: {ex.Message}");
-            }
-        }
-
-        // Добавление кнопки чата (без изменений)
+        // Добавление кнопки чата
         private void AddChatButton(int chatID, string chatName, string lastMessage, int unreadCount)
         {
-            foreach (Button existingButton in Fellows.Children.OfType<Button>())
-            {
-                if (existingButton.Tag != null && (int)existingButton.Tag == chatID)
-                {
-                    return;
-                }
-            }
-
             Border chatBorder = new Border
             {
                 Background = Brushes.White,
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(1),
-                Margin = new Thickness(5,5,30,5),
+                Margin = new Thickness(5, 5, 30, 5),
                 CornerRadius = new CornerRadius(5),
                 Tag = chatID
             };
@@ -813,7 +912,7 @@ namespace ComradeMIN
                     await _hubConnection.SendAsync("JoinChatGroup", chatID);
                 }
 
-                await LoadChatMessages(chatID);
+                await LoadChatMessages(chatID, true);
 
                 // Отмечаем сообщения как прочитанные
                 await MarkMessagesAsRead();
@@ -842,10 +941,90 @@ namespace ComradeMIN
                     SendMessage();
                     e.Handled = true;
                 }
-                // Если зажат Shift - разрешаем стандартное поведение (перенос строки)
             }
         }
 
+        private void Enter_to_search_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ID_search.Text))
+            {
+                MessageBox.Show("Введите ID пользователя");
+                return;
+            }
+
+            if (!int.TryParse(ID_search.Text, out int targetUserID))
+            {
+                MessageBox.Show("ID должен быть числом");
+                return;
+            }
+
+            if (targetUserID == currentUserID)
+            {
+                MessageBox.Show("Нельзя создать чат с самим собой");
+                return;
+            }
+
+            _ = CreateChatWithUser(targetUserID);
+        }
+
+        private async Task CreateChatWithUser(int targetUserID)
+        {
+            try
+            {
+                string userName = "";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("SELECT UserName FROM Users WHERE UserId = @UserID", connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", targetUserID);
+                    await connection.OpenAsync();
+                    var result = await command.ExecuteScalarAsync();
+
+                    if (result == null)
+                    {
+                        MessageBox.Show("Пользователь не найден");
+                        return;
+                    }
+                    userName = result.ToString();
+                }
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("CreatePrivateChat", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@CurrentUserID", currentUserID);
+                    command.Parameters.AddWithValue("@TargetUserID", targetUserID);
+
+                    await connection.OpenAsync();
+                    var result = await command.ExecuteScalarAsync();
+
+                    if (result == null || result == DBNull.Value)
+                    {
+                        MessageBox.Show("Не удалось создать чат");
+                        return;
+                    }
+
+                    int newChatID = Convert.ToInt32(result);
+
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        AddChatButton(newChatID, userName, "Новое сообщение", 0);
+                        ID_search.Text = "";
+                        MessageBox.Show($"Приватный чат с {userName} создан!");
+                        LoadUserChats();
+                    });
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                MessageBox.Show($"{sqlEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка создания чата: {ex.Message}");
+            }
+        }
+
+        // Анимации кнопок
         private void Enter_to_search_MouseEnter(object sender, MouseEventArgs e)
         {
             AnimateButtonScale("Enter_to_search", 1.1);
@@ -853,12 +1032,17 @@ namespace ComradeMIN
 
         private void Enter_to_search_MouseLeave(object sender, MouseEventArgs e)
         {
-            AnimateButtonScale("Enter_to_search", 1.1);
+            AnimateButtonScale("Enter_to_search", 1.0);
         }
 
         private void Enter_to_Options_MouseEnter(object sender, MouseEventArgs e)
         {
             AnimateButtonScale("Enter_to_Options", 1.1);
+        }
+
+        private void Enter_to_Options_MouseLeave(object sender, MouseEventArgs e)
+        {
+            AnimateButtonScale("Enter_to_Options", 1.0);
         }
 
         private void Enter_text_MouseEnter(object sender, MouseEventArgs e)
@@ -868,12 +1052,7 @@ namespace ComradeMIN
 
         private void Enter_text_MouseLeave(object sender, MouseEventArgs e)
         {
-            AnimateButtonScale("Enter_Text", 1.1);
-        }
-
-        private void Enter_to_Options_MouseLeave(object sender, MouseEventArgs e)
-        {
-            AnimateButtonScale("Enter_to_Options", 1.1);
+            AnimateButtonScale("Enter_Text", 1.0);
         }
 
         private void AnimateButtonScale(string buttonName, double scale)
@@ -890,11 +1069,6 @@ namespace ComradeMIN
                     break;
                 case "Enter_to_Options":
                     button = Enter_to_Options;
-                    break;
-                case "FileText":
-                    // Для FileText это Border с кнопкой внутри
-                    var border = FindName("FileText") as Border;
-                    button = border?.Child as Button;
                     break;
             }
 
@@ -914,9 +1088,6 @@ namespace ComradeMIN
                     case "Enter_to_Options":
                         oval = template.FindName("Oval_Options", button) as Rectangle;
                         break;
-                    case "FileText":
-                        oval = template.FindName("Oval_FileText", button) as Rectangle;
-                        break;
                 }
 
                 if (oval != null)
@@ -929,7 +1100,7 @@ namespace ComradeMIN
             }
         }
 
-        // Обработчик клика по кнопке файла
+        // Файловые операции
         private void FileText_Click(object sender, RoutedEventArgs e)
         {
             if (currentChatID == 0)
@@ -948,63 +1119,28 @@ namespace ComradeMIN
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
+                // Используйте полное имя System.IO.Path
                 string fileName = System.IO.Path.GetFileName(filePath);
 
-                // Проверяем размер файла (максимум 10MB)
                 FileInfo fileInfo = new FileInfo(filePath);
-                if (fileInfo.Length > 10 * 1024 * 1024) // 10MB в байтах
+                if (fileInfo.Length > 10 * 1024 * 1024)
                 {
                     MessageBox.Show("Файл слишком большой. Максимальный размер: 10MB");
                     return;
                 }
 
-                // Отправляем файл
                 _ = SendFileAsync(filePath, fileName);
             }
         }
 
-        // Анимация для кнопки файла
-        private void FileText_MouseEnter(object sender, MouseEventArgs e)
-        {
-            AnimateButtonScale("Oval_FileText", 1.1, FileText);
-        }
-
-        private void FileText_MouseLeave(object sender, MouseEventArgs e)
-        {
-            AnimateButtonScale("Oval_FileText", 1.1, FileText);
-        }
-
-        // Универсальный метод анимации для всех кнопок
-        private void AnimateButtonScale(string ovalName, double scale, Button button)
-        {
-            var template = button.Template;
-            Rectangle oval = template.FindName(ovalName, button) as Rectangle;
-
-            if (oval != null)
-            {
-                var animation = new DoubleAnimation(scale, TimeSpan.FromMilliseconds(200));
-                oval.RenderTransform = new ScaleTransform();
-                oval.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
-                oval.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
-            }
-        }
-
-        // Асинхронная отправка файла
-        // Асинхронная отправка файла (УПРОЩЕННАЯ ВЕРСИЯ)
         private async Task SendFileAsync(string filePath, string fileName)
         {
             try
             {
-                // Читаем файл в массив байтов
                 byte[] fileData = await File.ReadAllBytesAsync(filePath);
-
-                // Определяем тип файла
                 string fileType = GetFileType(filePath);
-
-                // Упрощенный текст сообщения
                 string displayText = $"[Файл: {fileName}]";
 
-                // Отправляем файл
                 bool success = await SendMessageWithFile(displayText, fileName, fileType, fileData, fileData.Length);
 
                 if (success)
@@ -1012,8 +1148,7 @@ namespace ComradeMIN
                     await Dispatcher.InvokeAsync(() =>
                     {
                         MessageBox.Show($"Файл '{fileName}' успешно отправлен!");
-                        // Обновляем сообщения в чате
-                        _ = LoadChatMessages(currentChatID);
+                        _ = LoadChatMessages(currentChatID, false);
                     });
                 }
             }
@@ -1026,9 +1161,9 @@ namespace ComradeMIN
             }
         }
 
-        // Определение типа файла
         private string GetFileType(string filePath)
         {
+            // Используйте полное имя System.IO.Path
             string extension = System.IO.Path.GetExtension(filePath).ToLower();
 
             return extension switch
@@ -1039,8 +1174,6 @@ namespace ComradeMIN
             };
         }
 
-        // Отправка сообщения с прикрепленным файлом
-        // Отправка сообщения с прикрепленным файлом (УПРОЩЕННАЯ ВЕРСИЯ)
         private async Task<bool> SendMessageWithFile(string messageText, string fileName, string fileType, byte[] fileData, int fileSize)
         {
             try
@@ -1065,7 +1198,6 @@ namespace ComradeMIN
                         }
                     }
 
-                    // Если сообщение отправлено, сохраняем файл
                     if (messageId.HasValue)
                     {
                         using (SqlCommand fileCommand = new SqlCommand("SaveMessageFile", connection))
@@ -1091,112 +1223,39 @@ namespace ComradeMIN
             }
         }
 
+        private void FileText_MouseEnter(object sender, MouseEventArgs e)
+        {
+            // Анимация для кнопки файла
+        }
+
+        private void FileText_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // Анимация для кнопки файла
+        }
+
         private void Enter_to_Options_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Функция настроек в разработке");
+            OptionsPage optionsPage = new OptionsPage(currentUserID);
+            this.NavigationService.Navigate(optionsPage);
         }
 
         private void Enter_Text_Click(object sender, RoutedEventArgs e)
         {
-            // Имитируем поведение Enter (без Shift)
             if (!Keyboard.IsKeyDown(Key.LeftShift) && !Keyboard.IsKeyDown(Key.RightShift))
             {
                 SendMessage();
             }
             else
             {
-                // Если зажат Shift - добавляем перенос строки вместо отправки
                 Text_for_Comrade.Text += Environment.NewLine;
                 Text_for_Comrade.CaretIndex = Text_for_Comrade.Text.Length;
                 Text_for_Comrade.Focus();
             }
         }
 
-        private async void InitializeSignalR()
+        private void Text_for_Comrade_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            try
-            {
-                _hubConnection = new HubConnectionBuilder()
-                    .WithUrl(_signalRUrl)
-                    .WithAutomaticReconnect()
-                    .Build();
-
-                // Обработчики событий от сервера
-                _hubConnection.On<int, int, string>("ReceiveMessage", async (chatId, userId, message) =>
-                {
-                    await Dispatcher.InvokeAsync(async () =>
-                    {
-                        Debug.WriteLine($"Получено сообщение в чате {chatId} от пользователя {userId}");
-
-                        // Если это текущий открытый чат - обновляем сообщения
-                        if (currentChatID == chatId)
-                        {
-                            await LoadChatMessages(chatId);
-                        }
-
-                        // Всегда обновляем список чатов (для счетчика непрочитанных)
-                        LoadUserChats();
-                    });
-                });
-
-                _hubConnection.On("RefreshChats", () =>
-                {
-                    Dispatcher.Invoke(() => LoadUserChats());
-                });
-
-                _hubConnection.On<int, int>("MessageRead", (messageId, userId) =>
-                {
-                    // Можно обновить UI для отображения прочитанных сообщений
-                    Debug.WriteLine($"Сообщение {messageId} прочитано пользователем {userId}");
-                });
-
-                _hubConnection.Reconnecting += error =>
-                {
-                    Debug.WriteLine($"SignalR переподключение: {error?.Message}");
-                    return Task.CompletedTask;
-                };
-
-                _hubConnection.Reconnected += connectionId =>
-                {
-                    Debug.WriteLine("SignalR переподключен");
-                    // При переподключении входим обратно в группу текущего чата
-                    if (currentChatID != 0)
-                    {
-                        _ = _hubConnection.SendAsync("JoinChatGroup", currentChatID);
-                    }
-                    return Task.CompletedTask;
-                };
-
-                await _hubConnection.StartAsync();
-                _isSignalRConnected = true;
-                Debug.WriteLine("SignalR подключен успешно");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка подключения SignalR: {ex.Message}");
-                _isSignalRConnected = false;
-
-                // Fallback на таймер если SignalR недоступен
-                InitializeRealTimeUpdates();
-            }
-        }
-
-        private async Task CleanupSignalR()
-        {
-            if (_hubConnection != null)
-            {
-                if (currentChatID != 0)
-                {
-                    await _hubConnection.SendAsync("LeaveChatGroup", currentChatID);
-                }
-                await _hubConnection.StopAsync();
-                await _hubConnection.DisposeAsync();
-            }
-        }
-
-        private void Text_for_Comrade_TextChanged(object sender, RoutedEventArgs e)
-        {
-            
+            // Пустая реализация
         }
     }
 }
