@@ -22,7 +22,7 @@ namespace ComradeMIN
         private async void Enter_Click(object sender, RoutedEventArgs e)
         {
             string username = Login_input.Text.Trim();
-            string password = Password_input.Password; // Используем Password для PasswordBox
+            string password = Password_input.Password;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -30,14 +30,15 @@ namespace ComradeMIN
                 return;
             }
 
-            // Проверяем пользователя через базу данных
-            bool isValid = await _databaseService.ValidateUser(username, password);
+            // Получаем ID пользователя при успешном входе
+            int? userId = await _databaseService.ValidateUserAndGetId(username, password);
 
-            if (isValid)
+            if (userId.HasValue)
             {
                 MessageBox.Show("Вход выполнен успешно!");
-                // Переходим на главную страницу
-                NavigationService.Navigate(new MainPage());
+                // Переходим на страницу чатов с реальным UserId
+                // ИСПРАВЛЕНО: используем userId.Value для преобразования int? в int
+                NavigationService.Navigate(new UserDataBaseMessengePage(userId.Value));
             }
             else
             {

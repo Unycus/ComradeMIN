@@ -11,15 +11,16 @@
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
             <TextBox x:Name="ID_search" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="700" Height="40" Margin="270,410,0,0">
-            <TextBox x:Name="Text_for_Comrade" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="5"/>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="40" Margin="320,410,0,0">
+            <TextBox x:Name="Text_for_Comrade" VerticalContentAlignment="Center" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="99" TextChanged="Text_for_Comrade_TextChanged"/>
         </Border>
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="40" Margin="320,0,0,0">
-            <Label x:Name="Comrade_information" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4"/>
+            <Label x:Name="Comrade_information" Background="Transparent" VerticalContentAlignment="Center" BorderThickness="0" FontSize="18" Padding="4"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="230" Height="395" Margin="0,55,0,0">
-            <StackPanel x:Name="Fellows">
-            </StackPanel>
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="250" Height="395" Margin="0,55,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="Fellows" Width="250"/>
+            </ScrollViewer>
         </Border>
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" Margin="270,0,0,0">
             <Image Source="Images/IMG_20240206_184757_187.jpg" Width="40" Height="40">
@@ -45,6 +46,33 @@
                     RadiusX="8"
                     RadiusY="8"
                     RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <Button x:Name="Enter_Text" Content="⏎" HorizontalAlignment="Left" Margin="930,0,0,1" VerticalAlignment="Bottom" Height="40" Width="40"
+Background="Transparent"
+BorderThickness="0"
+Foreground="Black"
+FontSize="20"
+MouseEnter="Enter_text_MouseEnter"
+MouseLeave="Enter_text_MouseLeave" 
+Click="Enter_Text_Click"
+Focusable="False">
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Rectangle x:Name="Oval_Text"
+                Fill="#E0E0E0"
+                StrokeThickness="0"
+                RadiusX="8"
+                RadiusY="8"
+                RenderTransformOrigin="0.5,0.5">
                             <Rectangle.RenderTransform>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
                             </Rectangle.RenderTransform>
@@ -80,9 +108,30 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-
-        <!-- ИСПРАВЛЕННЫЙ БЛОК - простой ScrollViewer без имени -->
-        <ScrollViewer Margin="270,55,20,85" VerticalScrollBarVisibility="Auto">
+        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" Margin="270,410,0,0">
+            <Button x:Name="FileText" Content="📎" Background="Transparent" BorderThickness="0"
+            FontSize="20" Click="FileText_Click"
+            MouseEnter="FileText_MouseEnter" MouseLeave="FileText_MouseLeave">
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <Rectangle x:Name="Oval_FileText"
+                        Fill="#E0E0E0"
+                        StrokeThickness="0"
+                        RadiusX="8"
+                        RadiusY="8"
+                        RenderTransformOrigin="0.5,0.5">
+                                <Rectangle.RenderTransform>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Border>
+        <ScrollViewer x:Name="MessagesScrollViewer" Margin="270,55,10,50" VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="Reports"/>
         </ScrollViewer>
     </Grid>
