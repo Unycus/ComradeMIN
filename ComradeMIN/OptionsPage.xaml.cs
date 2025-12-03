@@ -1,98 +1,215 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Win32;
+using System;
+using System.Data.SqlClient;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ComradeMIN
 {
-    /// <summary>
-    /// Логика взаимодействия для OptionsPage.xaml
-    /// </summary>
     public partial class OptionsPage : Page
     {
-        public OptionsPage()
+        private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
+        private int currentUserID;
+        private byte[] currentProfileImage;
+
+        public OptionsPage(int userID)
         {
             InitializeComponent();
+            currentUserID = userID;
+            LoadUserData();
         }
 
-
-        private void AnimateOvalScale(string ovalName, double targetScale, int durationMs, Button nameOfbutton) // Универсальное изменение масштаба (овала) кнопки
+        private void LoadUserData()
         {
-            if (nameOfbutton.Template.FindName(ovalName, nameOfbutton) is Rectangle oval)
+            try
             {
-                if (oval.RenderTransform.IsFrozen)
-                    oval.RenderTransform = oval.RenderTransform.Clone();
-
-                if (oval.RenderTransform is ScaleTransform scale)
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    var animX = new DoubleAnimation(targetScale, TimeSpan.FromMilliseconds(durationMs))
-                    { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
-                    var animY = new DoubleAnimation(targetScale, TimeSpan.FromMilliseconds(durationMs))
-                    { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
+                    connection.Open();
 
-                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, animX);
-                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, animY);
+                    string query = @"
+                        SELECT UserId, UserName, Status, ProfileImage, Email, CreatedDate, LastLoginDate 
+                        FROM Users 
+                        WHERE UserId = @UserId";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", currentUserID);
+
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // Заполняем поля данными
+                                UserIdTextBox.Text = reader["UserId"].ToString();
+                                UserNameTextBox.Text = reader["UserName"].ToString();
+                                EmailTextBox.Text = reader.IsDBNull(reader.GetOrdinal("Email")) ? "" : reader["Email"].ToString();
+
+                                // Статус
+                                string status = reader["Status"].ToString();
+                                foreach (ComboBoxItem item in StatusComboBox.Items)
+                                {
+                                    if (item.Content.ToString() == status)
+                                    {
+                                        StatusComboBox.SelectedItem = item;
+                                        break;
+                                    }
+                                }
+
+                                // Даты
+                                CreatedDateText.Text = Convert.ToDateTime(reader["CreatedDate"]).ToString("dd.MM.yyyy HH:mm");
+                                LastLoginText.Text = reader.IsDBNull(reader.GetOrdinal("LastLoginDate")) ?
+                                    "Никогда" : Convert.ToDateTime(reader["LastLoginDate"]).ToString("dd.MM.yyyy HH:mm");
+
+                                // Аватар
+                                if (!reader.IsDBNull(reader.GetOrdinal("ProfileImage")))
+                                {
+                                    currentProfileImage = (byte[])reader["ProfileImage"];
+                                    LoadProfileImage(currentProfileImage);
+                                }
+                                else
+                                {
+                                    LoadDefaultAvatar();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+            }
+        }
+
+        private void LoadProfileImage(byte[] imageData)
+        {
+            try
+            {
+                using (MemoryStream stream = new MemoryStream(imageData))
+                {
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.StreamSource = stream;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    ProfileImageControl.Source = bitmap;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}");
+                LoadDefaultAvatar();
+            }
+        }
+
+        private void LoadDefaultAvatar()
+        {
+            // Просто очищаем изображение
+            ProfileImageControl.Source = null;
+        }
+
+        private void ChangeImageBtn_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Выберите изображение профиля",
+                Filter = "Изображения (*.jpg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    string filePath = openFileDialog.FileName;
+                    FileInfo fileInfo = new FileInfo(filePath);
+
+                    // Проверка размера файла (максимум 2MB)
+                    if (fileInfo.Length > 2 * 1024 * 1024)
+                    {
+                        MessageBox.Show("Размер изображения не должен превышать 2MB");
+                        return;
+                    }
+
+                    // Загружаем изображение в память
+                    currentProfileImage = File.ReadAllBytes(filePath);
+
+                    // Показываем preview
+                    LoadProfileImage(currentProfileImage);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}");
                 }
             }
         }
 
-
-
-
-        private void Enter_to_chat_MouseEnter(object sender, MouseEventArgs e)
+        private void RemoveImageBtn_Click(object sender, RoutedEventArgs e)
         {
-            AnimateOvalScale("Oval_Options", 1.1, 150, Enter_to_chat); // увеличить до 1.1 за 150 мс
+            currentProfileImage = null;
+            LoadDefaultAvatar();
         }
 
-        private void Enter_to_chat_MouseLeave(object sender, MouseEventArgs e)
+        private async void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            AnimateOvalScale("Oval_Options", 1.0, 150, Enter_to_chat); 
-        }
-
-        private async void Enter_to_chat_Click(object sender, RoutedEventArgs e)
-        {
-            if (Enter_to_chat.Template.FindName("Oval_Options", Enter_to_chat) is Rectangle oval1)
+            if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
             {
-                // Если кисть заморожена, создаём её копию
-                if (oval1.Fill.IsFrozen)
-                    oval1.Fill = oval1.Fill.Clone();
+                MessageBox.Show("Введите имя пользователя");
+                return;
+            }
 
-                // Получаем кисть
-                if (oval1.Fill is SolidColorBrush brush)
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    // Анимация цвета от текущего к DeepSkyBlue
-                    var colorAnim = new ColorAnimation
+                    await connection.OpenAsync();
+
+                    string query = @"
+                        UPDATE Users 
+                        SET UserName = @UserName, 
+                            Status = @Status, 
+                            ProfileImage = @ProfileImage,
+                            Email = @Email
+                        WHERE UserId = @UserId";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        To = Colors.DeepSkyBlue,
-                        Duration = TimeSpan.FromMilliseconds(300), // 0.2 секунды
-                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                    };
+                        command.Parameters.AddWithValue("@UserId", currentUserID);
+                        command.Parameters.AddWithValue("@UserName", UserNameTextBox.Text.Trim());
+                        command.Parameters.AddWithValue("@Status", ((ComboBoxItem)StatusComboBox.SelectedItem).Content.ToString());
+                        command.Parameters.AddWithValue("@Email", string.IsNullOrWhiteSpace(EmailTextBox.Text) ? (object)DBNull.Value : EmailTextBox.Text.Trim());
 
-                    // Запускаем анимацию
-                    brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
-                    double seconds = 0.250; // <-- здесь задаёшь нужное количество секунд задержки
+                        if (currentProfileImage != null)
+                            command.Parameters.AddWithValue("@ProfileImage", currentProfileImage);
+                        else
+                            command.Parameters.AddWithValue("@ProfileImage", DBNull.Value);
 
-                    // Ждём указанное время, не блокируя UI
-                    await Task.Delay(TimeSpan.FromSeconds(seconds));
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                        if (rowsAffected > 0)
+                        {
+                            MessageBox.Show("Данные успешно сохранены!");
+
+                            // Возвращаемся на предыдущую страницу
+                            if (NavigationService.CanGoBack)
+                                NavigationService.GoBack();
+                        }
+                    }
                 }
-            } // Синия при нажатии
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения данных: {ex.Message}");
+            }
         }
 
-        private void Option_Password_TextChanged(object sender, TextChangedEventArgs e)
+        private void CancelBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Реализовать вызов пароля из БД
-            Option_Password.Text = "asdasd";
+            if (NavigationService.CanGoBack)
+                NavigationService.GoBack();
         }
     }
 }

@@ -1,80 +1,132 @@
 ﻿<Page x:Class="ComradeMIN.OptionsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:ComradeMIN"
-      mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="1000"
-      Title="OptionsPage">
+      Title="OptionsPage" Height="600" Width="800">
+    <Grid Background="#F5F5F5" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-    <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" Text="Настройки профиля" FontSize="24" FontWeight="Bold" 
+                   Foreground="#333333" Margin="0,0,0,20"/>
+
+        <!-- Основной контент -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
-                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Имя"/>
+                <!-- Блок с аватаром -->
+                <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="Аватар профиля" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="100" Height="100" CornerRadius="50" Background="LightGray" 
+                                    BorderBrush="#DDDDDD" BorderThickness="2">
+                                <Image x:Name="ProfileImageControl" Stretch="UniformToFill">
+                                    <Image.Clip>
+                                        <EllipseGeometry Center="50,50" RadiusX="50" RadiusY="50"/>
+                                    </Image.Clip>
+                                </Image>
+                            </Border>
+                            <StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
+                                <Button x:Name="ChangeImageBtn" Content="Сменить аватар" 
+                                        Click="ChangeImageBtn_Click" Width="120" Margin="0,0,0,5"/>
+                                <Button x:Name="RemoveImageBtn" Content="Удалить аватар" 
+                                        Click="RemoveImageBtn_Click" Width="120" 
+                                        Background="LightCoral" Foreground="White"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
-                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Пароль"/>
+
+                <!-- Информация о пользователе -->
+                <Border Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="Основная информация" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- ID пользователя -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="ID пользователя:" 
+                                      VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="UserIdTextBox" 
+                                    IsReadOnly="True" Background="#F0F0F0" Margin="0,0,0,10"/>
+
+                            <!-- Имя пользователя -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Имя пользователя:" 
+                                      VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="UserNameTextBox" 
+                                    MaxLength="50" Margin="0,0,0,10"/>
+
+                            <!-- Статус -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Статус:" 
+                                      VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="StatusComboBox" 
+                                     Margin="0,0,0,10">
+                                <ComboBoxItem Content="В сети"/>
+                                <ComboBoxItem Content="Не беспокоить"/>
+                                <ComboBoxItem Content="Отошел"/>
+                                <ComboBoxItem Content="Не в сети"/>
+                            </ComboBox>
+
+                            <!-- Email -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Email:" 
+                                      VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" x:Name="EmailTextBox" 
+                                    Margin="0,0,0,10"/>
+                        </Grid>
+                    </StackPanel>
                 </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
-                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Статус"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200">
-                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Описание"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
-                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Картинка профиля"/>
+
+                <!-- Статистика -->
+                <Border Background="White" CornerRadius="10" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Статистика" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Дата регистрации:" 
+                                      FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="CreatedDateText" 
+                                      Margin="0,0,0,10"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Последний вход:" 
+                                      FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LastLoginText" 
+                                      Margin="0,0,0,10"/>
+                        </Grid>
+                    </StackPanel>
                 </Border>
             </StackPanel>
-            <Border Width="20"/>
-            <StackPanel>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox x:Name="Option_Name" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox x:Name="Option_Password" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1" TextChanged="Option_Password_TextChanged"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <TextBox x:Name="Option_Status" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="200">
-                    <TextBox x:Name="Option_Discription" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4"/>
-                </Border>
-                <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="40">
-                    <ComboBox/>
-                </Border>
-            </StackPanel>
-        </StackPanel>
-        <Button x:Name="Enter_to_chat" Content="✖" HorizontalAlignment="Left" Margin="935,5,0,0" VerticalAlignment="Top" Height="40" Width="40"
-            Background="Transparent"
-            BorderThickness="0"
-            Foreground="Black"
-            FontSize="16"
-            MouseEnter="Enter_to_chat_MouseEnter"
-            MouseLeave="Enter_to_chat_MouseLeave" 
-            Click="Enter_to_chat_Click" RenderTransformOrigin="0.581,0.556">
-            <Button.Template>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <Grid>
-                        <!-- Овал с возможностью масштабирования -->
-                        <Rectangle x:Name="Oval_Options"
-                            Fill="#E0E0E0"
-                            StrokeThickness="0"
-                            RadiusX="8"
-                            RadiusY="8"
-                            RenderTransformOrigin="0.5,0.5">
-                            <Rectangle.RenderTransform>
-                                <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            </Rectangle.RenderTransform>
-                        </Rectangle>
+        </ScrollViewer>
 
-                        <!-- Контент (не увеличивается) -->
-                        <ContentPresenter HorizontalAlignment="Center"
-                            VerticalAlignment="Center"/>
-                    </Grid>
-                </ControlTemplate>
-            </Button.Template>
-        </Button>
+        <!-- Кнопки действий -->
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" Margin="0,20,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CancelBtn" Content="Отмена" Click="CancelBtn_Click" 
+                        Width="100" Margin="0,0,10,0" Background="LightGray"/>
+                <Button x:Name="SaveBtn" Content="Сохранить" Click="SaveBtn_Click" 
+                        Width="100" Background="#4CAF50" Foreground="White"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>
