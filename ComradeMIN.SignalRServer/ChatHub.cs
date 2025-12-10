@@ -13,9 +13,9 @@ public class ChatHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"chat_{chatId}");
     }
 
-    public async Task SendMessage(int chatId, int userId, string message)
+    public async Task SendMessage(int chatId, int userId, string message, int messageId)
     {
-        await Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessage", chatId, userId, message);
+        await Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessage", chatId, userId, message, messageId);
     }
 
     public async Task NotifyChatListUpdate(int userId)

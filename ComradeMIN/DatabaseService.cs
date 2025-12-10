@@ -4,12 +4,24 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Configuration;
 
 namespace ComradeMIN
 {
     public class DatabaseService
     {
-        private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
+        private string connectionString;
+        public DatabaseService()
+        {
+            // Чтение строки подключения из App.config
+            connectionString = ConfigurationManager.ConnectionStrings["VoidConnection"]?.ConnectionString;
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Резервная строка подключения
+                connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
+            }
+        }
 
         public async Task<bool> RegisterUser(string username, string password)
         {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ComradeMIN
 {
@@ -11,127 +12,161 @@ namespace ComradeMIN
     {
         private readonly string _cacheFolder;
         private readonly int _userId;
-        private readonly string _connectionString;
+        private readonly Dictionary<string, CachedFileInfo> _fileCache = new();
 
-        public CacheManager(int userId, string connectionString)
+        // Класс для хранения информации о кэшированном файле
+        public class CachedFileInfo
+        {
+            public string FileName { get; set; }
+            public string FilePath { get; set; }
+            public string FileType { get; set; }
+            public long FileSize { get; set; }
+            public DateTime CacheDate { get; set; }
+        }
+
+        // Класс для сериализации кэша
+        [Serializable]
+        private class CacheData
+        {
+            public Dictionary<string, CachedFileInfo> FileCache { get; set; } = new();
+        }
+
+        public CacheManager(int userId)
         {
             _userId = userId;
-            _connectionString = connectionString;
 
+            // Папка кэша в AppData
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _cacheFolder = Path.Combine(appData, "ComradeMIN", "Cache", userId.ToString());
 
             if (!Directory.Exists(_cacheFolder))
                 Directory.CreateDirectory(_cacheFolder);
+
+            LoadCache();
         }
 
-        private string GetChatCacheFile(int chatId)
+        // Получение пути к папке кэша (публичный метод)
+        public string GetCacheFolder()
         {
-            return Path.Combine(_cacheFolder, $"chat_{chatId}.json");
+            return _cacheFolder;
         }
 
-        public async Task<List<CachedMessage>> LoadChatMessagesFromCache(int chatId)
+        private string GetCacheFilePath() => Path.Combine(_cacheFolder, "cache.dat");
+
+        private void LoadCache()
         {
-            string cacheFile = GetChatCacheFile(chatId);
-
-            if (!File.Exists(cacheFile))
-                return new List<CachedMessage>();
-
             try
             {
-                string json = await File.ReadAllTextAsync(cacheFile);
-                return JsonSerializer.Deserialize<List<CachedMessage>>(json) ?? new List<CachedMessage>();
-            }
-            catch (Exception)
-            {
-                return new List<CachedMessage>();
-            }
-        }
-
-        public async Task SaveChatMessagesToCache(int chatId, List<CachedMessage> messages)
-        {
-            string cacheFile = GetChatCacheFile(chatId);
-
-            try
-            {
-                var messagesToCache = messages
-                    .OrderByDescending(m => m.SendDate)
-                    .Take(100)
-                    .ToList();
-
-                string json = JsonSerializer.Serialize(messagesToCache, new JsonSerializerOptions { WriteIndented = false });
-                await File.WriteAllTextAsync(cacheFile, json);
+                string cacheFile = GetCacheFilePath();
+                if (File.Exists(cacheFile))
+                {
+                    string json = File.ReadAllText(cacheFile);
+                    var cacheData = JsonSerializer.Deserialize<CacheData>(json);
+                    if (cacheData?.FileCache != null)
+                    {
+                        // Копируем данные, а не присваиваем ссылку
+                        foreach (var item in cacheData.FileCache)
+                        {
+                            _fileCache[item.Key] = item.Value;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения кэша: {ex.Message}");
+                Debug.WriteLine($"Ошибка загрузки кэша: {ex.Message}");
             }
         }
 
-        public async Task UpdateCacheWithNewMessages(int chatId, List<CachedMessage> newMessages)
+        private void SaveCache()
         {
-            var cachedMessages = await LoadChatMessagesFromCache(chatId);
-
-            foreach (var newMsg in newMessages)
+            try
             {
-                if (!cachedMessages.Any(m => m.MessageId == newMsg.MessageId))
-                {
-                    cachedMessages.Add(newMsg);
-                }
+                var cacheData = new CacheData { FileCache = _fileCache };
+                string json = JsonSerializer.Serialize(cacheData);
+                File.WriteAllText(GetCacheFilePath(), json);
             }
-
-            await SaveChatMessagesToCache(chatId, cachedMessages);
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка сохранения кэша: {ex.Message}");
+            }
         }
 
-        public async Task<int?> GetLastCachedMessageId(int chatId)
+        // Проверка наличия файла в кэше
+        public bool IsFileCached(string fileHash)
         {
-            var cachedMessages = await LoadChatMessagesFromCache(chatId);
-            return cachedMessages.OrderByDescending(m => m.MessageId).FirstOrDefault()?.MessageId;
+            return _fileCache.ContainsKey(fileHash);
         }
 
-        public void ClearChatCache(int chatId)
+        // Получение кэшированного файла
+        public CachedFileInfo GetCachedFile(string fileHash)
         {
-            string cacheFile = GetChatCacheFile(chatId);
-            if (File.Exists(cacheFile))
-                File.Delete(cacheFile);
+            return _fileCache.TryGetValue(fileHash, out var info) ? info : null;
         }
 
-        public void ClearAllCache()
+        // Кэширование файла
+        public async Task CacheFileAsync(string fileHash, string fileName, string fileType, byte[] fileData)
         {
-            if (Directory.Exists(_cacheFolder))
-                Directory.Delete(_cacheFolder, true);
+            try
+            {
+                string filePath = Path.Combine(_cacheFolder, fileHash + Path.GetExtension(fileName));
+                await File.WriteAllBytesAsync(filePath, fileData);
+
+                _fileCache[fileHash] = new CachedFileInfo
+                {
+                    FileName = fileName,
+                    FilePath = filePath,
+                    FileType = fileType,
+                    FileSize = fileData.Length,
+                    CacheDate = DateTime.Now
+                };
+
+                SaveCache();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка кэширования файла: {ex.Message}");
+            }
         }
 
+        // Очистка старых файлов (старше 7 дней)
+        public void CleanupOldFiles()
+        {
+            try
+            {
+                var cutoffDate = DateTime.Now.AddDays(-7);
+                var toRemove = _fileCache
+                    .Where(kv => kv.Value.CacheDate < cutoffDate)
+                    .Select(kv => kv.Key)
+                    .ToList();
+
+                foreach (var key in toRemove)
+                {
+                    if (File.Exists(_fileCache[key].FilePath))
+                        File.Delete(_fileCache[key].FilePath);
+                    _fileCache.Remove(key);
+                }
+
+                SaveCache();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка очистки кэша: {ex.Message}");
+            }
+        }
+
+        // Получение размера кэша
         public long GetCacheSize()
         {
-            if (!Directory.Exists(_cacheFolder))
-                return 0;
-
-            var files = Directory.GetFiles(_cacheFolder, "*.json", SearchOption.AllDirectories);
-            return files.Sum(file => new FileInfo(file).Length);
+            long totalSize = 0;
+            foreach (var info in _fileCache.Values)
+            {
+                if (File.Exists(info.FilePath))
+                {
+                    totalSize += new FileInfo(info.FilePath).Length;
+                }
+            }
+            return totalSize;
         }
-    }
-
-    public class CachedMessage
-    {
-        public int MessageId { get; set; }
-        public int ChatId { get; set; }
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string MessageText { get; set; }
-        public DateTime SendDate { get; set; }
-        public bool IsRead { get; set; }
-        public List<CachedFile> Files { get; set; } = new List<CachedFile>();
-    }
-
-    public class CachedFile
-    {
-        public int FileId { get; set; }
-        public string FileName { get; set; }
-        public string FileType { get; set; }
-        public byte[] FileData { get; set; }
-        public int FileSize { get; set; }
-
-        public bool ShouldCache => FileSize <= 5 * 1024 * 1024;
     }
 }
