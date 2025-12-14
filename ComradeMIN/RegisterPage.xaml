@@ -10,7 +10,7 @@
 
     <Grid Height="750" VerticalAlignment="Center" HorizontalAlignment="Center" Width="999">
 
-        <Button x:Name="Back" Content="Назад" HorizontalAlignment="Left" Margin="820,414,0,0" 
+        <Button x:Name="Back" TabIndex="5" Content="Назад" HorizontalAlignment="Left" Margin="820,414,0,0" 
                 VerticalAlignment="Top" Height="34" Width="120"
     Background="Transparent"
     BorderThickness="0"
@@ -42,7 +42,7 @@
             </Button.Template>
         </Button>
 
-        <Button x:Name="Register" Content="Регистрация" HorizontalAlignment="Left" Margin="686,414,0,0" 
+        <Button x:Name="Register" TabIndex="4" Content="Регистрация" HorizontalAlignment="Left" Margin="686,414,0,0" 
                 VerticalAlignment="Top" Height="34" Width="120"
 Background="Transparent"
 BorderThickness="0"
@@ -75,16 +75,16 @@ MouseLeave="Register_Leave"
         </Button>
 
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,356,0,372" Width="254" Height="22">
-            <TextBox x:Name="Password_input" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
+            <TextBox x:Name="Password_input" TabIndex="2" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
                      TextWrapping="Wrap" VerticalAlignment="Top" Width="254" SelectionOpacity="0" MaxLines="1"/>
         </Border>
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,382,0,346" Width="254" Height="22">
-            <TextBox x:Name="Password_input2" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
+            <TextBox x:Name="Password_input2" TabIndex="3" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
              TextWrapping="Wrap" VerticalAlignment="Center" Width="254" SelectionOpacity="0" MaxLines="1"/>
         </Border>
 
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,330,0,398" Width="254" Height="22">
-            <TextBox x:Name="Login_input" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
+            <TextBox x:Name="Login_input" TabIndex="1" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" 
              TextWrapping="Wrap" VerticalAlignment="Center" Width="217" SelectionOpacity="0" MaxLines="1"/>
         </Border>
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="612,330,0,398" Width="40" Height="22">

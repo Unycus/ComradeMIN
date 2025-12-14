@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
+using System.Windows.Input; // Добавьте эту директиву
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -20,11 +20,31 @@ namespace ComradeMIN
     public partial class RegisterPage : Page
     {
         private DatabaseService _databaseService;
+        private bool _isRegistering = false; // Флаг для предотвращения повторного нажатия
 
         public RegisterPage()
         {
             InitializeComponent();
             _databaseService = new DatabaseService();
+
+            // Подписываемся на события KeyDown для всех полей ввода
+            Login_input.KeyDown += Input_KeyDown;
+            Password_input.KeyDown += Input_KeyDown;
+            Password_input2.KeyDown += Input_KeyDown;
+        }
+
+        // Общий обработчик нажатия клавиш
+        private void Input_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                // Если нажат Enter - вызываем регистрацию
+                if (!_isRegistering)
+                {
+                    Register_Click(sender, e);
+                    e.Handled = true; // Предотвращаем дальнейшую обработку
+                }
+            }
         }
 
         private void Enter_Click(object sender, RoutedEventArgs e)
@@ -88,74 +108,96 @@ namespace ComradeMIN
 
         private async void Register_Click(object sender, RoutedEventArgs e)
         {
-            string username = Login_input.Text.Trim();
-            string password = Password_input.Text;
-            bool success = true;
-            int errorCode = 0;
+            // Защита от повторного нажатия
+            if (_isRegistering) return;
 
-            // Анимация нажатия
-            if (Register.Template.FindName("Oval_registration", Register) is Rectangle oval1)
+            _isRegistering = true;
+            Register.IsEnabled = false;
+
+            try
             {
-                if (oval1.Fill.IsFrozen)
-                    oval1.Fill = oval1.Fill.Clone();
+                string username = Login_input.Text.Trim();
+                string password = Password_input.Text;
+                bool success = true;
+                int errorCode = 0;
 
-                if (oval1.Fill is SolidColorBrush brush)
+                // Анимация нажатия
+                if (Register.Template.FindName("Oval_registration", Register) is Rectangle oval1)
                 {
-                    var colorAnim = new ColorAnimation
+                    if (oval1.Fill.IsFrozen)
+                        oval1.Fill = oval1.Fill.Clone();
+
+                    if (oval1.Fill is SolidColorBrush brush)
                     {
-                        To = Colors.DeepSkyBlue,
-                        Duration = TimeSpan.FromMilliseconds(300),
-                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                    };
-                    brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
+                        var colorAnim = new ColorAnimation
+                        {
+                            To = Colors.DeepSkyBlue,
+                            Duration = TimeSpan.FromMilliseconds(300),
+                            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                        };
+                        brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
+                    }
                 }
-            }
 
-            await Task.Delay(TimeSpan.FromSeconds(0.3));
+                await Task.Delay(TimeSpan.FromSeconds(0.3));
 
-            // Валидация логина и пароля
-            if (username.Length < 3)
-            {
-                success = false;
-                errorCode = 1;
-                MessageBox.Show("Логин должен содержать не менее 3 символов");
-            }
-            else if (password.Length < 6)
-            {
-                success = false;
-                errorCode = 2;
-                MessageBox.Show("Пароль должен содержать не менее 6 символов");
-            }
-            else if (password != Password_input2.Text)
-            {
-                success = false;
-                errorCode = 3;
-                MessageBox.Show("Пароли не совпадают");
-            }
-
-            // Регистрация в базе данных
-            if (success)
-            {
-                int? newUserId = await _databaseService.RegisterUserAndGetId(username, password);
-                if (newUserId.HasValue)
+                // Валидация логина и пароля
+                if (username.Length < 3)
                 {
-                    MessageBox.Show("Регистрация прошла успешно!");
-                    // Переходим сразу в чат с ID нового пользователя
-                    // ИСПРАВЛЕНО: используем newUserId.Value для преобразования int? в int
-                    NavigationService.Navigate(new UserDataBaseMessengePage(newUserId.Value));
-                }
-                else
-                {
-                    // Ошибка уже показана в DatabaseService
                     success = false;
-                    errorCode = 4;
+                    errorCode = 1;
+                    MessageBox.Show("Логин должен содержать не менее 3 символов");
+                    Login_input.Focus();
+                }
+                else if (password.Length < 6)
+                {
+                    success = false;
+                    errorCode = 2;
+                    MessageBox.Show("Пароль должен содержать не менее 6 символов");
+                    Password_input.Focus();
+                }
+                else if (password != Password_input2.Text)
+                {
+                    success = false;
+                    errorCode = 3;
+                    MessageBox.Show("Пароли не совпадают");
+                    Password_input2.Focus();
+                }
+
+                // Регистрация в базе данных
+                if (success)
+                {
+                    int? newUserId = await _databaseService.RegisterUserAndGetId(username, password);
+                    if (newUserId.HasValue)
+                    {
+                        MessageBox.Show("Регистрация прошла успешно!");
+                        // Переходим сразу в чат с ID нового пользователя
+                        NavigationService.Navigate(new UserDataBaseMessengePage(newUserId.Value));
+                        return; // Выходим, так как уже переходим на другую страницу
+                    }
+                    else
+                    {
+                        // Ошибка уже показана в DatabaseService
+                        success = false;
+                        errorCode = 4;
+                        Login_input.Focus();
+                    }
+                }
+
+                // Анимация ошибки если нужно
+                if (!success && errorCode != 4) // errorCode 4 - ошибка уже обработана в DatabaseService
+                {
+                    ShowErrorAnimation();
                 }
             }
-
-            // Анимация ошибки если нужно
-            if (!success && errorCode != 4) // errorCode 4 - ошибка уже обработана в DatabaseService
+            catch (Exception ex)
             {
-                ShowErrorAnimation();
+                MessageBox.Show($"Произошла ошибка: {ex.Message}");
+            }
+            finally
+            {
+                _isRegistering = false;
+                Register.IsEnabled = true;
             }
         }
 

@@ -69,6 +69,26 @@ namespace ComradeMIN
         {
             InitializeComponent();
             currentUserID = userID;
+
+            // Определяем строку подключения в зависимости от компьютера
+            string serverIP = "26.19.50.66"; // IP сервера из Radmin VPN
+
+            // Проверяем, на сервере ли мы (по имени компьютера)
+            if (Environment.MachineName.ToUpper() == "DESKTOP-LK756J0")
+            {
+                // Мы на сервере - локальное подключение
+                connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
+            }
+            else
+            {
+                // Мы на клиенте - удаленное подключение через Radmin VPN
+                connectionString = $"Data Source={serverIP}\\SQLEXPRESS,1433;" +
+                                  $"Initial Catalog=Void;" +
+                                  $"User Id=VoidUser;" +
+                                  $"Password=VoidUser123;" +
+                                  $"TrustServerCertificate=True;" + // Важно для Radmin VPN
+                                  $"Connection Timeout=30;";
+            }
             _lastUpdateTime = DateTime.Now;
 
             // Инициализация кэш-менеджера

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using System.Windows.Input; // Добавьте эту директиву
 
 namespace ComradeMIN
 {
@@ -17,12 +18,28 @@ namespace ComradeMIN
         {
             InitializeComponent();
             _databaseService = new DatabaseService();
+
+            // Подписываемся на события KeyDown
+            Login_input.KeyDown += Input_KeyDown;
+            Password_input.KeyDown += Input_KeyDown;
+            PasswordTextBox.KeyDown += Input_KeyDown;
+        }
+
+        // Общий обработчик нажатия клавиш
+        private void Input_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                // Если нажат Enter - вызываем вход
+                Enter_Click(sender, e);
+                e.Handled = true; // Предотвращаем дальнейшую обработку
+            }
         }
 
         private async void Enter_Click(object sender, RoutedEventArgs e)
         {
             string username = Login_input.Text.Trim();
-            string password = Password_input.Password;
+            string password = isPasswordVisible ? PasswordTextBox.Text : Password_input.Password;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -30,19 +47,33 @@ namespace ComradeMIN
                 return;
             }
 
-            // Получаем ID пользователя при успешном входе
-            int? userId = await _databaseService.ValidateUserAndGetId(username, password);
+            // Блокируем кнопку во время выполнения
+            Enter.IsEnabled = false;
 
-            if (userId.HasValue)
+            try
             {
-                MessageBox.Show("Вход выполнен успешно!");
-                // Переходим на страницу чатов с реальным UserId
-                // ИСПРАВЛЕНО: используем userId.Value для преобразования int? в int
-                NavigationService.Navigate(new UserDataBaseMessengePage(userId.Value));
+                // Получаем ID пользователя при успешном входе
+                int? userId = await _databaseService.ValidateUserAndGetId(username, password);
+
+                if (userId.HasValue)
+                {
+                    MessageBox.Show("Вход выполнен успешно!");
+                    // Переходим на страницу чатов с реальным UserId
+                    NavigationService.Navigate(new UserDataBaseMessengePage(userId.Value));
+                }
+                else
+                {
+                    MessageBox.Show("Неверный логин или пароль");
+                    // Фокусируемся на поле пароля для повторного ввода
+                    if (isPasswordVisible)
+                        PasswordTextBox.Focus();
+                    else
+                        Password_input.Focus();
+                }
             }
-            else
+            finally
             {
-                MessageBox.Show("Неверный логин или пароль");
+                Enter.IsEnabled = true;
             }
         }
 
@@ -74,7 +105,7 @@ namespace ComradeMIN
             }
         }
 
-        // Анимационные методы (добавьте если их нет)
+        // Анимационные методы
         private void Enter_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             AnimateOvalScale("Oval", 1.1, 150, Enter);

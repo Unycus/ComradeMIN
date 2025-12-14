@@ -1,29 +1,35 @@
 using System;
+using System.Configuration;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Configuration;
 
 namespace ComradeMIN
 {
     public class DatabaseService
     {
         private string connectionString;
+
         public DatabaseService()
         {
-            // Чтение строки подключения из App.config
-            connectionString = ConfigurationManager.ConnectionStrings["VoidConnection"]?.ConnectionString;
+            // Попробуйте разные варианты строк подключения
+            // Узнайте IP сервера из Radmin VPN
+            string serverIP = "26.19.50.66"; // Замените на реальный IP
 
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                // Резервная строка подключения
-                connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
-            }
+            // Вариант 1: С таймаутом и протоколом TCP
+            connectionString = $"Server=tcp:{serverIP}\\SQLEXPRESS,1433;" +
+                              $"Database=Void;" +
+                              $"User Id=VoidUser;" +
+                              $"Password=VoidUser123;" +
+                              $"Connection Timeout=30;" +
+                              $"TrustServerCertificate=True;";
         }
 
-        public async Task<bool> RegisterUser(string username, string password)
+        // Метод для тестирования подключения
+        public async Task<bool> TestConnection()
         {
             try
             {
@@ -31,117 +37,29 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, не существует ли уже пользователь с таким логином
-                    string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
-                    using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
-                    {
-                        checkCommand.Parameters.AddWithValue("@UserName", username);
-                        int userCount = (int)await checkCommand.ExecuteScalarAsync();
+                    // Простой запрос для проверки
+                    SqlCommand cmd = new SqlCommand("SELECT 1", connection);
+                    var result = await cmd.ExecuteScalarAsync();
 
-                        if (userCount > 0)
-                        {
-                            MessageBox.Show("Пользователь с таким логином уже существует");
-                            return false;
-                        }
-                    }
-
-                    // Создаем нового пользователя
-                    string insertUserQuery = @"
-                        INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
-                        VALUES (@UserName, @PasswordHash, GETDATE())";
-
-                    using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
-                    {
-                        insertCommand.Parameters.AddWithValue("@UserName", username);
-                        // Хэшируем пароль перед сохранением
-                        string passwordHash = HashPassword(password);
-                        insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
-
-                        int rowsAffected = await insertCommand.ExecuteNonQueryAsync();
-                        return rowsAffected > 0;
-                    }
+                    return (int)result == 1;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при регистрации: {ex.Message}");
+                Debug.WriteLine($"Ошибка подключения: {ex.Message}");
                 return false;
             }
         }
-
-        // Метод для проверки логина и пароля при входе
-        public async Task<bool> ValidateUser(string username, string password)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-
-                    string query = @"
-                        SELECT PasswordHash 
-                        FROM Users 
-                        WHERE UserName = @UserName";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@UserName", username);
-
-                        var result = await command.ExecuteScalarAsync();
-                        if (result == null)
-                        {
-                            // Пользователь не найден
-                            return false;
-                        }
-
-                        string storedHash = result.ToString();
-                        string inputHash = HashPassword(password);
-
-                        // Сравниваем хеши
-                        return storedHash == inputHash;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при входе: {ex.Message}");
-                return false;
-            }
-        }
-
-        // Метод для получения ID пользователя (если нужно)
-        public async Task<int?> GetUserId(string username)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    await connection.OpenAsync();
-
-                    string query = "SELECT UserId FROM Users WHERE UserName = @UserName";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@UserName", username);
-
-                        var result = await command.ExecuteScalarAsync();
-                        return result != null ? Convert.ToInt32(result) : (int?)null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при получении ID пользователя: {ex.Message}");
-                return null;
-            }
-        }
-
         public async Task<int?> ValidateUserAndGetId(string username, string password)
         {
             try
             {
+                Debug.WriteLine($"Попытка подключения: {connectionString}");
+
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     await connection.OpenAsync();
+                    Debug.WriteLine("Подключение к БД успешно!");
 
                     string query = @"
                 SELECT UserId, PasswordHash 
@@ -161,21 +79,38 @@ namespace ComradeMIN
 
                                 if (storedHash == inputHash)
                                 {
-                                    return reader.GetInt32(0); // Возвращаем UserId
+                                    return reader.GetInt32(0);
                                 }
+                                else
+                                {
+                                    Debug.WriteLine("Пароль не совпадает");
+                                }
+                            }
+                            else
+                            {
+                                Debug.WriteLine("Пользователь не найден");
                             }
                             return null;
                         }
                     }
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                Debug.WriteLine($"SQL Ошибка: {sqlEx.Message}");
+                Debug.WriteLine($"Номер ошибки: {sqlEx.Number}");
+                Debug.WriteLine($"Источник: {sqlEx.Source}");
+                Debug.WriteLine($"Стек: {sqlEx.StackTrace}");
+                MessageBox.Show($"Ошибка при входе: {sqlEx.Message}\n\nПроверьте подключение к VPN и настройки сети.");
+                return null;
+            }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Общая ошибка: {ex.Message}");
                 MessageBox.Show($"Ошибка при входе: {ex.Message}");
                 return null;
             }
         }
-
         public async Task<int?> RegisterUserAndGetId(string username, string password)
         {
             try
@@ -184,7 +119,7 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, не существует ли уже пользователь
+                    // Проверяем, не существует ли уже пользователь с таким логином
                     string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
                     using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
                     {
@@ -200,9 +135,9 @@ namespace ComradeMIN
 
                     // Создаем нового пользователя
                     string insertUserQuery = @"
-                INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
-                VALUES (@UserName, @PasswordHash, GETDATE());
-                SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
+                    INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
+                    VALUES (@UserName, @PasswordHash, GETDATE());
+                    SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
 
                     using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
                     {
@@ -231,7 +166,6 @@ namespace ComradeMIN
                 return null;
             }
         }
-
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
