@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 public class ChatHub : Hub
 {
@@ -13,14 +14,27 @@ public class ChatHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"chat_{chatId}");
     }
 
+    // Измененный метод SendMessage - добавляем messageId
     public async Task SendMessage(int chatId, int userId, string message, int messageId)
     {
         await Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessage", chatId, userId, message, messageId);
     }
 
+    // Метод для отправки файла
+    public async Task SendFile(int chatId, int userId, string fileName, int messageId)
+    {
+        await Clients.Group($"chat_{chatId}").SendAsync("ReceiveFile", chatId, userId, fileName, messageId);
+    }
+
     public async Task NotifyChatListUpdate(int userId)
     {
         await Clients.User(userId.ToString()).SendAsync("RefreshChats");
+    }
+
+    // Метод для уведомления о непрочитанных сообщениях
+    public async Task NotifyUnreadCount(int userId, int chatId, int unreadCount)
+    {
+        await Clients.User(userId.ToString()).SendAsync("UpdateUnreadCount", chatId, unreadCount);
     }
 
     public override async Task OnConnectedAsync()

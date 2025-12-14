@@ -28,6 +28,8 @@ namespace ComradeMIN
     {
         private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
         private int currentUserID;
+        private Dictionary<int, int> _unreadCounts = new Dictionary<int, int>();
+        private Dictionary<int, UIElement> _chatButtons = new Dictionary<int, UIElement>();
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
         private bool _isChatJustOpened = false;
@@ -111,6 +113,7 @@ namespace ComradeMIN
 
             this.Loaded += (s, e) => Text_for_Comrade.Focus();
             this.Unloaded += async (s, e) => await CleanupSignalR();
+            InitializeSignalR();
         }
 
         // Инициализация SignalR
@@ -133,14 +136,48 @@ namespace ComradeMIN
                         if (currentChatID == chatId)
                         {
                             // Добавляем только новое сообщение, не перезагружая весь чат
-                            if (userId != currentUserID) // Если сообщение не от нас
+                            await AddNewMessageAsync(messageId);
+
+                            // Если сообщение от другого пользователя, сразу отмечаем как прочитанное
+                            if (userId != currentUserID)
                             {
-                                await AddMessageToUI(messageId, message, false);
+                                await MarkMessagesAsRead();
                             }
                         }
                         else
                         {
-                            // Обновляем список чатов (для показа уведомления о новом сообщении)
+                            // Увеличиваем счетчик непрочитанных для этого чата
+                            await IncrementUnreadCount(chatId);
+
+                            // Обновляем список чатов
+                            LoadUserChats();
+                        }
+                    });
+                });
+
+                _hubConnection.On<int, int, string, int>("ReceiveFile", async (chatId, userId, fileName, messageId) =>
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        Debug.WriteLine($"Получен файл {fileName} в чате {chatId} от пользователя {userId}");
+
+                        if (currentChatID == chatId)
+                        {
+                            // Добавляем файл в чат
+                            await AddNewMessageAsync(messageId);
+
+                            // Если сообщение от другого пользователя, сразу отмечаем как прочитанное
+                            if (userId != currentUserID)
+                            {
+                                await MarkMessagesAsRead();
+                            }
+                        }
+                        else
+                        {
+                            // Увеличиваем счетчик непрочитанных для этого чата
+                            await IncrementUnreadCount(chatId);
+
+                            // Обновляем список чатов
                             LoadUserChats();
                         }
                     });
@@ -149,6 +186,11 @@ namespace ComradeMIN
                 _hubConnection.On("RefreshChats", () =>
                 {
                     Dispatcher.Invoke(() => LoadUserChats());
+                });
+
+                _hubConnection.On<int, int>("UpdateUnreadCount", (chatId, unreadCount) =>
+                {
+                    Dispatcher.Invoke(() => UpdateChatUnreadCount(chatId, unreadCount));
                 });
 
                 _hubConnection.On<int, int>("MessageRead", (messageId, userId) =>
@@ -296,6 +338,10 @@ namespace ComradeMIN
 
                     if (rowsAffected > 0)
                     {
+                        // Сбрасываем счетчик непрочитанных
+                        await ResetUnreadCount(currentChatID);
+
+                        // Обновляем список чатов
                         await Dispatcher.InvokeAsync(() =>
                         {
                             LoadUserChats();
@@ -1197,7 +1243,6 @@ namespace ComradeMIN
                     command.Parameters.AddWithValue("@UserId", currentUserID);
                     command.Parameters.AddWithValue("@MessageText", messageText);
 
-                    // Добавляем выходной параметр для MessageId
                     SqlParameter outputParam = new SqlParameter("@NewMessageId", SqlDbType.Int)
                     {
                         Direction = ParameterDirection.Output
@@ -1304,6 +1349,9 @@ namespace ComradeMIN
                 chatBorder.Child = contentPanel;
             }
 
+            // Сохраняем ссылку на кнопку чата
+            _chatButtons[chatID] = chatBorder;
+
             chatBorder.MouseLeftButtonDown += async (s, e) =>
             {
                 // Покидаем предыдущую группу чата
@@ -1322,6 +1370,9 @@ namespace ComradeMIN
                 }
 
                 await LoadChatMessages(chatID, true);
+
+                // Сбрасываем счетчик непрочитанных
+                await ResetUnreadCount(chatID);
 
                 // Отмечаем сообщения как прочитанные
                 await MarkMessagesAsRead();
@@ -1773,6 +1824,13 @@ namespace ComradeMIN
                             // Добавляем сообщение с файлом в UI
                             await AddMessageWithFileToUI(newMessageId, messageText, fileName);
 
+                            // Уведомляем через SignalR
+                            if (_isSignalRConnected && _hubConnection.State == HubConnectionState.Connected)
+                            {
+                                await _hubConnection.SendAsync("SendFile", currentChatID, currentUserID, fileName, newMessageId);
+                                await _hubConnection.SendAsync("NotifyChatListUpdate", currentUserID);
+                            }
+
                             return true;
                         }
                     }
@@ -1815,6 +1873,146 @@ namespace ComradeMIN
                 Text_for_Comrade.CaretIndex = Text_for_Comrade.Text.Length;
                 Text_for_Comrade.Focus();
             }
+        }
+        // Метод увеличения счетчика непрочитанных
+        private async Task IncrementUnreadCount(int chatId)
+        {
+            if (!_unreadCounts.ContainsKey(chatId))
+            {
+                _unreadCounts[chatId] = 0;
+            }
+
+            _unreadCounts[chatId]++;
+
+            // Сохраняем в базе данных
+            await UpdateUnreadCountInDatabase(chatId, _unreadCounts[chatId]);
+
+            // Обновляем UI
+            UpdateChatUnreadCount(chatId, _unreadCounts[chatId]);
+        }
+
+        // Метод сброса счетчика непрочитанных
+        private async Task ResetUnreadCount(int chatId)
+        {
+            if (_unreadCounts.ContainsKey(chatId))
+            {
+                _unreadCounts[chatId] = 0;
+                await UpdateUnreadCountInDatabase(chatId, 0);
+                UpdateChatUnreadCount(chatId, 0);
+            }
+        }
+
+        // Обновление счетчика в БД
+        private async Task UpdateUnreadCountInDatabase(int chatId, int count)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(@"
+            UPDATE UserChats 
+            SET UnreadCount = @UnreadCount 
+            WHERE ChatId = @ChatId AND UserId = @UserId", connection))
+                {
+                    command.Parameters.AddWithValue("@ChatId", chatId);
+                    command.Parameters.AddWithValue("@UserId", currentUserID);
+                    command.Parameters.AddWithValue("@UnreadCount", count);
+
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка обновления счетчика непрочитанных: {ex.Message}");
+            }
+        }
+
+        // Обновление счетчика в UI
+        private void UpdateChatUnreadCount(int chatId, int unreadCount)
+        {
+            if (_chatButtons.ContainsKey(chatId))
+            {
+                var chatButton = _chatButtons[chatId] as Border;
+                if (chatButton != null)
+                {
+                    // Находим badge в дочерних элементах
+                    var badge = FindBadgeInChildren(chatButton);
+
+                    if (unreadCount > 0)
+                    {
+                        if (badge == null)
+                        {
+                            // Создаем новый badge
+                            badge = new Border
+                            {
+                                Background = Brushes.Red,
+                                CornerRadius = new CornerRadius(8),
+                                HorizontalAlignment = HorizontalAlignment.Right,
+                                VerticalAlignment = VerticalAlignment.Top,
+                                Margin = new Thickness(0, -5, -5, 0),
+                                Padding = new Thickness(4),
+                                Child = new TextBlock
+                                {
+                                    Text = unreadCount.ToString(),
+                                    Foreground = Brushes.White,
+                                    FontSize = 9,
+                                    FontWeight = FontWeights.Bold
+                                }
+                            };
+
+                            var containerGrid = new Grid();
+                            var originalContent = chatButton.Child;
+                            chatButton.Child = null;
+                            containerGrid.Children.Add(originalContent);
+                            containerGrid.Children.Add(badge);
+                            chatButton.Child = containerGrid;
+                        }
+                        else
+                        {
+                            // Обновляем существующий badge
+                            var textBlock = badge.Child as TextBlock;
+                            if (textBlock != null)
+                            {
+                                textBlock.Text = unreadCount.ToString();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Удаляем badge
+                        if (badge != null)
+                        {
+                            var containerGrid = chatButton.Child as Grid;
+                            if (containerGrid != null)
+                            {
+                                containerGrid.Children.Remove(badge);
+
+                                // Если остался только один элемент, восстанавливаем оригинальный контент
+                                if (containerGrid.Children.Count == 1)
+                                {
+                                    chatButton.Child = containerGrid.Children[0];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Поиск badge в дочерних элементах
+        private Border FindBadgeInChildren(DependencyObject parent)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is Border border && border.Background == Brushes.Red)
+                    return border;
+
+                var result = FindBadgeInChildren(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
         }
 
         private void Text_for_Comrade_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
