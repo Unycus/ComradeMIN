@@ -25,30 +25,26 @@ namespace ComradeMIN
 {
     public partial class UserDataBaseMessengePage : Page
     {
-        private string connectionString = "Data Source=DESKTOP-LK756J0\\SQLEXPRESS;Initial Catalog=Void;Integrated Security=True";
+        private string connectionString = "Server=tcp:26.19.50.66\\SQLEXPRESS,1433;" +
+                                          "Database=Void;" +
+                                          "User Id=VoidUser;" +
+                                          "Password=VoidUser123;" +
+                                          "Connection Timeout=30;" +
+                                          "TrustServerCertificate=True;";
         private int currentUserID;
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
-        private bool _isChatJustOpened = false;
         private bool _isUserAtBottom = true;
         private bool _isLoadingSequentially = false;
-        private bool _allMessagesLoaded = false;
         private int _lastLoadedMessageId = 0;
         private SignalRManager _signalRManager;
         private string _signalRUrl = "http://26.19.50.66:5000/chatHub";
-
-        // Система реального времени
-        private DispatcherTimer _updateTimer;
-        private DateTime _lastUpdateTime;
-        private bool _isPageActive = true;
 
         // Кэш-менеджер
         private CacheManager _cacheManager;
 
         // Хранилище сообщений
         private Dictionary<int, List<CachedMessage>> _chatMessages = new();
-        private bool _isLoadingMessages = false;
-        private int _currentLastMessageId = 0;
         private Dictionary<int, int> _unreadCounts = new();
         private Dictionary<int, Border> _chatButtons = new();
         private Dictionary<int, ChatInfo> _chatInfos = new();
@@ -66,17 +62,14 @@ namespace ComradeMIN
         {
             InitializeComponent();
             currentUserID = userID;
-            _lastUpdateTime = DateTime.Now;
 
             // Инициализация кэш-менеджера
             _cacheManager = new CacheManager(currentUserID);
 
-            // Инициализация SignalRManager
+            // Инициализация SignalRManager (упрощенная)
             _signalRManager = new SignalRManager(_signalRUrl, currentUserID);
             _signalRManager.OnMessageReceived += OnMessageReceived;
             _signalRManager.OnFileReceived += OnFileReceived;
-            _signalRManager.OnChatsRefresh += OnChatsRefresh;
-            _signalRManager.OnUnreadCountUpdate += OnUnreadCountUpdate;
 
             Debug.WriteLine($"Создана страница чатов для пользователя ID: {currentUserID}");
 
@@ -85,8 +78,6 @@ namespace ComradeMIN
                 MessageBox.Show("Ошибка загрузки элементов интерфейса");
                 return;
             }
-
-            InitializeRealTimeUpdates();
 
             MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
             LoadUserChats();
@@ -118,6 +109,7 @@ namespace ComradeMIN
                 }
                 else
                 {
+                    // Обновляем счетчик непрочитанных в UI
                     await UpdateUnreadCount(chatId, true);
                 }
             });
@@ -140,96 +132,80 @@ namespace ComradeMIN
                 }
                 else
                 {
+                    // Обновляем счетчик непрочитанных в UI
                     await UpdateUnreadCount(chatId, true);
                 }
             });
         }
-
-        private void OnChatsRefresh()
+        public class SignalRManager : IDisposable
         {
-            Dispatcher.Invoke(() => LoadUserChats());
-        }
+            private HubConnection _hubConnection;
+            private string _url;
+            private int _userId;
 
-        private void OnUnreadCountUpdate(int chatId, int unreadCount)
-        {
-            Dispatcher.Invoke(() => UpdateChatUnreadCount(chatId, unreadCount));
-        }
+            public event Action<int, int, string, int> OnMessageReceived;
+            public event Action<int, int, string, int> OnFileReceived;
 
-        // Инициализация системы реального времени
-        private void InitializeRealTimeUpdates()
-        {
-            _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromSeconds(3);
-            _updateTimer.Tick += async (s, e) => await CheckForUpdatesAsync();
-
-            this.Loaded += (s, e) =>
+            public SignalRManager(string url, int userId)
             {
-                _isPageActive = true;
-                _updateTimer.Start();
-            };
-
-            this.Unloaded += (s, e) =>
-            {
-                _isPageActive = false;
-                _updateTimer.Stop();
-            };
-        }
-
-        // Проверка обновлений
-        private async Task CheckForUpdatesAsync()
-        {
-            if (!_isPageActive) return;
-
-            try
-            {
-                bool hasUpdates = await CheckForDatabaseUpdatesAsync();
-                if (hasUpdates)
-                {
-                    Debug.WriteLine("Обнаружены изменения в чатах - обновляю список");
-                    await Dispatcher.InvokeAsync(() => LoadUserChats());
-                }
+                _url = url;
+                _userId = userId;
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка при проверке обновлений: {ex.Message}");
-            }
-        }
 
-        // Проверка изменений в базе данных
-        private async Task<bool> CheckForDatabaseUpdatesAsync()
-        {
-            try
+            public async Task<bool> ConnectAsync()
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("CheckChatsUpdates", connection))
+                try
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", currentUserID);
-                    command.Parameters.AddWithValue("@LastCheckTime", _lastUpdateTime);
+                    _hubConnection = new HubConnectionBuilder()
+                        .WithUrl(_url)
+                        .WithAutomaticReconnect()
+                        .Build();
 
-                    await connection.OpenAsync();
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
+                    // Настройка callback'ов
+                    _hubConnection.On<int, int, string, int>("ReceiveMessage",
+                        (chatId, userId, message, messageId) =>
                         {
-                            int changeCount = reader.GetInt32(0);
-                            DateTime lastUpdateTime = reader.GetDateTime(1);
+                            OnMessageReceived?.Invoke(chatId, userId, message, messageId);
+                        });
 
-                            if (changeCount > 0)
-                            {
-                                _lastUpdateTime = lastUpdateTime;
-                                return true;
-                            }
-                        }
-                    }
+                    _hubConnection.On<int, int, string, int>("ReceiveFile",
+                        (chatId, userId, fileName, messageId) =>
+                        {
+                            OnFileReceived?.Invoke(chatId, userId, fileName, messageId);
+                        });
+
+                    await _hubConnection.StartAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ошибка подключения SignalR: {ex.Message}");
+                    return false;
                 }
             }
-            catch (Exception ex)
+
+            public async Task SendMessageAsync(string method, params object[] args)
             {
-                Debug.WriteLine($"Ошибка проверки обновлений БД: {ex.Message}");
+                if (_hubConnection?.State == HubConnectionState.Connected)
+                {
+                    await _hubConnection.SendCoreAsync(method, args);
+                }
             }
 
-            return false;
+            public async Task JoinChatGroupAsync(int chatId)
+            {
+                await SendMessageAsync("JoinChatGroup", chatId);
+            }
+
+            public async Task LeaveChatGroupAsync(int chatId)
+            {
+                await SendMessageAsync("LeaveChatGroup", chatId);
+            }
+
+            public void Dispose()
+            {
+                _hubConnection?.DisposeAsync();
+            }
         }
 
         // Обработчик прокрутки
@@ -366,7 +342,6 @@ namespace ComradeMIN
                     }
                 }
 
-                _lastUpdateTime = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -384,13 +359,10 @@ namespace ComradeMIN
             if (_isLoadingSequentially) return;
 
             _isLoadingSequentially = true;
-            _allMessagesLoaded = false;
             _lastLoadedMessageId = 0;
 
             try
             {
-                _isChatJustOpened = isOpening;
-
                 // Очищаем чат перед загрузкой
                 await Dispatcher.InvokeAsync(() => Reports.Children.Clear());
 
@@ -436,41 +408,34 @@ namespace ComradeMIN
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand(@"
-            SELECT TOP (@Count) m.MessageId, m.ChatId, m.UserId, u.UserName, 
-                   m.MessageText, m.SendDate, m.IsRead
-            FROM Messages m
-            INNER JOIN Users u ON m.UserId = u.UserId
-            WHERE m.ChatId = @ChatId
-            ORDER BY m.MessageId DESC", connection))
                 {
-                    command.Parameters.AddWithValue("@ChatId", chatId);
-                    command.Parameters.AddWithValue("@Count", count);
-
                     await connection.OpenAsync();
 
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    // Используем процедуру GetChatMessages
+                    using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
                     {
-                        while (await reader.ReadAsync())
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@ChatId", chatId);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            var message = new CachedMessage
+                            int loadedCount = 0;
+                            while (await reader.ReadAsync() && loadedCount < count)
                             {
-                                MessageId = reader.GetInt32(0),
-                                ChatId = reader.GetInt32(1),
-                                UserId = reader.GetInt32(2),
-                                UserName = reader.GetString(3),
-                                MessageText = reader.GetString(4),
-                                SendDate = reader.GetDateTime(5),
-                                IsRead = reader.GetBoolean(6)
-                            };
+                                var message = new CachedMessage
+                                {
+                                    MessageId = reader.GetInt32(0),
+                                    ChatId = reader.GetInt32(1),
+                                    UserId = reader.GetInt32(2),
+                                    UserName = reader.GetString(3),
+                                    MessageText = reader.GetString(4),
+                                    SendDate = reader.GetDateTime(5),
+                                    IsRead = reader.GetBoolean(6)
+                                };
 
-                            // Загружаем файлы для сообщения (в фоне)
-                            _ = Task.Run(async () => {
-                                message.Files = await GetMessageFilesFromDatabase(message.MessageId);
-                                await UpdateMessageFilesInUI(message);
-                            });
-
-                            messages.Add(message);
+                                messages.Add(message);
+                                loadedCount++;
+                            }
                         }
                     }
                 }
@@ -482,7 +447,6 @@ namespace ComradeMIN
 
             return messages;
         }
-
         private async Task UpdateMessageFilesInUI(CachedMessage message)
         {
             await Dispatcher.InvokeAsync(() =>
@@ -597,55 +561,6 @@ namespace ComradeMIN
                     }).ToList()
                 );
             });
-        }
-
-        // Загрузка новых сообщений из БД
-        private async Task<List<CachedMessage>> GetNewChatMessagesFromDatabase(int chatId, int? lastMessageId)
-        {
-            var messages = new List<CachedMessage>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@ChatId", chatId);
-
-                    await connection.OpenAsync();
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var message = new CachedMessage
-                            {
-                                MessageId = reader.GetInt32(0),
-                                ChatId = reader.GetInt32(1),
-                                UserId = reader.GetInt32(2),
-                                UserName = reader.GetString(3),
-                                MessageText = reader.GetString(4),
-                                SendDate = reader.GetDateTime(5),
-                                IsRead = reader.GetBoolean(6)
-                            };
-
-                            // Загружаем файлы для сообщения
-                            message.Files = await GetMessageFilesFromDatabase(message.MessageId);
-
-                            // Добавляем только если это новое сообщение
-                            if (!lastMessageId.HasValue || message.MessageId > lastMessageId.Value)
-                            {
-                                messages.Add(message);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка загрузки сообщений из БД: {ex.Message}");
-            }
-
-            return messages;
         }
 
         // Загрузка файлов сообщения
@@ -1112,9 +1027,6 @@ namespace ComradeMIN
                 // Отписываемся от событий
                 _signalRManager.OnMessageReceived -= OnMessageReceived;
                 _signalRManager.OnFileReceived -= OnFileReceived;
-                _signalRManager.OnChatsRefresh -= OnChatsRefresh;
-                _signalRManager.OnUnreadCountUpdate -= OnUnreadCountUpdate;
-
                 _signalRManager.Dispose();
             }
         }

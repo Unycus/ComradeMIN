@@ -11,12 +11,19 @@
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\signalrmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN.SignalRServer\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\cachemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\cachemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\ChatHub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN.SignalRServer\\ChatHub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\AppData\\Local\\SourceServer\\a487ce84063b5800e0e6cdd54b0fff5b1c3621febfce00bfb34e2b48dac36898\\src\\libraries\\System.Private.CoreLib\\src\\System\\ThrowHelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ComradeMIN.SignalRServer\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\chatmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -51,14 +58,6 @@
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\cachemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\cachemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -83,10 +82,6 @@
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\userdatabasemessengepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|c:\\users\\\u0433\u043B\u0435\u0431-\u0441\u0430\u043D\\documents\\github\\comrademin\\comrademin\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{D044F08E-0A16-4101-88D4-2154E6099910}|ComradeMIN\\ComradeMIN.csproj|solutionrelative:comrademin\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
@@ -106,9 +101,9 @@
               "Title": "SignalRManager.cs",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\SignalRManager.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\SignalRManager.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\SignalRManager.cs",
-              "RelativeToolTip": "ComradeMIN\\SignalRManager.cs",
-              "ViewState": "AgIAAJQAAAAAAAAAAAAQwKUAAAAmAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\SignalRManager.cs*",
+              "RelativeToolTip": "ComradeMIN\\SignalRManager.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJMAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-14T16:04:15.615Z",
               "EditorCaption": ""
@@ -119,62 +114,34 @@
               "Title": "UserDataBaseMessengePage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "ViewState": "AgIAAIYBAAAAAAAAAAAlwJYBAAAyAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs*",
+              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs*",
+              "ViewState": "AgIAAFUBAAAAAAAAAAArwGwBAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-21T09:51:13.283Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "DatabaseService.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\DatabaseService.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\DatabaseService.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\DatabaseService.cs",
-              "RelativeToolTip": "ComradeMIN\\DatabaseService.cs",
-              "ViewState": "AgIAAHYAAAAAAAAAAAAmwKcAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T03:39:58.187Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "LoginPage.xaml",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
               "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml",
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
               "RelativeToolTip": "ComradeMIN\\LoginPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-07T14:54:18.308Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-07T14:54:18.308Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "RegisterPage.xaml",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
               "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml",
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
               "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-07T14:54:45.044Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "AssemblyInfo.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\AssemblyInfo.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\AssemblyInfo.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\AssemblyInfo.cs",
-              "RelativeToolTip": "ComradeMIN\\AssemblyInfo.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-04T22:15:53.579Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-07T14:54:45.044Z"
             },
             {
               "$type": "Document",
@@ -184,7 +151,7 @@
               "RelativeDocumentMoniker": "ComradeMIN.SignalRServer\\ChatHub.cs",
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\ChatHub.cs",
               "RelativeToolTip": "ComradeMIN.SignalRServer\\ChatHub.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-14T10:24:29.726Z",
               "EditorCaption": ""
@@ -192,71 +159,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs",
-              "RelativeDocumentMoniker": "ComradeMIN.SignalRServer\\Program.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs",
-              "RelativeToolTip": "ComradeMIN.SignalRServer\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAADAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-14T10:22:50.585Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "RegisterPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml.cs",
-              "ViewState": "AgIAAIoAAAAAAAAAAAAWwJ4AAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T10:56:57.276Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ChatModels.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\ChatModels.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\ChatModels.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\ChatModels.cs",
-              "RelativeToolTip": "ComradeMIN\\ChatModels.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-09T22:05:21.243Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "App.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\App.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\App.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T00:21:16.899Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "LoginPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\LoginPage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T09:52:15.213Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
               "Title": "CacheManager.cs",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\CacheManager.cs",
               "RelativeDocumentMoniker": "ComradeMIN\\CacheManager.cs",
@@ -269,16 +171,100 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "MainPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainPage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\MainPage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainPage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\MainPage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAABAAAAAAAAAA==",
+              "DocumentIndex": 7,
+              "Title": "DatabaseService.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\DatabaseService.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\DatabaseService.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\DatabaseService.cs",
+              "RelativeToolTip": "ComradeMIN\\DatabaseService.cs",
+              "ViewState": "AgIAAHYAAAAAAAAAAAAmwKcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T04:25:24.866Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T03:39:58.187Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ThrowHelper.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\AppData\\Local\\SourceServer\\a487ce84063b5800e0e6cdd54b0fff5b1c3621febfce00bfb34e2b48dac36898\\src\\libraries\\System.Private.CoreLib\\src\\System\\ThrowHelper.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\SourceServer\\a487ce84063b5800e0e6cdd54b0fff5b1c3621febfce00bfb34e2b48dac36898\\src\\libraries\\System.Private.CoreLib\\src\\System\\ThrowHelper.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\AppData\\Local\\SourceServer\\a487ce84063b5800e0e6cdd54b0fff5b1c3621febfce00bfb34e2b48dac36898\\src\\libraries\\System.Private.CoreLib\\src\\System\\ThrowHelper.cs [\u0422\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u0435\u043D\u0438\u0435]",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\SourceServer\\a487ce84063b5800e0e6cdd54b0fff5b1c3621febfce00bfb34e2b48dac36898\\src\\libraries\\System.Private.CoreLib\\src\\System\\ThrowHelper.cs [\u0422\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u0435\u043D\u0438\u0435]",
+              "ViewState": "AgIAAH0BAAAAAAAAAAAiwJIBAAAMAAAAAQAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T10:49:17.71Z",
+              "EditorCaption": " [\u0422\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u0435\u043D\u0438\u0435]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\AssemblyInfo.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\AssemblyInfo.cs",
+              "RelativeToolTip": "ComradeMIN\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-04T22:15:53.579Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs",
+              "RelativeDocumentMoniker": "ComradeMIN.SignalRServer\\Program.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN.SignalRServer\\Program.cs",
+              "RelativeToolTip": "ComradeMIN.SignalRServer\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-14T10:22:50.585Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RegisterPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml.cs",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAWwJ4AAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-21T10:56:57.276Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ChatModels.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\ChatModels.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\ChatModels.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\ChatModels.cs",
+              "RelativeToolTip": "ComradeMIN\\ChatModels.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-09T22:05:21.243Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\App.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-03T00:21:16.899Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "LoginPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\LoginPage.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\LoginPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-21T09:52:15.213Z"
             },
             {
               "$type": "Document",
@@ -290,8 +276,7 @@
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T00:21:31.363Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T00:21:31.363Z"
             },
             {
               "$type": "Document",
@@ -303,8 +288,7 @@
               "RelativeToolTip": "ComradeMIN\\OptionsPage.xaml.cs",
               "ViewState": "AgIAAEIAAAAAAAAAAAAwwFUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T14:33:10.341Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-24T14:33:10.341Z"
             },
             {
               "$type": "Document",
@@ -350,24 +334,11 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
               "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-10T16:23:25.869Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-10T16:23:25.869Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 20,
-              "Title": "MainPage.xaml",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainPage.xaml",
-              "RelativeDocumentMoniker": "ComradeMIN\\MainPage.xaml",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainPage.xaml",
-              "RelativeToolTip": "ComradeMIN\\MainPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-10-05T04:24:55.643Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
               "RelativeDocumentMoniker": "ComradeMIN\\MainWindow.xaml",

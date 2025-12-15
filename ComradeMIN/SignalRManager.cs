@@ -20,8 +20,6 @@ namespace ComradeMIN
 
         public event Action<int, int, string, int> OnMessageReceived;
         public event Action<int, int, string, int> OnFileReceived;
-        public event Action OnChatsRefresh;
-        public event Action<int, int> OnUnreadCountUpdate;
 
         public SignalRManager(string url, int userId)
         {
@@ -74,16 +72,6 @@ namespace ComradeMIN
             _hubConnection.On<int, int, string, int>("ReceiveFile", (chatId, userId, fileName, messageId) =>
             {
                 OnFileReceived?.Invoke(chatId, userId, fileName, messageId);
-            });
-
-            _hubConnection.On("RefreshChats", () =>
-            {
-                OnChatsRefresh?.Invoke();
-            });
-
-            _hubConnection.On<int, int>("UpdateUnreadCount", (chatId, unreadCount) =>
-            {
-                OnUnreadCountUpdate?.Invoke(chatId, unreadCount);
             });
 
             _hubConnection.Closed += async (error) =>

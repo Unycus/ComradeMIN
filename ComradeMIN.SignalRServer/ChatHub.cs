@@ -26,17 +26,6 @@ public class ChatHub : Hub
         await Clients.Group($"chat_{chatId}").SendAsync("ReceiveFile", chatId, userId, fileName, messageId);
     }
 
-    public async Task NotifyChatListUpdate(int userId)
-    {
-        await Clients.User(userId.ToString()).SendAsync("RefreshChats");
-    }
-
-    // ћетод дл€ уведомлени€ о непрочитанных сообщени€х
-    public async Task NotifyUnreadCount(int userId, int chatId, int unreadCount)
-    {
-        await Clients.User(userId.ToString()).SendAsync("UpdateUnreadCount", chatId, unreadCount);
-    }
-
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
