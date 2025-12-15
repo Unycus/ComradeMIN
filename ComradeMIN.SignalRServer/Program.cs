@@ -3,9 +3,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Настройка CORS - разрешаем все IP из RadminVPN
 builder.Services.AddCors(options =>
 {
+    // Замените AllowAnyOrigin() на более безопасную конфигурацию
     options.AddPolicy("RadminVPNPolicy", policy =>
     {
-        policy.AllowAnyOrigin()  // Разрешаем все источники для тестирования
+        // Получите реальные IP из Radmin VPN
+        string[] allowedOrigins = new[]
+        {
+        "http://26.19.50.66:5000",   // Ваш текущий IP
+        "http://localhost:5000",      // Для локального тестирования
+        "http://192.168.1.100:5000",  // Пример другого клиента
+    };
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

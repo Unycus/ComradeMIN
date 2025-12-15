@@ -50,6 +50,7 @@ namespace ComradeMIN
                 return false;
             }
         }
+
         public async Task<int?> ValidateUserAndGetId(string username, string password)
         {
             try
@@ -77,13 +78,26 @@ namespace ComradeMIN
                                 string storedHash = reader.GetString(1);
                                 string inputHash = HashPassword(password);
 
+                                // Сначала проверяем новым методом (с солью)
                                 if (storedHash == inputHash)
                                 {
                                     return reader.GetInt32(0);
                                 }
                                 else
                                 {
-                                    Debug.WriteLine("Пароль не совпадает");
+                                    // Если не совпадает, пробуем старым методом (без соли)
+                                    string oldHash = HashPasswordWithoutSalt(password);
+                                    if (storedHash == oldHash)
+                                    {
+                                        int userId = reader.GetInt32(0);
+                                        // Автоматически мигрируем на новый формат
+                                        await UpdatePasswordHash(userId, HashPassword(password));
+                                        return userId;
+                                    }
+                                    else
+                                    {
+                                        Debug.WriteLine("Пароль не совпадает");
+                                    }
                                 }
                             }
                             else
@@ -111,6 +125,31 @@ namespace ComradeMIN
                 return null;
             }
         }
+
+        private async Task UpdatePasswordHash(int userId, string newHash)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+                    string query = "UPDATE Users SET PasswordHash = @NewHash WHERE UserId = @UserId";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@NewHash", newHash);
+                        command.Parameters.AddWithValue("@UserId", userId);
+                        await command.ExecuteNonQueryAsync();
+                        Debug.WriteLine($"Пароль для пользователя {userId} обновлен на новый формат");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка обновления пароля: {ex.Message}");
+                // Не прерываем выполнение - пользователь уже вошел
+            }
+        }
+
         public async Task<int?> RegisterUserAndGetId(string username, string password)
         {
             try
@@ -133,7 +172,7 @@ namespace ComradeMIN
                         }
                     }
 
-                    // Создаем нового пользователя
+                    // Создаем нового пользователя с новым форматом хэша
                     string insertUserQuery = @"
                     INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
                     VALUES (@UserName, @PasswordHash, GETDATE());
@@ -142,7 +181,7 @@ namespace ComradeMIN
                     using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
                     {
                         insertCommand.Parameters.AddWithValue("@UserName", username);
-                        string passwordHash = HashPassword(password);
+                        string passwordHash = HashPassword(password); // Используем новый метод
                         insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
 
                         var newUserId = await insertCommand.ExecuteScalarAsync();
@@ -166,7 +205,29 @@ namespace ComradeMIN
                 return null;
             }
         }
+
+        // НОВЫЙ МЕТОД: хэширование с солью
         private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                // Соль для усиления безопасности
+                string salt = "ComradeMIN_2025"; // TODO: Вынести в конфигурацию
+                byte[] saltBytes = Encoding.UTF8.GetBytes(salt);
+                byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+
+                // Комбинируем соль и пароль
+                byte[] combinedBytes = new byte[saltBytes.Length + passwordBytes.Length];
+                Buffer.BlockCopy(saltBytes, 0, combinedBytes, 0, saltBytes.Length);
+                Buffer.BlockCopy(passwordBytes, 0, combinedBytes, saltBytes.Length, passwordBytes.Length);
+
+                byte[] hash = sha256.ComputeHash(combinedBytes);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        // СТАРЫЙ МЕТОД: для обратной совместимости
+        private string HashPasswordWithoutSalt(string password)
         {
             using (var sha256 = SHA256.Create())
             {

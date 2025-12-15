@@ -150,8 +150,20 @@ namespace ComradeMIN
             if (_isDisposed) return;
 
             _isDisposed = true;
-            _hubConnection?.DisposeAsync();
-            _connectionLock.Dispose();
+
+            try
+            {
+                // Безопасное освобождение ресурсов
+                _hubConnection?.DisposeAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при освобождении SignalR: {ex.Message}");
+            }
+            finally
+            {
+                _connectionLock.Dispose();
+            }
         }
     }
 }

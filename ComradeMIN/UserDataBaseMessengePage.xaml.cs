@@ -49,6 +49,10 @@ namespace ComradeMIN
         private Dictionary<int, Border> _chatButtons = new();
         private Dictionary<int, ChatInfo> _chatInfos = new();
 
+        // ДОБАВЛЕНО: Семафоры для защиты от многопоточных проблем
+        private readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
+
         private class ChatInfo
         {
             public int ChatId { get; set; }
@@ -66,7 +70,7 @@ namespace ComradeMIN
             // Инициализация кэш-менеджера
             _cacheManager = new CacheManager(currentUserID);
 
-            // Инициализация SignalRManager (упрощенная)
+            // Инициализация SignalRManager
             _signalRManager = new SignalRManager(_signalRUrl, currentUserID);
             _signalRManager.OnMessageReceived += OnMessageReceived;
             _signalRManager.OnFileReceived += OnFileReceived;
@@ -137,76 +141,8 @@ namespace ComradeMIN
                 }
             });
         }
-        public class SignalRManager : IDisposable
-        {
-            private HubConnection _hubConnection;
-            private string _url;
-            private int _userId;
 
-            public event Action<int, int, string, int> OnMessageReceived;
-            public event Action<int, int, string, int> OnFileReceived;
-
-            public SignalRManager(string url, int userId)
-            {
-                _url = url;
-                _userId = userId;
-            }
-
-            public async Task<bool> ConnectAsync()
-            {
-                try
-                {
-                    _hubConnection = new HubConnectionBuilder()
-                        .WithUrl(_url)
-                        .WithAutomaticReconnect()
-                        .Build();
-
-                    // Настройка callback'ов
-                    _hubConnection.On<int, int, string, int>("ReceiveMessage",
-                        (chatId, userId, message, messageId) =>
-                        {
-                            OnMessageReceived?.Invoke(chatId, userId, message, messageId);
-                        });
-
-                    _hubConnection.On<int, int, string, int>("ReceiveFile",
-                        (chatId, userId, fileName, messageId) =>
-                        {
-                            OnFileReceived?.Invoke(chatId, userId, fileName, messageId);
-                        });
-
-                    await _hubConnection.StartAsync();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Ошибка подключения SignalR: {ex.Message}");
-                    return false;
-                }
-            }
-
-            public async Task SendMessageAsync(string method, params object[] args)
-            {
-                if (_hubConnection?.State == HubConnectionState.Connected)
-                {
-                    await _hubConnection.SendCoreAsync(method, args);
-                }
-            }
-
-            public async Task JoinChatGroupAsync(int chatId)
-            {
-                await SendMessageAsync("JoinChatGroup", chatId);
-            }
-
-            public async Task LeaveChatGroupAsync(int chatId)
-            {
-                await SendMessageAsync("LeaveChatGroup", chatId);
-            }
-
-            public void Dispose()
-            {
-                _hubConnection?.DisposeAsync();
-            }
-        }
+        // ВНИМАНИЕ: Вложенный класс SignalRManager удален полностью!
 
         // Обработчик прокрутки
         private async void MessagesScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -353,16 +289,19 @@ namespace ComradeMIN
             }
         }
 
-        // Загрузка сообщений чата
+        // Загрузка сообщений чата (ДОБАВЛЕНА ЗАЩИТА ОТ МНОГОПОТОЧНОСТИ)
         private async Task LoadChatMessages(int chatID, bool isOpening = false)
         {
-            if (_isLoadingSequentially) return;
-
-            _isLoadingSequentially = true;
-            _lastLoadedMessageId = 0;
+            // Защита от одновременной загрузки
+            await _loadLock.WaitAsync();
 
             try
             {
+                if (_isLoadingSequentially) return;
+
+                _isLoadingSequentially = true;
+                _lastLoadedMessageId = 0;
+
                 // Очищаем чат перед загрузкой
                 await Dispatcher.InvokeAsync(() => Reports.Children.Clear());
 
@@ -398,6 +337,7 @@ namespace ComradeMIN
             finally
             {
                 _isLoadingSequentially = false;
+                _loadLock.Release();
             }
         }
 
@@ -447,6 +387,7 @@ namespace ComradeMIN
 
             return messages;
         }
+
         private async Task UpdateMessageFilesInUI(CachedMessage message)
         {
             await Dispatcher.InvokeAsync(() =>
@@ -873,45 +814,6 @@ namespace ComradeMIN
                 return $"{(double)fileSize / (1024 * 1024):F1} MB";
         }
 
-        // Скачивание/просмотр файла
-        private async void DownloadFile(MessageFile file)
-        {
-            try
-            {
-                SaveFileDialog saveFileDialog = new SaveFileDialog
-                {
-                    FileName = file.FileName,
-                    Filter = "Все файлы (*.*)|*.*"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    File.WriteAllBytes(saveFileDialog.FileName, file.FileData);
-                    MessageBox.Show($"Файл сохранен: {saveFileDialog.FileName}");
-
-                    // Если это изображение, предлагаем открыть его
-                    if (file.FileType == "image")
-                    {
-                        var result = MessageBox.Show("Открыть изображение?", "Файл сохранен",
-                            MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                        if (result == MessageBoxResult.Yes)
-                        {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = saveFileDialog.FileName,
-                                UseShellExecute = true
-                            });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}");
-            }
-        }
-
         // Расчет хэша файла
         private string CalculateFileHash(byte[] fileData)
         {
@@ -949,7 +851,7 @@ namespace ComradeMIN
                 });
 
                 // Открываем файл
-                OpenCachedFile(System.IO.Path.Combine(_cacheManager.GetCacheFolder(), fileHash + System.IO.Path.GetExtension(file.FileName)));
+                OpenCachedFile(IOPath.Combine(_cacheManager.GetCacheFolder(), fileHash + IOPath.GetExtension(file.FileName)));
             }
             catch (Exception ex)
             {
@@ -995,7 +897,7 @@ namespace ComradeMIN
             try
             {
                 var result = MessageBox.Show(
-                    $"Открыть файл?\nПуть: {System.IO.Path.GetFileName(filePath)}",
+                    $"Открыть файл?\nПуть: {IOPath.GetFileName(filePath)}",
                     "Открытие файла",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -1031,27 +933,34 @@ namespace ComradeMIN
             }
         }
 
-        // Отправка сообщения
+        // Отправка сообщения (ДОБАВЛЕНА ЗАЩИТА ОТ МНОГОКРАТНОЙ ОТПРАВКИ)
         private async void SendMessage()
         {
-            if (currentChatID == 0)
+            // Защита от многократного нажатия
+            if (!_sendLock.WaitAsync(0).Result)
             {
-                MessageBox.Show("Выберите чат для отправки сообщения");
-                Text_for_Comrade.Focus();
+                Debug.WriteLine("Предотвращена повторная отправка сообщения");
                 return;
             }
-
-            if (string.IsNullOrWhiteSpace(Text_for_Comrade.Text))
-            {
-                MessageBox.Show("Введите сообщение");
-                Text_for_Comrade.Focus();
-                return;
-            }
-
-            string messageText = Text_for_Comrade.Text;
 
             try
             {
+                if (currentChatID == 0)
+                {
+                    MessageBox.Show("Выберите чат для отправки сообщения");
+                    Text_for_Comrade.Focus();
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(Text_for_Comrade.Text))
+                {
+                    MessageBox.Show("Введите сообщение");
+                    Text_for_Comrade.Focus();
+                    return;
+                }
+
+                string messageText = Text_for_Comrade.Text;
+
                 // Сохраняем в БД
                 int newMessageId = 0;
                 using (SqlConnection connection = new SqlConnection(connectionString))
@@ -1096,6 +1005,10 @@ namespace ComradeMIN
             {
                 MessageBox.Show($"Ошибка отправки сообщения: {ex.Message}");
                 Text_for_Comrade.Focus();
+            }
+            finally
+            {
+                _sendLock.Release();
             }
         }
 
@@ -1433,7 +1346,7 @@ namespace ComradeMIN
         // Вспомогательный метод для определения типа файла
         private string GetFileTypeByExtension(string fileName)
         {
-            string extension = System.IO.Path.GetExtension(fileName).ToLower();
+            string extension = IOPath.GetExtension(fileName).ToLower();
 
             return extension switch
             {
@@ -1649,22 +1562,6 @@ namespace ComradeMIN
             }
         }
 
-        // Поиск badge в дочерних элементах
-        private Border FindBadgeInChildren(DependencyObject parent)
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is Border border && border.Background == Brushes.Red)
-                    return border;
-
-                var result = FindBadgeInChildren(child);
-                if (result != null)
-                    return result;
-            }
-            return null;
-        }
-
         // Остальные методы без изменений
         private void Enter_to_search_MouseEnter(object sender, MouseEventArgs e) => AnimateButtonScale("Enter_to_search", 1.1);
         private void Enter_to_search_MouseLeave(object sender, MouseEventArgs e) => AnimateButtonScale("Enter_to_search", 1.0);
@@ -1723,7 +1620,7 @@ namespace ComradeMIN
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                string fileName = System.IO.Path.GetFileName(filePath);
+                string fileName = IOPath.GetFileName(filePath);
 
                 FileInfo fileInfo = new FileInfo(filePath);
                 if (fileInfo.Length > 10 * 1024 * 1024)
@@ -1780,6 +1677,7 @@ namespace ComradeMIN
 
         private void Enter_to_Options_Click(object sender, RoutedEventArgs e)
         {
+            // Передаем текущий UserID в страницу настроек
             OptionsPage optionsPage = new OptionsPage(currentUserID);
             this.NavigationService.Navigate(optionsPage);
         }

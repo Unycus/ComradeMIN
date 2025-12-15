@@ -1,19 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Images\default_avatar.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Images\default_avatar.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
-	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.9" />
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-	<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
-	<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<!-- Существующие пакеты -->
+		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.9" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
 
+		<!-- ДОБАВИТЬ ЭТО -->
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+	</ItemGroup>
 </Project>
