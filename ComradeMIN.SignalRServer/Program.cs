@@ -1,34 +1,75 @@
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Настройка CORS - разрешаем все IP из RadminVPN
+// Конфигурация
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+// Настройка CORS
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5000" };
+
 builder.Services.AddCors(options =>
 {
-    // Замените AllowAnyOrigin() на более безопасную конфигурацию
     options.AddPolicy("RadminVPNPolicy", policy =>
     {
-        // Получите реальные IP из Radmin VPN
-        string[] allowedOrigins = new[]
-        {
-        "http://26.19.50.66:5000",   // Ваш текущий IP
-        "http://localhost:5000",      // Для локального тестирования
-        "http://192.168.1.100:5000",  // Пример другого клиента
-    };
-
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Connection-Id");
     });
 });
 
-builder.Services.AddSignalR();
+// Добавляем SignalR с обработкой больших сообщений
+builder.Services.AddSignalR(hubOptions =>
+{
+    hubOptions.EnableDetailedErrors = true;
+    hubOptions.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+    hubOptions.StreamBufferCapacity = 10;
+    hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(30);
+    hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
+}).AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.PayloadSerializerOptions.WriteIndented = false;
+});
+
+// Добавляем контроллеры (если понадобятся)
+builder.Services.AddControllers();
+
+// Добавляем логирование
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddDebug();
+    logging.SetMinimumLevel(LogLevel.Information);
+});
 
 var app = builder.Build();
 
-app.UseCors("RadminVPNPolicy");
+// Middleware pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseRouting();
 
+// CORS должен быть перед UseEndpoints
+app.UseCors("RadminVPNPolicy");
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
+// Chat hub
 app.MapHub<ChatHub>("/chatHub");
+
+// Fallback для проверки работы сервера
 app.MapGet("/", () => "ComradeMIN SignalR Server is running!");
 
-app.Run("http://0.0.0.0:5000");  // Слушаем на всех интерфейсах
+app.Run("http://0.0.0.0:5000");

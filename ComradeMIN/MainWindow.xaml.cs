@@ -1,29 +1,35 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ComradeMIN
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
-              InitializeComponent();
+            InitializeComponent();
+            MainFrame.Navigate(new LoginPage());
 
+            // Обработчик навигации для отслеживания переходов
+            MainFrame.Navigated += MainFrame_Navigated;
+        }
 
-              MainFrame.Navigate(new LoginPage());
-            
+        private void MainFrame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        {
+            Debug.WriteLine($"Навигация на: {e.Content.GetType().Name}");
+
+            // Если мы возвращаемся на страницу чатов из настроек
+            if (e.Content is UserDataBaseMessengePage chatPage)
+            {
+                Debug.WriteLine("Возврат на страницу чатов");
+
+                // Принудительно очищаем историю навигации
+                while (MainFrame.CanGoBack)
+                {
+                    MainFrame.RemoveBackEntry();
+                }
+            }
         }
     }
-    
 }

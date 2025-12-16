@@ -6,42 +6,55 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace ComradeMIN
 {
-    public class DatabaseService
+    public class DatabaseService : IDisposable
     {
-        private string connectionString;
+        private readonly string _connectionString;
+        private readonly string _pepper;
+        private bool _disposed = false;
 
         public DatabaseService()
         {
-            // Попробуйте разные варианты строк подключения
-            // Узнайте IP сервера из Radmin VPN
-            string serverIP = "26.19.50.66"; // Замените на реальный IP
+            try
+            {
+                // Загрузка конфигурации из AppSettings.json
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
+                    .Build();
 
-            // Вариант 1: С таймаутом и протоколом TCP
-            connectionString = $"Server=tcp:{serverIP}\\SQLEXPRESS,1433;" +
-                              $"Database=Void;" +
-                              $"User Id=VoidUser;" +
-                              $"Password=VoidUser123;" +
-                              $"Connection Timeout=30;" +
-                              $"TrustServerCertificate=True;";
+                _connectionString = configuration.GetConnectionString("VoidConnection");
+                _pepper = configuration["Security:Pepper"] ?? "DEFAULT_PEPPER_CHANGE_ME";
+
+                if (string.IsNullOrEmpty(_connectionString))
+                {
+                    throw new InvalidOperationException("Connection string not found in configuration");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogError($"Failed to initialize DatabaseService: {ex.Message}", ex);
+                throw;
+            }
         }
 
-        // Метод для тестирования подключения
         public async Task<bool> TestConnection()
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
 
-                    // Простой запрос для проверки
-                    SqlCommand cmd = new SqlCommand("SELECT 1", connection);
-                    var result = await cmd.ExecuteScalarAsync();
-
-                    return (int)result == 1;
+                    using (var cmd = new SqlCommand("SELECT 1", connection))
+                    {
+                        var result = await cmd.ExecuteScalarAsync();
+                        return result != null && Convert.ToInt32(result) == 1;
+                    }
                 }
             }
             catch (Exception ex)
@@ -55,54 +68,46 @@ namespace ComradeMIN
         {
             try
             {
-                Debug.WriteLine($"Попытка подключения: {connectionString}");
+                LoggingService.LogDebug($"Attempting login for user: {username}");
 
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
-                    Debug.WriteLine("Подключение к БД успешно!");
 
-                    string query = @"
-                SELECT UserId, PasswordHash 
-                FROM Users 
-                WHERE UserName = @UserName";
+                    const string query = @"
+                        SELECT UserId, PasswordHash 
+                        FROM Users 
+                        WHERE UserName = @UserName";
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserName", username);
 
-                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        using (var reader = await command.ExecuteReaderAsync())
                         {
                             if (await reader.ReadAsync())
                             {
                                 string storedHash = reader.GetString(1);
-                                string inputHash = HashPassword(password);
 
-                                // Сначала проверяем новым методом (с солью)
-                                if (storedHash == inputHash)
+                                // Проверяем хэш с перцем
+                                if (VerifyPasswordHash(password, storedHash))
                                 {
-                                    return reader.GetInt32(0);
+                                    int userId = reader.GetInt32(0);
+                                    LoggingService.LogInfo($"User {username} authenticated successfully");
+
+                                    // Обновляем время последнего входа
+                                    await UpdateLastLoginAsync(userId);
+
+                                    return userId;
                                 }
                                 else
                                 {
-                                    // Если не совпадает, пробуем старым методом (без соли)
-                                    string oldHash = HashPasswordWithoutSalt(password);
-                                    if (storedHash == oldHash)
-                                    {
-                                        int userId = reader.GetInt32(0);
-                                        // Автоматически мигрируем на новый формат
-                                        await UpdatePasswordHash(userId, HashPassword(password));
-                                        return userId;
-                                    }
-                                    else
-                                    {
-                                        Debug.WriteLine("Пароль не совпадает");
-                                    }
+                                    LoggingService.LogWarning($"Failed login attempt for user: {username}");
                                 }
                             }
                             else
                             {
-                                Debug.WriteLine("Пользователь не найден");
+                                LoggingService.LogWarning($"User not found: {username}");
                             }
                             return null;
                         }
@@ -111,42 +116,50 @@ namespace ComradeMIN
             }
             catch (SqlException sqlEx)
             {
-                Debug.WriteLine($"SQL Ошибка: {sqlEx.Message}");
-                Debug.WriteLine($"Номер ошибки: {sqlEx.Number}");
-                Debug.WriteLine($"Источник: {sqlEx.Source}");
-                Debug.WriteLine($"Стек: {sqlEx.StackTrace}");
-                MessageBox.Show($"Ошибка при входе: {sqlEx.Message}\n\nПроверьте подключение к VPN и настройки сети.");
+                LoggingService.LogError($"SQL error during login: {sqlEx.Message}", sqlEx);
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    ShowSqlErrorMessage(sqlEx);
+                });
                 return null;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Общая ошибка: {ex.Message}");
-                MessageBox.Show($"Ошибка при входе: {ex.Message}");
+                LoggingService.LogError($"General error during login: {ex.Message}", ex);
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show($"Ошибка при входе: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                });
                 return null;
             }
         }
 
-        private async Task UpdatePasswordHash(int userId, string newHash)
+        private async Task UpdateLastLoginAsync(int userId)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
-                    string query = "UPDATE Users SET PasswordHash = @NewHash WHERE UserId = @UserId";
-                    using (SqlCommand command = new SqlCommand(query, connection))
+
+                    const string query = @"
+                        UPDATE Users 
+                        SET LastLoginDate = GETUTCDATE() 
+                        WHERE UserId = @UserId";
+
+                    using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@NewHash", newHash);
                         command.Parameters.AddWithValue("@UserId", userId);
                         await command.ExecuteNonQueryAsync();
-                        Debug.WriteLine($"Пароль для пользователя {userId} обновлен на новый формат");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка обновления пароля: {ex.Message}");
-                // Не прерываем выполнение - пользователь уже вошел
+                LoggingService.LogError($"Failed to update last login: {ex.Message}", ex);
             }
         }
 
@@ -154,87 +167,228 @@ namespace ComradeMIN
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, не существует ли уже пользователь с таким логином
-                    string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
-                    using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
+                    // Проверяем уникальность имени пользователя
+                    const string checkQuery = @"
+                        SELECT COUNT(*) 
+                        FROM Users 
+                        WHERE UserName = @UserName";
+
+                    using (var checkCommand = new SqlCommand(checkQuery, connection))
                     {
                         checkCommand.Parameters.AddWithValue("@UserName", username);
                         int userCount = (int)await checkCommand.ExecuteScalarAsync();
 
                         if (userCount > 0)
                         {
-                            MessageBox.Show("Пользователь с таким логином уже существует");
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                MessageBox.Show("Пользователь с таким логином уже существует",
+                                    "Ошибка регистрации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            });
                             return null;
                         }
                     }
 
-                    // Создаем нового пользователя с новым форматом хэша
-                    string insertUserQuery = @"
-                    INSERT INTO Users (UserName, PasswordHash, CreatedDate) 
-                    VALUES (@UserName, @PasswordHash, GETDATE());
-                    SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
+                    // Создаем пользователя с безопасным хэшем
+                    const string insertQuery = @"
+                        INSERT INTO Users (UserName, PasswordHash, CreatedDate, LastLoginDate) 
+                        VALUES (@UserName, @PasswordHash, GETUTCDATE(), GETUTCDATE());
+                        SELECT SCOPE_IDENTITY();";
 
-                    using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
+                    using (var insertCommand = new SqlCommand(insertQuery, connection))
                     {
                         insertCommand.Parameters.AddWithValue("@UserName", username);
-                        string passwordHash = HashPassword(password); // Используем новый метод
+
+                        // Используем безопасное хэширование с перцем
+                        string passwordHash = HashPasswordWithPepper(password);
                         insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
 
                         var newUserId = await insertCommand.ExecuteScalarAsync();
 
                         if (newUserId != null)
                         {
-                            MessageBox.Show("Регистрация прошла успешно!");
-                            return Convert.ToInt32(newUserId);
+                            int userId = Convert.ToInt32(newUserId);
+                            LoggingService.LogInfo($"New user registered: {username} (ID: {userId})");
+
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                MessageBox.Show("Регистрация прошла успешно!", "Успех",
+                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                            });
+
+                            return userId;
                         }
                         else
                         {
-                            MessageBox.Show("Ошибка при создании пользователя");
-                            return null;
+                            throw new InvalidOperationException("Failed to get new user ID");
                         }
                     }
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                LoggingService.LogError($"SQL error during registration: {sqlEx.Message}", sqlEx);
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    ShowSqlErrorMessage(sqlEx);
+                });
+                return null;
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при регистрации: {ex.Message}");
+                LoggingService.LogError($"General error during registration: {ex.Message}", ex);
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                });
                 return null;
             }
         }
 
-        // НОВЫЙ МЕТОД: хэширование с солью
-        private string HashPassword(string password)
+        // Безопасное хэширование с перцем
+        private string HashPasswordWithPepper(string password)
         {
-            using (var sha256 = SHA256.Create())
+            using (var rng = RandomNumberGenerator.Create())
             {
-                // Соль для усиления безопасности
-                string salt = "ComradeMIN_2025"; // TODO: Вынести в конфигурацию
-                byte[] saltBytes = Encoding.UTF8.GetBytes(salt);
-                byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+                // Генерируем уникальную соль для каждого пользователя
+                byte[] salt = new byte[32];
+                rng.GetBytes(salt);
 
-                // Комбинируем соль и пароль
-                byte[] combinedBytes = new byte[saltBytes.Length + passwordBytes.Length];
-                Buffer.BlockCopy(saltBytes, 0, combinedBytes, 0, saltBytes.Length);
-                Buffer.BlockCopy(passwordBytes, 0, combinedBytes, saltBytes.Length, passwordBytes.Length);
+                // Создаем производный ключ с солью и перцем
+                using (var pbkdf2 = new Rfc2898DeriveBytes(
+                    password + _pepper,
+                    salt,
+                    100000,
+                    HashAlgorithmName.SHA512))
+                {
+                    byte[] hash = pbkdf2.GetBytes(64);
 
-                byte[] hash = sha256.ComputeHash(combinedBytes);
-                return Convert.ToBase64String(hash);
+                    // Сохраняем соль и хэш вместе
+                    byte[] hashBytes = new byte[96]; // 32 (соль) + 64 (хэш)
+                    Buffer.BlockCopy(salt, 0, hashBytes, 0, 32);
+                    Buffer.BlockCopy(hash, 0, hashBytes, 32, 64);
+
+                    return Convert.ToBase64String(hashBytes);
+                }
             }
         }
 
-        // СТАРЫЙ МЕТОД: для обратной совместимости
-        private string HashPasswordWithoutSalt(string password)
+        // Проверка пароля с перцем
+        private bool VerifyPasswordHash(string password, string storedHash)
         {
-            using (var sha256 = SHA256.Create())
+            try
             {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
+                byte[] hashBytes = Convert.FromBase64String(storedHash);
+
+                if (hashBytes.Length != 96)
+                {
+                    // Старый формат хэша (для обратной совместимости)
+                    return VerifyLegacyHash(password, storedHash);
+                }
+
+                // Извлекаем соль
+                byte[] salt = new byte[32];
+                Buffer.BlockCopy(hashBytes, 0, salt, 0, 32);
+
+                // Вычисляем хэш введенного пароля
+                using (var pbkdf2 = new Rfc2898DeriveBytes(
+                    password + _pepper,
+                    salt,
+                    100000,
+                    HashAlgorithmName.SHA512))
+                {
+                    byte[] testHash = pbkdf2.GetBytes(64);
+
+                    // Сравниваем хэши
+                    for (int i = 0; i < 64; i++)
+                    {
+                        if (testHash[i] != hashBytes[i + 32])
+                            return false;
+                    }
+                    return true;
+                }
             }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Для обратной совместимости со старыми хэшами
+        private bool VerifyLegacyHash(string password, string storedHash)
+        {
+            try
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    // Проверяем старый метод (без соли и перца)
+                    byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+                    byte[] hash = sha256.ComputeHash(passwordBytes);
+                    string computedHash = Convert.ToBase64String(hash);
+
+                    if (computedHash == storedHash)
+                    {
+                        // Миграция на новый формат при следующем входе
+                        return true;
+                    }
+
+                    // Проверяем старый метод с солью (если использовался)
+                    string salt = "ComradeMIN_2025";
+                    byte[] combinedBytes = new byte[salt.Length + passwordBytes.Length];
+                    Encoding.UTF8.GetBytes(salt).CopyTo(combinedBytes, 0);
+                    passwordBytes.CopyTo(combinedBytes, salt.Length);
+
+                    hash = sha256.ComputeHash(combinedBytes);
+                    computedHash = Convert.ToBase64String(hash);
+
+                    return computedHash == storedHash;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void ShowSqlErrorMessage(SqlException sqlEx)
+        {
+            string userMessage = sqlEx.Number switch
+            {
+                -2 => "Сервер не отвечает. Проверьте подключение к VPN.",
+                18456 => "Ошибка авторизации. Проверьте логин и пароль.",
+                4060 => "Невозможно подключиться к базе данных. Проверьте настройки.",
+                _ => $"Ошибка базы данных: {sqlEx.Message}"
+            };
+
+            MessageBox.Show(userMessage, "Ошибка подключения",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                // Освобождение ресурсов, если есть
+            }
+        }
+
+        ~DatabaseService()
+        {
+            Dispose(false);
         }
     }
 }

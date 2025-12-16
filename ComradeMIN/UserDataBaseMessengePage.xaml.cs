@@ -15,22 +15,17 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using IOPath = System.IO.Path;
 
 namespace ComradeMIN
 {
     public partial class UserDataBaseMessengePage : Page
     {
-        private string connectionString = "Server=tcp:26.19.50.66\\SQLEXPRESS,1433;" +
-                                          "Database=Void;" +
-                                          "User Id=VoidUser;" +
-                                          "Password=VoidUser123;" +
-                                          "Connection Timeout=30;" +
-                                          "TrustServerCertificate=True;";
+        private string connectionString;
         private int currentUserID;
         private int currentChatID = 0;
         private bool isAutoScrolling = true;
@@ -49,9 +44,13 @@ namespace ComradeMIN
         private Dictionary<int, Border> _chatButtons = new();
         private Dictionary<int, ChatInfo> _chatInfos = new();
 
-        // ДОБАВЛЕНО: Семафоры для защиты от многопоточных проблем
+        // Семафоры для защиты от многопоточных проблем
         private readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
+
+        // Флаг для отслеживания инициализации
+        private bool _isInitialized = false;
+        private IConfiguration _configuration;
 
         private class ChatInfo
         {
@@ -67,14 +66,6 @@ namespace ComradeMIN
             InitializeComponent();
             currentUserID = userID;
 
-            // Инициализация кэш-менеджера
-            _cacheManager = new CacheManager(currentUserID);
-
-            // Инициализация SignalRManager
-            _signalRManager = new SignalRManager(_signalRUrl, currentUserID);
-            _signalRManager.OnMessageReceived += OnMessageReceived;
-            _signalRManager.OnFileReceived += OnFileReceived;
-
             Debug.WriteLine($"Создана страница чатов для пользователя ID: {currentUserID}");
 
             if (Fellows == null || Reports == null)
@@ -83,126 +74,142 @@ namespace ComradeMIN
                 return;
             }
 
-            MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
-            LoadUserChats();
-            Text_for_Comrade.KeyDown += Text_for_Comrade_KeyDown;
-
-            this.Loaded += async (s, e) =>
-            {
-                Text_for_Comrade.Focus();
-                await _signalRManager.ConnectAsync();
-            };
-
-            this.Unloaded += async (s, e) => await CleanupSignalR();
-        }
-
-        private async void OnMessageReceived(int chatId, int userId, string message, int messageId)
-        {
-            await Dispatcher.InvokeAsync(async () =>
-            {
-                Debug.WriteLine($"Получено сообщение {messageId} в чате {chatId} от пользователя {userId}");
-
-                if (currentChatID == chatId)
-                {
-                    await AddNewMessageAsync(messageId);
-
-                    if (userId != currentUserID)
-                    {
-                        await MarkMessagesAsRead();
-                    }
-                }
-                else
-                {
-                    // Обновляем счетчик непрочитанных в UI
-                    await UpdateUnreadCount(chatId, true);
-                }
-            });
-        }
-
-        private async void OnFileReceived(int chatId, int userId, string fileName, int messageId)
-        {
-            await Dispatcher.InvokeAsync(async () =>
-            {
-                Debug.WriteLine($"Получен файл {fileName} в чате {chatId} от пользователя {userId}");
-
-                if (currentChatID == chatId)
-                {
-                    await AddNewMessageAsync(messageId);
-
-                    if (userId != currentUserID)
-                    {
-                        await MarkMessagesAsRead();
-                    }
-                }
-                else
-                {
-                    // Обновляем счетчик непрочитанных в UI
-                    await UpdateUnreadCount(chatId, true);
-                }
-            });
-        }
-
-        // ВНИМАНИЕ: Вложенный класс SignalRManager удален полностью!
-
-        // Обработчик прокрутки
-        private async void MessagesScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            // Проверяем, находится ли пользователь внизу
-            _isUserAtBottom = e.VerticalOffset >= e.ExtentHeight - e.ViewportHeight - 10;
-
-            if (_isUserAtBottom && e.ExtentHeightChange > 0)
-            {
-                // Пользователь был внизу и добавились новые сообщения - прокручиваем
-                isAutoScrolling = true;
-                MessagesScrollViewer.ScrollToBottom();
-                isAutoScrolling = false;
-            }
-        }
-
-        // Метод отметки сообщений как прочитанных
-        private async Task MarkMessagesAsRead()
-        {
-            if (currentChatID == 0) return;
-
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                using (SqlCommand command = new SqlCommand("MarkMessagesAsRead", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@ChatId", currentChatID);
-                    command.Parameters.AddWithValue("@UserId", currentUserID);
+                // Загрузка конфигурации из AppSettings.json
+                _configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
+                    .Build();
 
-                    await connection.OpenAsync();
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
-
-                    Debug.WriteLine($"Отмечено как прочитанных: {rowsAffected} сообщений");
-
-                    if (rowsAffected > 0)
-                    {
-                        // Сбрасываем счетчик непрочитанных
-                        await UpdateUnreadCount(currentChatID, false);
-
-                        // Обновляем список чатов
-                        await Dispatcher.InvokeAsync(() =>
-                        {
-                            LoadUserChats();
-                        });
-                    }
-                }
+                connectionString = _configuration.GetConnectionString("VoidConnection");
+                _signalRUrl = _configuration["SignalR:Url"] ?? "http://26.19.50.66:5000/chatHub";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка при отметке сообщений как прочитанных: {ex.Message}");
+                Debug.WriteLine($"Ошибка загрузки конфигурации: {ex.Message}");
+                // Используем значения по умолчанию
+                connectionString = "Server=tcp:26.19.50.66\\SQLEXPRESS,1433;" +
+                                  "Database=Void;" +
+                                  "User Id=VoidUser;" +
+                                  "Password=VoidUser123;" +
+                                  "Connection Timeout=30;" +
+                                  "TrustServerCertificate=True;";
+            }
+
+            MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
+            Text_for_Comrade.KeyDown += Text_for_Comrade_KeyDown;
+
+            // Обработчики навигации
+            this.Loaded += Page_Loaded;
+            this.Unloaded += Page_Unloaded;
+        }
+
+        // НОВЫЙ МЕТОД: Показать ошибку базы данных
+        private async Task ShowDatabaseErrorAsync(SqlException sqlEx)
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                string userMessage = sqlEx.Number switch
+                {
+                    -2 => "Сервер не отвечает. Проверьте подключение к VPN.",
+                    18456 => "Ошибка авторизации. Проверьте логин и пароль.",
+                    4060 => "Невозможно подключиться к базе данных. Проверьте настройки.",
+                    _ => $"Ошибка базы данных: {sqlEx.Message}"
+                };
+
+                MessageBox.Show(userMessage, "Ошибка подключения",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            });
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Page_Loaded вызван");
+
+            // Если страница уже инициализирована, просто обновляем чаты
+            if (_isInitialized && _signalRManager != null)
+            {
+                Debug.WriteLine("Страница уже инициализирована, обновляем чаты");
+                await LoadUserChatsAsync();
+                return;
+            }
+
+            // Иначе выполняем полную инициализацию
+            await InitializePageAsync();
+        }
+
+        private async Task InitializePageAsync()
+        {
+            if (_isInitialized) return;
+
+            try
+            {
+                Debug.WriteLine($"Инициализация страницы для пользователя {currentUserID}");
+
+                // Инициализация кэш-менеджера
+                _cacheManager = new CacheManager(currentUserID);
+
+                // Инициализация SignalRManager
+                _signalRManager = new SignalRManager(currentUserID);
+                _signalRManager.OnMessageReceived += OnMessageReceived;
+                _signalRManager.OnFileReceived += OnFileReceived;
+
+                // Подключаемся к SignalR
+                bool connected = await _signalRManager.ConnectAsync();
+                if (!connected)
+                {
+                    Debug.WriteLine("Не удалось подключиться к SignalR");
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        MessageBox.Show("Не удалось подключиться к серверу сообщений. " +
+                                      "Проверьте подключение к VPN.", "Предупреждение",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    });
+                }
+
+                // Загружаем чаты пользователя
+                await LoadUserChatsAsync();
+
+                // Устанавливаем фокус на поле ввода
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    Text_for_Comrade.Focus();
+                });
+
+                _isInitialized = true;
+                Debug.WriteLine("Страница успешно инициализирована");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка инициализации страницы: {ex.Message}");
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show($"Ошибка инициализации: {ex.Message}");
+                });
             }
         }
 
-        // Загрузка чатов пользователя
-        private async void LoadUserChats()
+        private async void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Page_Unloaded вызван");
+
+            // НЕ очищаем SignalR полностью, только выходим из группы текущего чата
+            if (_isInitialized && _signalRManager != null)
+            {
+                if (currentChatID != 0)
+                {
+                    await _signalRManager.LeaveChatGroupAsync(currentChatID);
+                }
+                Debug.WriteLine("Выход из группы чата выполнен");
+            }
+        }
+
+        private async Task LoadUserChatsAsync()
         {
             try
             {
-                Debug.WriteLine($"=== ЗАГРУЗКА ЧАТОВ ДЛЯ ПОЛЬЗОВАТЕЛЯ ID: {currentUserID} ===");
+                Debug.WriteLine($"=== АСИНХРОННАЯ ЗАГРУЗКА ЧАТОВ ДЛЯ ПОЛЬЗОВАТЕЛЯ ID: {currentUserID} ===");
 
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
@@ -277,15 +284,118 @@ namespace ComradeMIN
                         }
                     }
                 }
-
+            }
+            catch (SqlException sqlEx)
+            {
+                Debug.WriteLine($"ОШИБКА в LoadUserChatsAsync: {sqlEx.Message}");
+                await ShowDatabaseErrorAsync(sqlEx);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ОШИБКА в LoadUserChats: {ex.Message}");
+                Debug.WriteLine($"ОШИБКА в LoadUserChatsAsync: {ex.Message}");
                 await Dispatcher.InvokeAsync(() =>
                 {
                     MessageBox.Show($"Ошибка загрузки чатов: {ex.Message}");
                 });
+            }
+        }
+
+        private async void OnMessageReceived(int chatId, int userId, string message, int messageId)
+        {
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                Debug.WriteLine($"Получено сообщение {messageId} в чате {chatId} от пользователя {userId}");
+
+                if (currentChatID == chatId)
+                {
+                    await AddNewMessageAsync(messageId);
+
+                    if (userId != currentUserID)
+                    {
+                        await MarkMessagesAsRead();
+                    }
+                }
+                else
+                {
+                    // Обновляем счетчик непрочитанных в UI
+                    await UpdateUnreadCount(chatId, true);
+                }
+            });
+        }
+
+        private async void OnFileReceived(int chatId, int userId, string fileName, int messageId)
+        {
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                Debug.WriteLine($"Получен файл {fileName} в чате {chatId} от пользователя {userId}");
+
+                if (currentChatID == chatId)
+                {
+                    await AddNewMessageAsync(messageId);
+
+                    if (userId != currentUserID)
+                    {
+                        await MarkMessagesAsRead();
+                    }
+                }
+                else
+                {
+                    // Обновляем счетчик непрочитанных в UI
+                    await UpdateUnreadCount(chatId, true);
+                }
+            });
+        }
+
+        // Обработчик прокрутки
+        private async void MessagesScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            // Проверяем, находится ли пользователь внизу
+            _isUserAtBottom = e.VerticalOffset >= e.ExtentHeight - e.ViewportHeight - 10;
+
+            if (_isUserAtBottom && e.ExtentHeightChange > 0)
+            {
+                // Пользователь был внизу и добавились новые сообщения - прокручиваем
+                isAutoScrolling = true;
+                MessagesScrollViewer.ScrollToBottom();
+                isAutoScrolling = false;
+            }
+        }
+
+        // Метод отметки сообщений как прочитанных
+        private async Task MarkMessagesAsRead()
+        {
+            if (currentChatID == 0) return;
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand("MarkMessagesAsRead", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@ChatId", currentChatID);
+                    command.Parameters.AddWithValue("@UserId", currentUserID);
+
+                    await connection.OpenAsync();
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                    Debug.WriteLine($"Отмечено как прочитанных: {rowsAffected} сообщений");
+
+                    if (rowsAffected > 0)
+                    {
+                        // Сбрасываем счетчик непрочитанных
+                        await UpdateUnreadCount(currentChatID, false);
+
+                        // Обновляем список чатов
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            LoadUserChatsAsync();
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при отметке сообщений как прочитанных: {ex.Message}");
             }
         }
 
@@ -616,7 +726,7 @@ namespace ComradeMIN
                                 }
 
                                 // Обновляем список чатов
-                                LoadUserChats();
+                                LoadUserChatsAsync();
                             });
                         }
                     }
@@ -917,10 +1027,12 @@ namespace ComradeMIN
             }
         }
 
-        private async Task CleanupSignalR()
+        public async Task CleanupSignalR()
         {
             if (_signalRManager != null)
             {
+                Debug.WriteLine("Полная очистка SignalR");
+
                 if (currentChatID != 0)
                 {
                     await _signalRManager.LeaveChatGroupAsync(currentChatID);
@@ -930,7 +1042,10 @@ namespace ComradeMIN
                 _signalRManager.OnMessageReceived -= OnMessageReceived;
                 _signalRManager.OnFileReceived -= OnFileReceived;
                 _signalRManager.Dispose();
+                _signalRManager = null;
             }
+
+            _isInitialized = false;
         }
 
         // Отправка сообщения (ДОБАВЛЕНА ЗАЩИТА ОТ МНОГОКРАТНОЙ ОТПРАВКИ)
@@ -945,6 +1060,13 @@ namespace ComradeMIN
 
             try
             {
+                // Проверяем инициализацию
+                if (!_isInitialized || _signalRManager == null)
+                {
+                    MessageBox.Show("Подключение не установлено. Попробуйте снова.");
+                    return;
+                }
+
                 if (currentChatID == 0)
                 {
                     MessageBox.Show("Выберите чат для отправки сообщения");
@@ -993,7 +1115,7 @@ namespace ComradeMIN
                 await _signalRManager.SendMessageAsync("SendMessage", currentChatID, currentUserID, messageText, newMessageId);
 
                 // Обновляем список чатов для показа последнего сообщения
-                LoadUserChats();
+                await LoadUserChatsAsync();
 
                 await Dispatcher.InvokeAsync(() =>
                 {
@@ -1086,6 +1208,13 @@ namespace ComradeMIN
 
             chatBorder.MouseLeftButtonDown += async (s, e) =>
             {
+                // Проверяем инициализацию
+                if (!_isInitialized || _signalRManager == null)
+                {
+                    MessageBox.Show("Подключение не установлено. Попробуйте снова.");
+                    return;
+                }
+
                 // Покидаем предыдущую группу чата
                 if (currentChatID != 0)
                 {
@@ -1134,6 +1263,13 @@ namespace ComradeMIN
 
         private void Enter_to_search_Click(object sender, RoutedEventArgs e)
         {
+            // Сначала проверяем инициализацию
+            if (!_isInitialized)
+            {
+                MessageBox.Show("Страница еще не инициализирована. Подождите...");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(ID_search.Text))
             {
                 MessageBox.Show("Введите ID пользователя");
@@ -1198,13 +1334,13 @@ namespace ComradeMIN
                         AddChatButton(newChatID, userName, "Новое сообщение", 0);
                         ID_search.Text = "";
                         MessageBox.Show($"Приватный чат с {userName} создан!");
-                        LoadUserChats();
+                        LoadUserChatsAsync();
                     });
                 }
             }
             catch (SqlException sqlEx)
             {
-                MessageBox.Show($"{sqlEx.Message}");
+                await ShowDatabaseErrorAsync(sqlEx);
             }
             catch (Exception ex)
             {
@@ -1250,7 +1386,7 @@ namespace ComradeMIN
                 _chatMessages[currentChatID].Add(tempMessage);
 
                 // Обновляем список чатов (для показа последнего сообщения)
-                LoadUserChats();
+                LoadUserChatsAsync();
             }
             catch (Exception ex)
             {
@@ -1308,7 +1444,7 @@ namespace ComradeMIN
                     _chatMessages[currentChatID].Add(tempMessage);
 
                     // Обновляем список чатов
-                    LoadUserChats();
+                    LoadUserChatsAsync();
                 }
             }
             catch (Exception ex)
@@ -1407,7 +1543,7 @@ namespace ComradeMIN
                             await _signalRManager.SendMessageAsync("SendFile", currentChatID, currentUserID, fileName, newMessageId);
 
                             // Обновляем список чатов
-                            LoadUserChats();
+                            LoadUserChatsAsync();
 
                             return true;
                         }
@@ -1562,7 +1698,6 @@ namespace ComradeMIN
             }
         }
 
-        // Остальные методы без изменений
         private void Enter_to_search_MouseEnter(object sender, MouseEventArgs e) => AnimateButtonScale("Enter_to_search", 1.1);
         private void Enter_to_search_MouseLeave(object sender, MouseEventArgs e) => AnimateButtonScale("Enter_to_search", 1.0);
         private void Enter_to_Options_MouseEnter(object sender, MouseEventArgs e) => AnimateButtonScale("Enter_to_Options", 1.1);
@@ -1675,11 +1810,18 @@ namespace ComradeMIN
         private void FileText_MouseEnter(object sender, MouseEventArgs e) { }
         private void FileText_MouseLeave(object sender, MouseEventArgs e) { }
 
-        private void Enter_to_Options_Click(object sender, RoutedEventArgs e)
+        private async void Enter_to_Options_Click(object sender, RoutedEventArgs e)
         {
-            // Передаем текущий UserID в страницу настроек
-            OptionsPage optionsPage = new OptionsPage(currentUserID);
+            Debug.WriteLine("Переход в настройки");
+
+            // Сохраняем ID текущего пользователя
+            int userId = currentUserID;
+
+            // Переходим на страницу настроек
+            OptionsPage optionsPage = new OptionsPage(userId);
             this.NavigationService.Navigate(optionsPage);
+
+            Debug.WriteLine("Навигация на OptionsPage выполнена");
         }
 
         private void Enter_Text_Click(object sender, RoutedEventArgs e)
