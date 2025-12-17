@@ -167,88 +167,97 @@ namespace ComradeMIN
         {
             try
             {
-                using (var connection = new SqlConnection(_connectionString))
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем уникальность имени пользователя
-                    const string checkQuery = @"
-                        SELECT COUNT(*) 
-                        FROM Users 
-                        WHERE UserName = @UserName";
-
-                    using (var checkCommand = new SqlCommand(checkQuery, connection))
+                    // Проверяем, не существует ли уже пользователь с таким логином
+                    string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
+                    using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
                     {
                         checkCommand.Parameters.AddWithValue("@UserName", username);
                         int userCount = (int)await checkCommand.ExecuteScalarAsync();
 
                         if (userCount > 0)
                         {
-                            await Application.Current.Dispatcher.InvokeAsync(() =>
-                            {
-                                MessageBox.Show("Пользователь с таким логином уже существует",
-                                    "Ошибка регистрации", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            });
+                            MessageBox.Show("Пользователь с таким логином уже существует");
                             return null;
                         }
                     }
 
-                    // Создаем пользователя с безопасным хэшем
-                    const string insertQuery = @"
-                        INSERT INTO Users (UserName, PasswordHash, CreatedDate, LastLoginDate) 
-                        VALUES (@UserName, @PasswordHash, GETUTCDATE(), GETUTCDATE());
-                        SELECT SCOPE_IDENTITY();";
+                    // Загружаем аватар по умолчанию
+                    byte[] defaultAvatar = LoadDefaultAvatarImage();
 
-                    using (var insertCommand = new SqlCommand(insertQuery, connection))
+                    // Создаем нового пользователя с новым форматом хэша и аватаром по умолчанию
+                    string insertUserQuery = @"
+                INSERT INTO Users (UserName, PasswordHash, ProfileImage, CreatedDate, LastLoginDate) 
+                VALUES (@UserName, @PasswordHash, @ProfileImage, GETUTCDATE(), GETUTCDATE());
+                SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
+
+                    using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
                     {
                         insertCommand.Parameters.AddWithValue("@UserName", username);
-
-                        // Используем безопасное хэширование с перцем
-                        string passwordHash = HashPasswordWithPepper(password);
+                        string passwordHash = HashPasswordWithPepper(password); // Используем новый метод
                         insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
+
+                        // Добавляем аватар по умолчанию
+                        if (defaultAvatar != null && defaultAvatar.Length > 0)
+                            insertCommand.Parameters.AddWithValue("@ProfileImage", defaultAvatar);
+                        else
+                            insertCommand.Parameters.AddWithValue("@ProfileImage", DBNull.Value);
 
                         var newUserId = await insertCommand.ExecuteScalarAsync();
 
                         if (newUserId != null)
                         {
-                            int userId = Convert.ToInt32(newUserId);
-                            LoggingService.LogInfo($"New user registered: {username} (ID: {userId})");
+                            LoggingService.LogInfo($"Новый пользователь зарегистрирован: {username} (ID: {newUserId})");
 
-                            await Application.Current.Dispatcher.InvokeAsync(() =>
-                            {
-                                MessageBox.Show("Регистрация прошла успешно!", "Успех",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
-                            });
-
-                            return userId;
+                            MessageBox.Show("Регистрация прошла успешно!");
+                            return Convert.ToInt32(newUserId);
                         }
                         else
                         {
-                            throw new InvalidOperationException("Failed to get new user ID");
+                            MessageBox.Show("Ошибка при создании пользователя");
+                            return null;
                         }
                     }
                 }
             }
-            catch (SqlException sqlEx)
+            catch (Exception ex)
             {
-                LoggingService.LogError($"SQL error during registration: {sqlEx.Message}", sqlEx);
-
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    ShowSqlErrorMessage(sqlEx);
-                });
+                MessageBox.Show($"Ошибка при регистрации: {ex.Message}");
                 return null;
+            }
+        }
+        private byte[] LoadDefaultAvatarImage()
+        {
+            try
+            {
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string[] possiblePaths = {
+            Path.Combine(baseDirectory, "Images", "default_avatar.png"),
+            Path.Combine(baseDirectory, "default_avatar.png"),
+            "Images/default_avatar.png",
+            "default_avatar.png"
+        };
+
+                foreach (var path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        LoggingService.LogDebug($"Загружен аватар по умолчанию: {path}");
+                        return File.ReadAllBytes(path);
+                    }
+                }
+
+                // Если файл не найден, логируем предупреждение
+                LoggingService.LogWarning("Файл default_avatar.png не найден в папке Images");
+                return new byte[0];
             }
             catch (Exception ex)
             {
-                LoggingService.LogError($"General error during registration: {ex.Message}", ex);
-
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                });
-                return null;
+                LoggingService.LogError($"Ошибка загрузки аватара по умолчанию: {ex.Message}", ex);
+                return new byte[0];
             }
         }
 

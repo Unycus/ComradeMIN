@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Win32;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -572,7 +573,92 @@ namespace ComradeMIN
             return true;
         }
 
-        // Проверка текущего пароля
+        // Получение перца из конфигурации
+        private string GetPepper()
+        {
+            try
+            {
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
+                    .Build();
+
+                return configuration["Security:Pepper"] ?? "DYNAMIC_RANDOM_PEPPER_KEY_256BIT_CHANGE_IN_PRODUCTION";
+            }
+            catch
+            {
+                return "DYNAMIC_RANDOM_PEPPER_KEY_256BIT_CHANGE_IN_PRODUCTION";
+            }
+        }
+
+        // Новый метод хэширования с перцем (как в DatabaseService)
+        private string HashPasswordWithPepper(string password)
+        {
+            string pepper = GetPepper();
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                // Генерируем уникальную соль для каждого пользователя
+                byte[] salt = new byte[32];
+                rng.GetBytes(salt);
+
+                // Создаем производный ключ с солью и перцем
+                using (var pbkdf2 = new Rfc2898DeriveBytes(
+                    password + pepper,
+                    salt,
+                    100000,
+                    HashAlgorithmName.SHA512))
+                {
+                    byte[] hash = pbkdf2.GetBytes(64);
+
+                    // Сохраняем соль и хэш вместе
+                    byte[] hashBytes = new byte[96]; // 32 (соль) + 64 (хэш)
+                    Buffer.BlockCopy(salt, 0, hashBytes, 0, 32);
+                    Buffer.BlockCopy(hash, 0, hashBytes, 32, 64);
+
+                    return Convert.ToBase64String(hashBytes);
+                }
+            }
+        }
+
+        // Проверка пароля с перцем
+        private bool VerifyPasswordWithPepper(string password, string storedHash)
+        {
+            try
+            {
+                byte[] hashBytes = Convert.FromBase64String(storedHash);
+
+                // Извлекаем соль
+                byte[] salt = new byte[32];
+                Buffer.BlockCopy(hashBytes, 0, salt, 0, 32);
+
+                string pepper = GetPepper();
+
+                // Вычисляем хэш введенного пароля
+                using (var pbkdf2 = new Rfc2898DeriveBytes(
+                    password + pepper,
+                    salt,
+                    100000,
+                    HashAlgorithmName.SHA512))
+                {
+                    byte[] testHash = pbkdf2.GetBytes(64);
+
+                    // Сравниваем хэши
+                    for (int i = 0; i < 64; i++)
+                    {
+                        if (testHash[i] != hashBytes[i + 32])
+                            return false;
+                    }
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Обновленный метод проверки текущего пароля
         private async Task<bool> ValidateCurrentPasswordAsync()
         {
             try
@@ -582,9 +668,9 @@ namespace ComradeMIN
                     await connection.OpenAsync();
 
                     string query = @"
-                        SELECT PasswordHash 
-                        FROM Users 
-                        WHERE UserId = @UserId";
+                SELECT PasswordHash 
+                FROM Users 
+                WHERE UserId = @UserId";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -594,15 +680,9 @@ namespace ComradeMIN
                         if (result != null && result != DBNull.Value)
                         {
                             string storedHash = result.ToString();
-                            string inputHash = HashPassword(CurrentPasswordBox.Password);
 
-                            // Сначала проверяем новым методом (с солью)
-                            if (storedHash == inputHash)
-                                return true;
-
-                            // Пробуем старым методом (без соли) для обратной совместимости
-                            string oldHash = HashPasswordWithoutSalt(CurrentPasswordBox.Password);
-                            return storedHash == oldHash;
+                            // Используем новый метод проверки с перцем
+                            return VerifyPasswordWithPepper(CurrentPasswordBox.Password, storedHash);
                         }
                     }
                 }
@@ -615,7 +695,7 @@ namespace ComradeMIN
             return false;
         }
 
-        // Сохранение нового пароля
+        // Обновленный метод сохранения нового пароля
         private async Task SaveNewPasswordAsync()
         {
             try
@@ -625,14 +705,15 @@ namespace ComradeMIN
                     await connection.OpenAsync();
 
                     string query = @"
-                        UPDATE Users 
-                        SET PasswordHash = @PasswordHash 
-                        WHERE UserId = @UserId";
+                UPDATE Users 
+                SET PasswordHash = @PasswordHash 
+                WHERE UserId = @UserId";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", currentUserID);
-                        string newHash = HashPassword(NewPasswordBox.Password);
+                        // Используем новый метод хэширования с перцем
+                        string newHash = HashPasswordWithPepper(NewPasswordBox.Password);
                         command.Parameters.AddWithValue("@PasswordHash", newHash);
 
                         await command.ExecuteNonQueryAsync();
@@ -653,35 +734,6 @@ namespace ComradeMIN
             {
                 Debug.WriteLine($"Ошибка смены пароля: {ex.Message}");
                 throw;
-            }
-        }
-
-        // Хэширование пароля (новый метод с солью)
-        private string HashPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                string salt = "ComradeMIN_2025";
-                byte[] saltBytes = Encoding.UTF8.GetBytes(salt);
-                byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-
-                byte[] combinedBytes = new byte[saltBytes.Length + passwordBytes.Length];
-                Buffer.BlockCopy(saltBytes, 0, combinedBytes, 0, saltBytes.Length);
-                Buffer.BlockCopy(passwordBytes, 0, combinedBytes, saltBytes.Length, passwordBytes.Length);
-
-                byte[] hash = sha256.ComputeHash(combinedBytes);
-                return Convert.ToBase64String(hash);
-            }
-        }
-
-        // Хэширование пароля (старый метод без соли - для обратной совместимости)
-        private string HashPasswordWithoutSalt(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash);
             }
         }
 

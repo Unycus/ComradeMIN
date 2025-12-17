@@ -131,6 +131,9 @@ public class ChatHub : Hub
                 ChatId = chatId,
                 Timestamp = DateTime.UtcNow
             });
+
+            // Уведомляем всех участников чата об обновлении списка чатов
+            await Clients.Group(groupName).SendAsync("UpdateChats");
         }
         catch (Exception ex)
         {
@@ -165,10 +168,37 @@ public class ChatHub : Hub
                 FileName = fileName,
                 Timestamp = DateTime.UtcNow
             });
+
+            // Уведомляем всех участников чата об обновлении списка чатов
+            await Clients.Group(groupName).SendAsync("UpdateChats");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in SendFile");
+            throw;
+        }
+    }
+
+    // НОВЫЙ МЕТОД ДЛЯ УВЕДОМЛЕНИЯ ОБ ОБНОВЛЕНИИ ЧАТОВ
+    [HubMethodName("NotifyChatsUpdated")]
+    public async Task NotifyChatsUpdated(int userId)
+    {
+        try
+        {
+            var userConnections = _connections.Where(c => c.Value.UserId == userId)
+                                              .Select(c => c.Key)
+                                              .ToList();
+
+            foreach (var connectionId in userConnections)
+            {
+                await Clients.Client(connectionId).SendAsync("UpdateChats");
+            }
+
+            _logger.LogDebug("Sent chat update notification to user {UserId}", userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in NotifyChatsUpdated");
             throw;
         }
     }

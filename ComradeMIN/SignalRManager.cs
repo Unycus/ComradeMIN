@@ -25,6 +25,7 @@ namespace ComradeMIN
 
         public event Action<int, int, string, int> OnMessageReceived;
         public event Action<int, int, string, int> OnFileReceived;
+        public event Action OnChatsUpdated; // НОВОЕ СОБЫТИЕ ДЛЯ ОБНОВЛЕНИЯ ЧАТОВ
 
         public SignalRManager(int userId)
         {
@@ -154,12 +155,23 @@ namespace ComradeMIN
             {
                 LoggingService.LogDebug($"Received message {messageId} in chat {chatId}");
                 OnMessageReceived?.Invoke(chatId, userId, message, messageId);
+                // Триггерим обновление чатов
+                OnChatsUpdated?.Invoke();
             });
 
             _hubConnection.On<int, int, string, int>("ReceiveFile", (chatId, userId, fileName, messageId) =>
             {
                 LoggingService.LogDebug($"Received file {fileName} in chat {chatId}");
                 OnFileReceived?.Invoke(chatId, userId, fileName, messageId);
+                // Триггерим обновление чатов
+                OnChatsUpdated?.Invoke();
+            });
+
+            // НОВЫЙ КОЛБЭК ДЛЯ ОБНОВЛЕНИЯ ЧАТОВ
+            _hubConnection.On("UpdateChats", () =>
+            {
+                LoggingService.LogDebug("SignalR: Received chat list update notification");
+                OnChatsUpdated?.Invoke();
             });
 
             _hubConnection.Closed += async (error) =>
@@ -266,6 +278,19 @@ namespace ComradeMIN
             catch (Exception ex)
             {
                 LoggingService.LogError($"Error leaving chat group: {ex.Message}", ex);
+            }
+        }
+
+        // НОВЫЙ МЕТОД ДЛЯ УВЕДОМЛЕНИЯ ОБ ОБНОВЛЕНИИ ЧАТОВ
+        public async Task NotifyChatsUpdatedAsync(int userId)
+        {
+            try
+            {
+                await SendMessageAsync("NotifyChatsUpdated", userId);
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogError($"Error notifying chat update: {ex.Message}", ex);
             }
         }
 

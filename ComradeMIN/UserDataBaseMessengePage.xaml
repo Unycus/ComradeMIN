@@ -8,31 +8,27 @@
       d:DesignHeight="500" d:DesignWidth="1000"
       Title="UserDataBaseMessengePage">
     <Grid Margin="5,5,5,5">
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="40">
+        <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" Height="50">
             <TextBox x:Name="ID_search" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="1"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="40" Margin="320,410,0,0">
+        <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="580" Height="50" Margin="330,403,0,0">
             <TextBox x:Name="Text_for_Comrade" VerticalContentAlignment="Center" Background="Transparent" BorderThickness="0" FontSize="12" Padding="4" MaxLines="99" TextChanged="Text_for_Comrade_TextChanged"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="40" Margin="320,0,0,0">
-            <Label x:Name="Comrade_information" Background="Transparent" VerticalContentAlignment="Center" BorderThickness="0" FontSize="18" Padding="4"/>
+        <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="580" Height="50" Margin="330,0,0,0">
+            <Label x:Name="Comrade_information" Background="Transparent" VerticalContentAlignment="Center" BorderThickness="0" FontSize="18" Padding="4" Margin="0,-10,0,-10"/>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="250" Height="395" Margin="0,55,0,0">
+        <Border Background="#800000" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="250" Height="395" Margin="0,55,0,0">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="Fellows" Width="250"/>
             </ScrollViewer>
         </Border>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" Margin="270,0,0,0">
-            <Image Source="Images/IMG_20240206_184757_187.jpg" Width="40" Height="40">
-                <Image.Clip>
-                    <EllipseGeometry Center="20,20" RadiusX="19" RadiusY="19"/>
-                </Image.Clip>
-            </Image>
+        <Border Background="#800000" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="50" Margin="270,0,0,0">
+            
         </Border>
-        <Button x:Name="Enter_to_search" Content="🔎" HorizontalAlignment="Left" Margin="210,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+        <Button x:Name="Enter_to_search" Content="🔎" HorizontalAlignment="Left" Margin="200,0,0,0" VerticalAlignment="Top" Height="50" Width="50"
     Background="Transparent"
     BorderThickness="0"
-    Foreground="Black"
+    Foreground="#B8860B"
     FontSize="16"
     MouseEnter="Enter_to_search_MouseEnter"
     MouseLeave="Enter_to_search_MouseLeave" 
@@ -41,7 +37,7 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
                         <Rectangle x:Name="Oval_ID_search"
-                    Fill="#E0E0E0"
+                    Fill="#800000"
                     StrokeThickness="0"
                     RadiusX="8"
                     RadiusY="8"
@@ -55,10 +51,10 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Button x:Name="Enter_Text" Content="⏎" HorizontalAlignment="Left" Margin="930,0,0,1" VerticalAlignment="Bottom" Height="40" Width="40"
+        <Button x:Name="Enter_Text" Content="⏎" HorizontalAlignment="Left" Margin="920,0,0,0" VerticalAlignment="Bottom" Height="50" Width="50"
 Background="Transparent"
 BorderThickness="0"
-Foreground="Black"
+Foreground="#B8860B"
 FontSize="20"
 MouseEnter="Enter_text_MouseEnter"
 MouseLeave="Enter_text_MouseLeave" 
@@ -68,7 +64,7 @@ Focusable="False">
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
                         <Rectangle x:Name="Oval_Text"
-                Fill="#E0E0E0"
+                Fill="#800000"
                 StrokeThickness="0"
                 RadiusX="8"
                 RadiusY="8"
@@ -82,10 +78,10 @@ Focusable="False">
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Button x:Name="Enter_to_Options" Content="⚙️" HorizontalAlignment="Left" Margin="930,0,0,0" VerticalAlignment="Top" Height="40" Width="40"
+        <Button x:Name="Enter_to_Options" Content="⚙️" HorizontalAlignment="Left" Margin="920,0,0,0" VerticalAlignment="Top" Height="50" Width="50"
     Background="Transparent"
     BorderThickness="0"
-    Foreground="Black"
+    Foreground="#B8860B"
     FontSize="16"
     MouseEnter="Enter_to_Options_MouseEnter"
     MouseLeave="Enter_to_Options_MouseLeave" 
@@ -94,7 +90,7 @@ Focusable="False">
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
                         <Rectangle x:Name="Oval_Options"
-                    Fill="#E0E0E0"
+                    Fill="#800000"
                     StrokeThickness="0"
                     RadiusX="8"
                     RadiusY="8"
@@ -108,15 +104,15 @@ Focusable="False">
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" Height="40" Margin="270,410,0,0">
-            <Button x:Name="FileText" Content="📎" Background="Transparent" BorderThickness="0"
+        <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="50" Margin="270,403,0,0">
+            <Button x:Name="FileText" Content="📎" Background="Transparent" BorderThickness="0" Foreground="#B8860B"
             FontSize="20" Click="FileText_Click"
             MouseEnter="FileText_MouseEnter" MouseLeave="FileText_MouseLeave">
                 <Button.Template>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Grid>
                             <Rectangle x:Name="Oval_FileText"
-                        Fill="#E0E0E0"
+                        Fill="#800000"
                         StrokeThickness="0"
                         RadiusX="8"
                         RadiusY="8"
