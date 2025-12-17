@@ -10,7 +10,6 @@
       Background="#383838">
 
     <Grid>
-        <!-- Основной контейнер -->
         <Border Background="#696969" CornerRadius="8" Margin="20">
             <Grid>
                 <Grid.RowDefinitions>
@@ -19,7 +18,6 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Заголовок -->
                 <Border Background="#800000" CornerRadius="8,8,0,0" Padding="20">
                     <TextBlock Text="НАСТРОЙКИ ПРОФИЛЯ" 
                                FontSize="20" 
@@ -28,7 +26,6 @@
                                HorizontalAlignment="Center"/>
                 </Border>
 
-                <!-- Основное содержимое -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -36,9 +33,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Левая колонка - аватар и основная информация -->
                         <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                            <!-- Аватар -->
                             <Border Width="200" Height="200" 
                                     Background="White" 
                                     BorderBrush="#800000" 
@@ -47,7 +42,6 @@
                                     HorizontalAlignment="Center"
                                     Margin="0,0,0,20">
                                 <Grid>
-                                    <!-- Изображение профиля -->
                                     <Image x:Name="ProfileImageControl" 
                                            Stretch="UniformToFill" Margin="-1,-1,1,1">
                                         <Image.Clip>
@@ -57,7 +51,6 @@
                                         </Image.Clip>
                                     </Image>
 
-                                    <!-- Иконка по умолчанию, если нет фото -->
                                     <TextBlock x:Name="DefaultAvatarText"
                                                Text="👤"
                                                FontSize="80"
@@ -67,9 +60,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Кнопки управления аватаром -->
                             <StackPanel>
-                                <!-- Кнопка "Сменить аватар" -->
                                 <Button x:Name="ChangeImageBtn" 
                                         Content="Сменить аватар" 
                                         Click="ChangeImageBtn_Click"
@@ -90,7 +81,6 @@
                                     </Button.Template>
                                 </Button>
 
-                                <!-- Кнопка "Удалить аватар" -->
                                 <Button x:Name="RemoveImageBtn" 
                                         Content="Удалить аватар" 
                                         Click="RemoveImageBtn_Click"
@@ -111,7 +101,6 @@
                                 </Button>
                             </StackPanel>
 
-                            <!-- Статистика -->
                             <Border Background="White" 
                                     CornerRadius="8" 
                                     Padding="15"
@@ -147,9 +136,7 @@
                             </Border>
                         </StackPanel>
 
-                        <!-- Правая колонка - настройки -->
                         <StackPanel Grid.Column="1">
-                            <!-- Основная информация -->
                             <Border Background="White" CornerRadius="8" Padding="20" Margin="0,0,0,20">
                                 <StackPanel>
                                     <TextBlock Text="ОСНОВНАЯ ИНФОРМАЦИЯ" 
@@ -170,7 +157,6 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Имя пользователя -->
                                         <TextBlock Grid.Row="0" Grid.Column="0" 
                                                    Text="Имя пользователя:"
                                                    VerticalAlignment="Center"
@@ -187,7 +173,6 @@
                                                      MaxLength="50"/>
                                         </Border>
 
-                                        <!-- Email -->
                                         <TextBlock Grid.Row="1" Grid.Column="0" 
                                                    Text="Email:"
                                                    VerticalAlignment="Center"
@@ -204,7 +189,6 @@
                                                      MaxLength="100"/>
                                         </Border>
 
-                                        <!-- Статус -->
                                         <TextBlock Grid.Row="2" Grid.Column="0" 
                                                    Text="Статус:"
                                                    VerticalAlignment="Center"
@@ -226,7 +210,6 @@
                                             </ComboBox>
                                         </Border>
 
-                                        <!-- Информация о размере файла аватара -->
                                         <TextBlock Grid.Row="3" Grid.Column="1" 
                                                    x:Name="AvatarSizeInfo"
                                                    FontSize="11"
@@ -237,7 +220,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Смена пароля -->
                             <Border Background="White" CornerRadius="8" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="СМЕНА ПАРОЛЯ" 
@@ -257,7 +239,6 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Старый пароль -->
                                         <TextBlock Grid.Row="0" Grid.Column="0" 
                                                    Text="Текущий пароль:"
                                                    VerticalAlignment="Center"
@@ -273,7 +254,6 @@
                                                          FontSize="14"/>
                                         </Border>
 
-                                        <!-- Новый пароль -->
                                         <TextBlock Grid.Row="1" Grid.Column="0" 
                                                    Text="Новый пароль:"
                                                    VerticalAlignment="Center"
@@ -289,7 +269,6 @@
                                                          FontSize="14"/>
                                         </Border>
 
-                                        <!-- Подтверждение пароля -->
                                         <TextBlock Grid.Row="2" Grid.Column="0" 
                                                    Text="Подтверждение:"
                                                    VerticalAlignment="Center"
@@ -317,7 +296,6 @@
                     </Grid>
                 </ScrollViewer>
 
-                <!-- Нижняя панель с кнопками -->
                 <Border Grid.Row="2" 
                         Background="White" 
                         CornerRadius="0,0,8,8" 
@@ -329,7 +307,6 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Сообщение о сохранении -->
                         <TextBlock x:Name="SaveMessage"
                                    Grid.Column="0"
                                    VerticalAlignment="Center"
@@ -337,7 +314,6 @@
                                    Foreground="#800000"
                                    Visibility="Collapsed"/>
 
-                        <!-- Кнопка "Отмена" -->
                         <Button x:Name="CancelBtn" 
                                 Grid.Column="1"
                                 Content="Отмена" 
@@ -360,7 +336,6 @@
                             </Button.Template>
                         </Button>
 
-                        <!-- Кнопка "Сохранить" -->
                         <Button x:Name="SaveBtn" 
                                 Grid.Column="2"
                                 Content="Сохранить" 

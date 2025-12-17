@@ -14,7 +14,6 @@ namespace ComradeMIN
         {
             base.OnStartup(e);
 
-            // Глобальная обработка необработанных исключений
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
             {
                 HandleException("НЕОБРАБОТАННОЕ ИСКЛЮЧЕНИЕ", args.ExceptionObject as Exception);
@@ -23,13 +22,13 @@ namespace ComradeMIN
             DispatcherUnhandledException += (s, args) =>
             {
                 HandleException("ИСКЛЮЧЕНИЕ В UI ПОТОКЕ", args.Exception);
-                args.Handled = true; // Предотвращаем падение приложения
+                args.Handled = true;
             };
 
             TaskScheduler.UnobservedTaskException += (s, args) =>
             {
                 HandleException("НЕОБРАБОТАННОЕ ИСКЛЮЧЕНИЕ В ЗАДАЧЕ", args.Exception);
-                args.SetObserved(); // Помечаем как обработанное
+                args.SetObserved();
             };
         }
 
@@ -37,11 +36,9 @@ namespace ComradeMIN
         {
             if (ex == null) return;
 
-            // Логируем в Debug
             System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:HH:mm:ss}] {context}: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
 
-            // Логируем в файл
             try
             {
                 string logDir = System.IO.Path.Combine(
@@ -60,10 +57,8 @@ namespace ComradeMIN
             }
             catch
             {
-                // Игнорируем ошибки логирования
             }
 
-            // Показываем пользователю только в Debug режиме
 #if DEBUG
             MessageBox.Show(
                 $"Произошла ошибка: {ex.Message}\n\n" +

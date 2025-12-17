@@ -37,24 +37,19 @@ namespace ComradeMIN
         private string _signalRUrl = "http://26.19.50.66:5000/chatHub";
         private System.Windows.Threading.DispatcherTimer _chatUpdateTimer;
 
-        // Кэш-менеджер
         private CacheManager _cacheManager;
 
-        // Хранилище сообщений
         private Dictionary<int, List<CachedMessage>> _chatMessages = new();
         private Dictionary<int, int> _unreadCounts = new();
         private Dictionary<int, Border> _chatButtons = new();
         private Dictionary<int, ChatInfo> _chatInfos = new();
 
-        // Семафоры для защиты от многопоточных проблем
         private readonly SemaphoreSlim _loadLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
 
-        // Флаг для отслеживания инициализации
         private bool _isInitialized = false;
         private IConfiguration _configuration;
 
-        // Кэш статусов файлов
         private Dictionary<int, CachedFile> _fileCacheStatus = new Dictionary<int, CachedFile>();
 
         private class ChatInfo
@@ -85,7 +80,6 @@ namespace ComradeMIN
 
             try
             {
-                // Загрузка конфигурации из AppSettings.json
                 _configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
@@ -97,7 +91,6 @@ namespace ComradeMIN
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка загрузки конфигурации: {ex.Message}");
-                // Используем значения по умолчанию
                 connectionString = "Server=tcp:26.19.50.66\\SQLEXPRESS,1433;" +
                                   "Database=Void;" +
                                   "User Id=VoidUser;" +
@@ -109,7 +102,6 @@ namespace ComradeMIN
             MessagesScrollViewer.ScrollChanged += MessagesScrollViewer_ScrollChanged;
             Text_for_Comrade.KeyDown += Text_for_Comrade_KeyDown;
 
-            // Обработчики навигации
             this.Loaded += Page_Loaded;
             this.Unloaded += Page_Unloaded;
         }
@@ -135,7 +127,6 @@ namespace ComradeMIN
         {
             Debug.WriteLine("Page_Loaded вызван");
 
-            // Если страница уже инициализирована, просто обновляем чаты
             if (_isInitialized && _signalRManager != null)
             {
                 Debug.WriteLine("Страница уже инициализирована, обновляем чаты");
@@ -143,7 +134,6 @@ namespace ComradeMIN
                 return;
             }
 
-            // Иначе выполняем полную инициализацию
             await InitializePageAsync();
         }
 
@@ -155,26 +145,21 @@ namespace ComradeMIN
             {
                 Debug.WriteLine($"Инициализация страницы для пользователя {currentUserID}");
 
-                // Инициализация кэш-менеджера
                 _cacheManager = new CacheManager(currentUserID);
 
-                // Инициализация SignalRManager
                 _signalRManager = new SignalRManager(currentUserID);
                 _signalRManager.OnMessageReceived += OnMessageReceived;
                 _signalRManager.OnFileReceived += OnFileReceived;
-                _signalRManager.OnChatsUpdated += OnChatsUpdated; // Подписка на обновление чатов
+                _signalRManager.OnChatsUpdated += OnChatsUpdated;
 
-                // Подключаемся к SignalR
                 bool connected = await _signalRManager.ConnectAsync();
                 if (!connected)
                 {
                     Debug.WriteLine("Не удалось подключиться к SignalR");
                 }
 
-                // Загружаем чаты пользователя
                 await LoadUserChatsAsync();
 
-                // Запускаем таймер для периодического обновления чатов
                 StartPeriodicChatUpdate();
 
                 await Dispatcher.InvokeAsync(() =>
@@ -191,7 +176,6 @@ namespace ComradeMIN
             }
         }
 
-        // ТАСКА 1: ОБНОВЛЕНИЕ ЧАТОВ В РЕАЛЬНОМ ВРЕМЕНИ
         private async void OnChatsUpdated()
         {
             await Dispatcher.InvokeAsync(async () =>
@@ -246,7 +230,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // ОБНОВЛЕННЫЙ ЗАПРОС ДЛЯ ПОЛУЧЕНИЯ МИНИ-АВАТАРОВ И ИМЕН СОБЕСЕДНИКОВ
                     string query = @"
                         SELECT 
                             c.ChatId,
@@ -290,7 +273,7 @@ namespace ComradeMIN
                                 var chatInfo = new ChatInfo
                                 {
                                     ChatId = chatID,
-                                    ChatName = comradeName, // Используем имя собеседника как имя чата
+                                    ChatName = comradeName,
                                     ComradeName = comradeName,
                                     ComradeAvatar = comradeAvatar,
                                     ComradeStatus = comradeStatus,
@@ -305,7 +288,6 @@ namespace ComradeMIN
 
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                // Создаем словарь для быстрого поиска существующих кнопок
                                 var existingButtons = new Dictionary<int, Border>();
                                 foreach (var child in Fellows.Children)
                                 {
@@ -315,12 +297,10 @@ namespace ComradeMIN
                                     }
                                 }
 
-                                // Обновляем или добавляем кнопки
                                 foreach (var chat in chatList)
                                 {
                                     if (existingButtons.ContainsKey(chat.ChatId))
                                     {
-                                        // Обновляем существующую кнопку
                                         UpdateChatButton(
                                             chat.ChatId,
                                             chat.ComradeName,
@@ -332,7 +312,6 @@ namespace ComradeMIN
                                     }
                                     else
                                     {
-                                        // Создаем новую кнопку
                                         AddChatButton(
                                             chat.ChatId,
                                             chat.ComradeName,
@@ -341,12 +320,10 @@ namespace ComradeMIN
                                             chat.ComradeAvatar);
                                     }
 
-                                    // Сохраняем информацию о чате
                                     _chatInfos[chat.ChatId] = chat;
                                     _unreadCounts[chat.ChatId] = chat.UnreadCount;
                                 }
 
-                                // Удаляем кнопки чатов, которых больше нет
                                 foreach (var chatId in existingButtons.Keys)
                                 {
                                     Fellows.Children.Remove(existingButtons[chatId]);
@@ -357,7 +334,6 @@ namespace ComradeMIN
 
                                 if (chatList.Count == 0)
                                 {
-                                    // Очищаем панель и добавляем сообщение
                                     Fellows.Children.Clear();
                                     TextBlock noChatsText = new TextBlock
                                     {
@@ -395,7 +371,6 @@ namespace ComradeMIN
             {
                 Debug.WriteLine($"Получено сообщение {messageId} в чате {chatId} от пользователя {userId}");
 
-                // Обновляем список чатов
                 await LoadUserChatsAsync();
 
                 if (currentChatID == chatId)
@@ -416,7 +391,6 @@ namespace ComradeMIN
             {
                 Debug.WriteLine($"Получен файл {fileName} в чате {chatId} от пользователя {userId}");
 
-                // Обновляем список чатов
                 await LoadUserChatsAsync();
 
                 if (currentChatID == chatId)
@@ -431,16 +405,13 @@ namespace ComradeMIN
             });
         }
 
-        // ТАСКА 2: МЕТОД ОБНОВЛЕНИЯ КНОПКИ ЧАТА С МИНИ-АВАТАРОМ
         private void UpdateChatButton(int chatId, string comradeName, string lastMessage, int unreadCount, byte[] comradeAvatar, Border existingButton)
         {
             if (existingButton == null) return;
 
-            // Обновляем содержимое кнопки
             var container = existingButton.Child as Grid;
             if (container != null)
             {
-                // Находим StackPanel с текстом
                 StackPanel contentPanel = null;
                 foreach (var child in container.Children)
                 {
@@ -464,24 +435,20 @@ namespace ComradeMIN
 
                 if (contentPanel != null && contentPanel.Children.Count >= 2)
                 {
-                    // Обновляем имя чата
                     if (contentPanel.Children[0] is TextBlock nameText)
                     {
                         nameText.Text = comradeName;
                     }
 
-                    // Обновляем последнее сообщение
                     if (contentPanel.Children[1] is TextBlock lastMessageText)
                     {
                         lastMessageText.Text = lastMessage.Length > 30 ? lastMessage.Substring(0, 30) + "..." : lastMessage;
                     }
                 }
 
-                // Обновляем бейдж непрочитанных
                 UpdateChatUnreadCount(chatId, unreadCount, existingButton);
             }
 
-            // Сохраняем ссылку на кнопку
             _chatButtons[chatId] = existingButton;
         }
 
@@ -503,7 +470,6 @@ namespace ComradeMIN
                 chatButton.Child = container;
             }
 
-            // Ищем существующий бейдж
             Border existingBadge = null;
             foreach (var child in container.Children)
             {
@@ -518,7 +484,6 @@ namespace ComradeMIN
             {
                 if (existingBadge == null)
                 {
-                    // Создаем новый бейдж
                     existingBadge = new Border
                     {
                         Tag = "unread_badge",
@@ -540,7 +505,6 @@ namespace ComradeMIN
                 }
                 else
                 {
-                    // Обновляем существующий
                     var textBlock = existingBadge.Child as TextBlock;
                     if (textBlock != null)
                     {
@@ -550,7 +514,6 @@ namespace ComradeMIN
             }
             else if (existingBadge != null)
             {
-                // Удаляем бейдж
                 container.Children.Remove(existingBadge);
             }
         }
@@ -587,10 +550,8 @@ namespace ComradeMIN
 
                     if (rowsAffected > 0)
                     {
-                        // Обновляем счетчик непрочитанных
                         await UpdateUnreadCount(currentChatID, false);
 
-                        // Обновляем список чатов
                         await LoadUserChatsAsync();
                     }
                 }
@@ -612,18 +573,15 @@ namespace ComradeMIN
                 _isLoadingSequentially = true;
                 _lastLoadedMessageId = 0;
 
-                // Очищаем чат перед загрузкой
                 await Dispatcher.InvokeAsync(() => Reports.Children.Clear());
 
                 await Dispatcher.InvokeAsync(() =>
                 {
                     string chatName = _chatInfos.GetValueOrDefault(chatID)?.ChatName ?? $"ID: {chatID}";
 
-                    // ТАСКА 3: ЗАГРУЖАЕМ ИНФОРМАЦИЮ О СОБЕСЕДНИКЕ
                     LoadComradeInfo(chatID);
                 });
 
-                // Загружаем сообщения
                 await LoadMessagesSequentially(chatID, isOpening);
 
                 if (isOpening)
@@ -655,7 +613,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Используем процедуру GetChatMessages
                     using (SqlCommand command = new SqlCommand("GetChatMessages", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
@@ -696,14 +653,12 @@ namespace ComradeMIN
         {
             try
             {
-                // Убираем сообщение о загрузке
                 await Dispatcher.InvokeAsync(() =>
                 {
                     if (Reports.Children.Count > 0)
                         Reports.Children.Clear();
                 });
 
-                // Загружаем 200 сообщений
                 var messages = await GetLastMessages(chatID, 200);
 
                 if (messages.Count == 0)
@@ -721,11 +676,9 @@ namespace ComradeMIN
                     return;
                 }
 
-                // Загружаем файлы для всех сообщений
                 var messageIds = messages.Select(m => m.MessageId).ToList();
                 var allFiles = await GetFilesForMessageIds(messageIds);
 
-                // Связываем файлы с сообщениями
                 foreach (var message in messages)
                 {
                     if (allFiles.ContainsKey(message.MessageId))
@@ -734,24 +687,19 @@ namespace ComradeMIN
                     }
                 }
 
-                // Сортируем по ID в порядке убывания (новые сначала)
                 var sortedMessages = messages.OrderByDescending(m => m.MessageId).ToList();
 
-                // Сохраняем ID самого старого сообщения
                 _lastLoadedMessageId = sortedMessages.Last().MessageId;
 
-                // Отображаем сообщения последовательно
                 for (int i = sortedMessages.Count - 1; i >= 0; i--)
                 {
                     var message = sortedMessages[i];
                     await DisplaySingleMessage(message);
 
-                    // Небольшая задержка для эффекта последовательной загрузки
                     if (isOpening)
                         await Task.Delay(10);
                 }
 
-                // Сохраняем сообщения в кэше
                 if (!_chatMessages.ContainsKey(chatID))
                     _chatMessages[chatID] = new List<CachedMessage>();
 
@@ -775,7 +723,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Создаем список ID для SQL запроса
                     string idList = string.Join(",", messageIds);
 
                     string query = $@"
@@ -806,11 +753,9 @@ namespace ComradeMIN
                                 FileSize = reader.GetInt32(5)
                             };
 
-                            // Вычисляем хэш файла
                             string fileHash = CalculateFileHash(file.FileData);
                             file.FileHash = fileHash;
 
-                            // Проверяем статус кэширования из глобального кэша
                             if (_fileCacheStatus.ContainsKey(file.FileId))
                             {
                                 var cachedFile = _fileCacheStatus[file.FileId];
@@ -819,7 +764,6 @@ namespace ComradeMIN
                             }
                             else
                             {
-                                // Проверяем кэш-менеджер
                                 var cachedInfo = _cacheManager.GetCachedFile(fileHash);
                                 if (cachedInfo != null && File.Exists(cachedInfo.FilePath))
                                 {
@@ -828,7 +772,6 @@ namespace ComradeMIN
                                 }
                             }
 
-                            // Сохраняем в глобальный кэш статусов
                             _fileCacheStatus[file.FileId] = file;
 
                             if (!result.ContainsKey(messageId))
@@ -902,7 +845,6 @@ namespace ComradeMIN
 
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                // Добавляем сообщение в UI
                                 CreateMessageUI(
                                     message.MessageId,
                                     message.MessageText,
@@ -912,8 +854,6 @@ namespace ComradeMIN
                                     message.Files
                                 );
 
-                                // Прокручиваем вниз только если сообщение от текущего пользователя
-                                // или пользователь уже был внизу
                                 if (message.UserId == currentUserID || _isUserAtBottom)
                                 {
                                     isAutoScrolling = true;
@@ -921,7 +861,6 @@ namespace ComradeMIN
                                     isAutoScrolling = false;
                                 }
 
-                                // Обновляем список чатов
                                 LoadUserChatsAsync();
                             });
                         }
@@ -938,7 +877,6 @@ namespace ComradeMIN
         {
             try
             {
-                // Проверяем, нет ли уже такого сообщения в UI
                 foreach (var child in Reports.Children)
                 {
                     if (child is StackPanel panel && panel.Tag is int existingId && existingId == messageId)
@@ -955,7 +893,6 @@ namespace ComradeMIN
                     Tag = messageId
                 };
 
-                // Основной контейнер сообщения
                 Border messageContainer = new Border
                 {
                     Background = messageAuthorID == currentUserID ? Brushes.LightGoldenrodYellow : Brushes.Cornsilk,
@@ -967,7 +904,6 @@ namespace ComradeMIN
 
                 StackPanel contentPanel = new StackPanel();
 
-                // Заголовок с именем пользователя и временем
                 TextBlock headerText = new TextBlock
                 {
                     Text = $"{userNick} ({createdDate:HH:mm})",
@@ -977,7 +913,6 @@ namespace ComradeMIN
                 };
                 contentPanel.Children.Add(headerText);
 
-                // Текст сообщения
                 if (!string.IsNullOrEmpty(messageText) && messageText != "[Файл]")
                 {
                     TextBlock messageTextBlock = new TextBlock
@@ -990,7 +925,6 @@ namespace ComradeMIN
                     contentPanel.Children.Add(messageTextBlock);
                 }
 
-                // Файлы сообщения
                 foreach (var file in files)
                 {
                     var fileControl = CreateFileControl(file);
@@ -1026,10 +960,8 @@ namespace ComradeMIN
                 Orientation = Orientation.Horizontal
             };
 
-            // Проверяем статус кэширования
             if (file.CacheStatus == FileCacheStatus.Cached && !string.IsNullOrEmpty(file.CachedFilePath))
             {
-                // Файл уже в кэше
                 TextBlock cachedIcon = new TextBlock
                 {
                     Text = "✅ ",
@@ -1040,7 +972,6 @@ namespace ComradeMIN
 
                 filePanel.Children.Add(cachedIcon);
 
-                // Обработчик для открытия файла
                 fileBorder.MouseLeftButtonDown += (s, e) =>
                 {
                     OpenCachedFile(file.CachedFilePath);
@@ -1048,7 +979,6 @@ namespace ComradeMIN
             }
             else if (file.CacheStatus == FileCacheStatus.Downloading)
             {
-                // Индикатор загрузки
                 TextBlock downloadingIcon = new TextBlock
                 {
                     Text = "⏳ ",
@@ -1059,13 +989,11 @@ namespace ComradeMIN
 
                 filePanel.Children.Add(downloadingIcon);
 
-                // Делаем кнопку неактивной
                 fileBorder.Opacity = 0.7;
                 fileBorder.Cursor = Cursors.Wait;
             }
             else
             {
-                // Файл не в кэше
                 TextBlock downloadIcon = new TextBlock
                 {
                     Text = "⬇️ ",
@@ -1076,7 +1004,6 @@ namespace ComradeMIN
 
                 filePanel.Children.Add(downloadIcon);
 
-                // Обработчик для скачивания
                 fileBorder.MouseLeftButtonDown += async (s, e) =>
                 {
                     await DownloadAndCacheFile(file);
@@ -1085,7 +1012,6 @@ namespace ComradeMIN
 
             StackPanel infoPanel = new StackPanel();
 
-            // Имя файла
             TextBlock fileNameText = new TextBlock
             {
                 Text = file.FileName,
@@ -1094,7 +1020,6 @@ namespace ComradeMIN
                 TextWrapping = TextWrapping.Wrap
             };
 
-            // Размер файла
             TextBlock fileSizeText = new TextBlock
             {
                 Text = FormatFileSize(file.FileSize),
@@ -1144,31 +1069,23 @@ namespace ComradeMIN
         {
             try
             {
-                // Обновляем статус
                 file.CacheStatus = FileCacheStatus.Downloading;
 
-                // Обновляем UI для этого файла
                 await UpdateFileControlUI(file);
 
-                // Сохраняем в кэш
                 string fileHash = file.FileHash;
                 await _cacheManager.CacheFileAsync(fileHash, file.FileName, file.FileType, file.FileData);
 
-                // Получаем путь к кэшированному файлу
                 var cachedInfo = _cacheManager.GetCachedFile(fileHash);
                 if (cachedInfo != null)
                 {
-                    // Обновляем объект файла
                     file.CacheStatus = FileCacheStatus.Cached;
                     file.CachedFilePath = cachedInfo.FilePath;
 
-                    // Сохраняем в глобальный кэш статусов
                     _fileCacheStatus[file.FileId] = file;
 
-                    // Снова обновляем UI
                     await UpdateFileControlUI(file);
 
-                    // Открываем файл
                     OpenCachedFile(cachedInfo.FilePath);
                 }
             }
@@ -1184,11 +1101,9 @@ namespace ComradeMIN
         {
             await Dispatcher.InvokeAsync(() =>
             {
-                // Находим контрол файла по ID
                 var fileControl = FindFileControl(file.FileId);
                 if (fileControl != null)
                 {
-                    // Заменяем на обновленную версию
                     var parent = VisualTreeHelper.GetParent(fileControl) as Panel;
                     if (parent != null)
                     {
@@ -1202,7 +1117,6 @@ namespace ComradeMIN
 
         private UIElement FindFileControl(int fileId)
         {
-            // Поиск контрола файла по ID
             foreach (var child in Reports.Children)
             {
                 if (child is StackPanel messagePanel)
@@ -1281,7 +1195,6 @@ namespace ComradeMIN
 
                 string messageText = Text_for_Comrade.Text;
 
-                // Сохраняем в БД
                 int newMessageId = 0;
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 using (SqlCommand command = new SqlCommand("SendMessage", connection))
@@ -1306,13 +1219,10 @@ namespace ComradeMIN
                     }
                 }
 
-                // Добавляем сообщение в UI сразу
                 await AddMessageToUI(newMessageId, messageText, true);
 
-                // Уведомляем через SignalR
                 await _signalRManager.SendMessageAsync("SendMessage", currentChatID, currentUserID, messageText, newMessageId);
 
-                // Обновляем список чатов
                 await LoadUserChatsAsync();
 
                 await Dispatcher.InvokeAsync(() =>
@@ -1332,7 +1242,6 @@ namespace ComradeMIN
             }
         }
 
-        // ТАСКА 2: МЕТОД ДОБАВЛЕНИЯ КНОПКИ ЧАТА С МИНИ-АВАТАРОМ
         private void AddChatButton(int chatID, string comradeName, string lastMessage, int unreadCount, byte[] comradeAvatar)
         {
             Border chatBorder = new Border
@@ -1349,14 +1258,12 @@ namespace ComradeMIN
 
             Grid containerGrid = new Grid();
 
-            // Создаем горизонтальный StackPanel для содержимого
             StackPanel contentPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Margin = new Thickness(5)
             };
 
-            // Мини-аватар
             Border avatarBorder = new Border
             {
                 Width = 40,
@@ -1386,7 +1293,6 @@ namespace ComradeMIN
                             Stretch = Stretch.UniformToFill
                         };
 
-                        // Обрезаем изображение по кругу
                         EllipseGeometry ellipse = new EllipseGeometry(new Point(20, 20), 20, 20);
                         avatarImage.Clip = ellipse;
 
@@ -1395,7 +1301,6 @@ namespace ComradeMIN
                 }
                 else
                 {
-                    // Если нет аватара, показываем иконку
                     TextBlock placeholder = new TextBlock
                     {
                         Text = "👤",
@@ -1421,14 +1326,12 @@ namespace ComradeMIN
 
             contentPanel.Children.Add(avatarBorder);
 
-            // Текстовая информация
             StackPanel textPanel = new StackPanel
             {
                 Orientation = Orientation.Vertical,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // Имя собеседника
             TextBlock nameText = new TextBlock
             {
                 Text = comradeName,
@@ -1438,7 +1341,6 @@ namespace ComradeMIN
                 Foreground = Brushes.Black
             };
 
-            // Последнее сообщение
             TextBlock lastMessageText = new TextBlock
             {
                 Text = lastMessage.Length > 25 ? lastMessage.Substring(0, 25) + "..." : lastMessage,
@@ -1454,7 +1356,6 @@ namespace ComradeMIN
 
             containerGrid.Children.Add(contentPanel);
 
-            // Бейдж непрочитанных сообщений
             if (unreadCount > 0)
             {
                 Border badge = new Border
@@ -1479,20 +1380,16 @@ namespace ComradeMIN
 
             chatBorder.Child = containerGrid;
 
-            // Сохраняем ссылку на кнопку чата
             _chatButtons[chatID] = chatBorder;
 
-            // Обработчик нажатия на кнопку чата
             chatBorder.MouseLeftButtonDown += async (s, e) =>
             {
-                // Проверяем инициализацию
                 if (!_isInitialized)
                 {
                     MessageBox.Show("Страница еще не инициализирована. Подождите...");
                     return;
                 }
 
-                // Покидаем предыдущую группу чата
                 if (currentChatID != 0 && _signalRManager != null)
                 {
                     await _signalRManager.LeaveChatGroupAsync(currentChatID);
@@ -1500,25 +1397,20 @@ namespace ComradeMIN
 
                 currentChatID = chatID;
 
-                // Входим в группу нового чата
                 if (_signalRManager != null)
                 {
                     await _signalRManager.JoinChatGroupAsync(chatID);
                 }
 
-                // ТАСКА 3: ЗАГРУЖАЕМ ИНФОРМАЦИЮ О СОБЕСЕДНИКЕ
                 LoadComradeInfo(chatID);
 
                 await LoadChatMessages(chatID, true);
 
-                // Сбрасываем счетчик непрочитанных
                 await UpdateUnreadCount(chatID, false);
 
-                // Отмечаем сообщения как прочитанные
                 await MarkMessagesAsRead();
             };
 
-            // Эффекты при наведении
             chatBorder.MouseEnter += (s, e) =>
             {
                 chatBorder.Background = Brushes.Goldenrod;
@@ -1613,12 +1505,10 @@ namespace ComradeMIN
 
                     await Dispatcher.InvokeAsync(() =>
                     {
-                        // Добавляем временную кнопку без аватара
                         AddChatButton(newChatID, userName, "Новое сообщение", 0, null);
                         ID_search.Text = "";
                         MessageBox.Show($"Приватный чат с {userName} создан!");
 
-                        // Загружаем обновленный список чатов
                         LoadUserChatsAsync();
                     });
                 }
@@ -1637,7 +1527,6 @@ namespace ComradeMIN
         {
             try
             {
-                // Создаем временное сообщение в UI
                 var tempMessage = new CachedMessage
                 {
                     MessageId = messageId,
@@ -1649,10 +1538,8 @@ namespace ComradeMIN
                     IsRead = true
                 };
 
-                // Добавляем в UI
                 await DisplaySingleMessage(tempMessage);
 
-                // Если сообщение от нас, прокручиваем вниз
                 if (isMyMessage || _isUserAtBottom)
                 {
                     await Dispatcher.InvokeAsync(() =>
@@ -1663,13 +1550,11 @@ namespace ComradeMIN
                     });
                 }
 
-                // Обновляем кэш сообщений
                 if (!_chatMessages.ContainsKey(currentChatID))
                     _chatMessages[currentChatID] = new List<CachedMessage>();
 
                 _chatMessages[currentChatID].Add(tempMessage);
 
-                // Обновляем список чатов
                 LoadUserChatsAsync();
             }
             catch (Exception ex)
@@ -1682,7 +1567,6 @@ namespace ComradeMIN
         {
             try
             {
-                // Загружаем информацию о файле из БД
                 var fileData = await GetFileData(messageId, fileName);
 
                 if (fileData != null)
@@ -1709,10 +1593,8 @@ namespace ComradeMIN
                         }
                     };
 
-                    // Добавляем в UI
                     await DisplaySingleMessage(tempMessage);
 
-                    // Прокручиваем вниз
                     await Dispatcher.InvokeAsync(() =>
                     {
                         isAutoScrolling = true;
@@ -1720,13 +1602,11 @@ namespace ComradeMIN
                         isAutoScrolling = false;
                     });
 
-                    // Обновляем кэш
                     if (!_chatMessages.ContainsKey(currentChatID))
                         _chatMessages[currentChatID] = new List<CachedMessage>();
 
                     _chatMessages[currentChatID].Add(tempMessage);
 
-                    // Обновляем список чатов
                     LoadUserChatsAsync();
                 }
             }
@@ -1781,7 +1661,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Отправляем сообщение
                     int newMessageId = 0;
                     using (SqlCommand command = new SqlCommand("SendMessage", connection))
                     {
@@ -1817,13 +1696,10 @@ namespace ComradeMIN
 
                             await fileCommand.ExecuteNonQueryAsync();
 
-                            // Добавляем сообщение с файлом в UI
                             await AddMessageWithFileToUI(newMessageId, messageText, fileName);
 
-                            // Уведомляем через SignalR
                             await _signalRManager.SendMessageAsync("SendFile", currentChatID, currentUserID, fileName, newMessageId);
 
-                            // Обновляем список чатов
                             LoadUserChatsAsync();
 
                             return true;
@@ -1849,7 +1725,6 @@ namespace ComradeMIN
 
                     if (increment)
                     {
-                        // Увеличиваем счетчик непрочитанных
                         using (SqlCommand command = new SqlCommand(@"
                     UPDATE UserChats 
                     SET UnreadCount = ISNULL(UnreadCount, 0) + 1 
@@ -1862,7 +1737,6 @@ namespace ComradeMIN
                     }
                     else
                     {
-                        // Сбрасываем счетчик
                         using (SqlCommand command = new SqlCommand(@"
                     UPDATE UserChats 
                     SET UnreadCount = 0 
@@ -1874,7 +1748,6 @@ namespace ComradeMIN
                         }
                     }
 
-                    // Получаем обновленный счетчик
                     using (SqlCommand command = new SqlCommand(@"
                 SELECT UnreadCount FROM UserChats 
                 WHERE ChatId = @ChatId AND UserId = @UserId", connection))
@@ -1885,13 +1758,10 @@ namespace ComradeMIN
                         var result = await command.ExecuteScalarAsync();
                         int unreadCount = result != DBNull.Value ? Convert.ToInt32(result) : 0;
 
-                        // Обновляем локальный кэш
                         _unreadCounts[chatId] = unreadCount;
 
-                        // Обновляем UI
                         UpdateChatUnreadCount(chatId, unreadCount);
 
-                        // Обновляем информацию о чате
                         if (_chatInfos.ContainsKey(chatId))
                         {
                             _chatInfos[chatId].UnreadCount = unreadCount;
@@ -1905,7 +1775,6 @@ namespace ComradeMIN
             }
         }
 
-        // ТАСКА 3: МЕТОД ЗАГРУЗКИ ИНФОРМАЦИИ О СОБЕСЕДНИКЕ
         private async Task LoadComradeInfo(int chatId)
         {
             try
@@ -1959,16 +1828,13 @@ namespace ComradeMIN
             }
         }
 
-        // ТАСКА 3: МЕТОД ОБНОВЛЕНИЯ ИНТЕРФЕЙСА С ИНФОРМАЦИЕЙ О СОБЕСЕДНИКЕ
         private void UpdateComradeInformation(string comradeName, byte[] comradeAvatar, string comradeStatus, DateTime? comradeLastLogin)
         {
-            // Создаем Grid для размещения элементов
             Grid infoGrid = new Grid();
             infoGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });
             infoGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             infoGrid.Margin = new Thickness(5);
 
-            // Мини-аватар
             Border avatarBorder = new Border
             {
                 Width = 40,
@@ -1997,7 +1863,6 @@ namespace ComradeMIN
                             Stretch = Stretch.UniformToFill
                         };
 
-                        // Обрезаем изображение по кругу
                         EllipseGeometry ellipse = new EllipseGeometry(new Point(20, 20), 20, 20);
                         avatarImage.Clip = ellipse;
 
@@ -2006,7 +1871,6 @@ namespace ComradeMIN
                 }
                 else
                 {
-                    // Если нет аватара, показываем иконку
                     TextBlock placeholder = new TextBlock
                     {
                         Text = "👤",
@@ -2033,7 +1897,6 @@ namespace ComradeMIN
             Grid.SetColumn(avatarBorder, 0);
             infoGrid.Children.Add(avatarBorder);
 
-            // Текстовая информация
             StackPanel textPanel = new StackPanel
             {
                 Orientation = Orientation.Vertical,
@@ -2041,7 +1904,6 @@ namespace ComradeMIN
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // Имя собеседника
             TextBlock nameText = new TextBlock
             {
                 Text = comradeName,
@@ -2050,14 +1912,12 @@ namespace ComradeMIN
                 Foreground = Brushes.Black
             };
 
-            // Статус и время последнего входа
             StackPanel statusPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Margin = new Thickness(0, 5, 0, 0)
             };
 
-            // Статус с цветом
             TextBlock statusText = new TextBlock
             {
                 Text = GetStatusText(comradeStatus),
@@ -2066,7 +1926,6 @@ namespace ComradeMIN
                 Margin = new Thickness(0, 0, 10, 0)
             };
 
-            // Время последнего входа
             TextBlock lastLoginText = new TextBlock
             {
                 Text = GetLastLoginText(comradeLastLogin),
@@ -2083,7 +1942,6 @@ namespace ComradeMIN
             Grid.SetColumn(textPanel, 1);
             infoGrid.Children.Add(textPanel);
 
-            // Очищаем и добавляем новый контент
             Comrade_information.Content = infoGrid;
         }
 
@@ -2245,10 +2103,8 @@ namespace ComradeMIN
         {
             Debug.WriteLine("Переход в настройки");
 
-            // Сохраняем ID текущего пользователя
             int userId = currentUserID;
 
-            // Переходим на страницу настроек
             OptionsPage optionsPage = new OptionsPage(userId);
             this.NavigationService.Navigate(optionsPage);
 
@@ -2271,7 +2127,6 @@ namespace ComradeMIN
 
         private void Text_for_Comrade_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            // Пустая реализация
         }
     }
 }

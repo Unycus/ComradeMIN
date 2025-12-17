@@ -37,10 +37,8 @@
             </Button.Template>
         </Button>
 
-        <!-- Border для поля пароля с двумя элементами -->
         <Border Background="#E0E0E0" CornerRadius="8" HorizontalAlignment="Left" Margin="686,356,0,372" Width="254" Height="22">
             <Grid>
-                <!-- PasswordBox (по умолчанию видим) -->
                 <PasswordBox x:Name="Password_input" 
                             TabIndex="2" 
                             Background="Transparent" 
@@ -50,7 +48,6 @@
                             VerticalAlignment="Center" 
                             Margin="4,0,22,0"/>
 
-                <!-- TextBox для показа пароля (изначально скрыт) -->
                 <TextBox x:Name="PasswordTextBox" 
                         TabIndex="2" 
                         Background="Transparent" 
@@ -107,7 +104,6 @@
             </Button.Template>
         </Button>
 
-        <!-- Кнопка "глазик" для показа/скрытия пароля -->
         <Button x:Name="glazik" Content="👁" HorizontalAlignment="Left" Margin="920,356,0,0" VerticalAlignment="Top" Width="20" Height="22"
                 Background="Transparent" BorderThickness="0" Click="glazik_Click"/>
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using System.Windows.Input; // Добавьте эту директиву
+using System.Windows.Input;
 
 namespace ComradeMIN
 {
@@ -19,20 +19,17 @@ namespace ComradeMIN
             InitializeComponent();
             _databaseService = new DatabaseService();
 
-            // Подписываемся на события KeyDown
             Login_input.KeyDown += Input_KeyDown;
             Password_input.KeyDown += Input_KeyDown;
             PasswordTextBox.KeyDown += Input_KeyDown;
         }
 
-        // Общий обработчик нажатия клавиш
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                // Если нажат Enter - вызываем вход
                 Enter_Click(sender, e);
-                e.Handled = true; // Предотвращаем дальнейшую обработку
+                e.Handled = true;
             }
         }
 
@@ -47,24 +44,20 @@ namespace ComradeMIN
                 return;
             }
 
-            // Блокируем кнопку во время выполнения
             Enter.IsEnabled = false;
 
             try
             {
-                // Получаем ID пользователя при успешном входе
                 int? userId = await _databaseService.ValidateUserAndGetId(username, password);
 
                 if (userId.HasValue)
                 {
                     MessageBox.Show("Вход выполнен успешно!");
-                    // Переходим на страницу чатов с реальным UserId
                     NavigationService.Navigate(new UserDataBaseMessengePage(userId.Value));
                 }
                 else
                 {
                     MessageBox.Show("Неверный логин или пароль");
-                    // Фокусируемся на поле пароля для повторного ввода
                     if (isPasswordVisible)
                         PasswordTextBox.Focus();
                     else
@@ -82,12 +75,10 @@ namespace ComradeMIN
             NavigationService.Navigate(new RegisterPage());
         }
 
-        // Метод для показа/скрытия пароля
         private void glazik_Click(object sender, RoutedEventArgs e)
         {
             if (!isPasswordVisible)
             {
-                // Показываем TextBox, скрываем PasswordBox
                 PasswordTextBox.Text = Password_input.Password;
                 PasswordTextBox.Visibility = Visibility.Visible;
                 Password_input.Visibility = Visibility.Collapsed;
@@ -96,7 +87,6 @@ namespace ComradeMIN
             }
             else
             {
-                // Показываем PasswordBox, скрываем TextBox
                 Password_input.Password = PasswordTextBox.Text;
                 Password_input.Visibility = Visibility.Visible;
                 PasswordTextBox.Visibility = Visibility.Collapsed;
@@ -105,7 +95,6 @@ namespace ComradeMIN
             }
         }
 
-        // Анимационные методы
         private void Enter_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             AnimateOvalScale("Oval", 1.1, 150, Enter);

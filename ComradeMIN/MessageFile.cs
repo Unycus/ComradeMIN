@@ -10,13 +10,10 @@ namespace ComradeMIN
         public byte[] FileData { get; set; }
         public int FileSize { get; set; }
 
-        // Хеш для идентификации файла в кэше
         public string FileHash { get; set; }
 
-        // Статус файла
         public FileStatus Status { get; set; } = FileStatus.NotDownloaded;
 
-        // Путь к кэшированному файлу
         public string CachedFilePath { get; set; }
 
         public enum FileStatus

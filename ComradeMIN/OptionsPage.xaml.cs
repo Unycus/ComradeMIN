@@ -27,26 +27,22 @@ namespace ComradeMIN
         private byte[] currentProfileImage;
         private bool isAvatarChanged = false;
         private byte[] defaultAvatarImage;
-        private string originalUserName; // Сохраняем оригинальное имя для проверки
+        private string originalUserName;
 
         public OptionsPage(int userID)
         {
             InitializeComponent();
             currentUserID = userID;
 
-            // Загружаем изображение по умолчанию из папки Images
             LoadDefaultAvatarImage();
 
-            // Загружаем данные при инициализации
             Loaded += async (s, e) => await LoadUserDataAsync();
         }
 
-        // Загрузка изображения по умолчанию из папки Images
         private void LoadDefaultAvatarImage()
         {
             try
             {
-                // Определяем возможные пути к файлу
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string[] possiblePaths = {
                     Path.Combine(baseDirectory, "Images", "default_avatar.png"),
@@ -65,7 +61,6 @@ namespace ComradeMIN
                     }
                 }
 
-                // Если файл не найден, используем пустой массив
                 Debug.WriteLine("Файл default_avatar.png не найден в папке Images");
                 defaultAvatarImage = new byte[0];
             }
@@ -76,7 +71,6 @@ namespace ComradeMIN
             }
         }
 
-        // Асинхронная загрузка данных пользователя
         private async Task LoadUserDataAsync()
         {
             try
@@ -105,19 +99,15 @@ namespace ComradeMIN
                         {
                             if (await reader.ReadAsync())
                             {
-                                // Заполняем поля данными в UI потоке
                                 await Dispatcher.InvokeAsync(() =>
                                 {
-                                    // Базовые данные
                                     UserIdText.Text = reader["UserId"].ToString();
                                     UserNameTextBox.Text = reader["UserName"].ToString();
-                                    originalUserName = reader["UserName"].ToString(); // Сохраняем оригинальное имя
+                                    originalUserName = reader["UserName"].ToString();
 
-                                    // Email (может быть NULL)
                                     if (!reader.IsDBNull(reader.GetOrdinal("Email")))
                                         EmailTextBox.Text = reader["Email"].ToString();
 
-                                    // Статус
                                     if (!reader.IsDBNull(reader.GetOrdinal("Status")))
                                     {
                                         string status = reader["Status"].ToString();
@@ -132,10 +122,9 @@ namespace ComradeMIN
                                     }
                                     else
                                     {
-                                        StatusComboBox.SelectedIndex = 0; // "В сети" по умолчанию
+                                        StatusComboBox.SelectedIndex = 0;
                                     }
 
-                                    // Даты
                                     CreatedDateText.Text = reader.GetDateTime(reader.GetOrdinal("CreatedDate"))
                                         .ToString("dd.MM.yyyy HH:mm");
 
@@ -145,7 +134,6 @@ namespace ComradeMIN
                                     else
                                         LastLoginText.Text = "Никогда";
 
-                                    // Аватар
                                     if (!reader.IsDBNull(reader.GetOrdinal("ProfileImage")))
                                     {
                                         currentProfileImage = (byte[])reader["ProfileImage"];
@@ -153,7 +141,6 @@ namespace ComradeMIN
                                     }
                                     else
                                     {
-                                        // Используем изображение по умолчанию
                                         currentProfileImage = defaultAvatarImage;
                                         LoadDefaultAvatar();
                                     }
@@ -187,7 +174,6 @@ namespace ComradeMIN
             }
         }
 
-        // Проверка уникальности имени пользователя
         private async Task<bool> IsUserNameUniqueAsync(string userName)
         {
             try
@@ -196,7 +182,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, существует ли уже пользователь с таким именем (кроме текущего)
                     string query = @"
                         SELECT COUNT(*) 
                         FROM Users 
@@ -208,23 +193,21 @@ namespace ComradeMIN
                         command.Parameters.AddWithValue("@UserId", currentUserID);
 
                         int userCount = (int)await command.ExecuteScalarAsync();
-                        return userCount == 0; // Если 0, то имя уникально
+                        return userCount == 0;
                     }
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка проверки уникальности имени: {ex.Message}");
-                return false; // В случае ошибки считаем, что имя не уникально
+                return false;
             }
         }
 
-        // Загрузка изображения профиля
         private void LoadProfileImage(byte[] imageData)
         {
             try
             {
-                // Проверяем, есть ли данные
                 if (imageData == null || imageData.Length == 0)
                 {
                     LoadDefaultAvatar();
@@ -250,12 +233,10 @@ namespace ComradeMIN
             }
         }
 
-        // Загрузка стандартного аватара
         private void LoadDefaultAvatar()
         {
             try
             {
-                // Пробуем загрузить изображение по умолчанию
                 if (defaultAvatarImage != null && defaultAvatarImage.Length > 0)
                 {
                     using (MemoryStream stream = new MemoryStream(defaultAvatarImage))
@@ -272,7 +253,6 @@ namespace ComradeMIN
                 }
                 else
                 {
-                    // Если нет изображения по умолчанию, показываем иконку
                     ProfileImageControl.Source = null;
                     DefaultAvatarText.Visibility = Visibility.Visible;
                 }
@@ -284,7 +264,6 @@ namespace ComradeMIN
             }
         }
 
-        // Кнопка смены аватара
         private void ChangeImageBtn_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -301,21 +280,17 @@ namespace ComradeMIN
                     string filePath = openFileDialog.FileName;
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    // Проверка размера файла (максимум 2MB)
                     if (fileInfo.Length > 2 * 1024 * 1024)
                     {
                         MessageBox.Show("Размер изображения не должен превышать 2MB");
                         return;
                     }
 
-                    // Загружаем изображение в память
                     currentProfileImage = File.ReadAllBytes(filePath);
                     isAvatarChanged = true;
 
-                    // Показываем preview
                     LoadProfileImage(currentProfileImage);
 
-                    // Показываем информацию о размере
                     AvatarSizeInfo.Text = $"Размер файла: {(fileInfo.Length / 1024.0):F1} KB";
                     AvatarSizeInfo.Foreground = System.Windows.Media.Brushes.Green;
                 }
@@ -326,7 +301,6 @@ namespace ComradeMIN
             }
         }
 
-        // Кнопка удаления аватара
         private void RemoveImageBtn_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Установить аватар по умолчанию?",
@@ -336,7 +310,6 @@ namespace ComradeMIN
 
             if (result == MessageBoxResult.Yes)
             {
-                // Устанавливаем изображение по умолчанию
                 currentProfileImage = defaultAvatarImage;
                 isAvatarChanged = true;
                 LoadDefaultAvatar();
@@ -345,10 +318,8 @@ namespace ComradeMIN
             }
         }
 
-        // Основное сохранение данных
         private async void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Валидация данных
             if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
             {
                 ShowErrorMessage("Введите имя пользователя", UserNameTextBox);
@@ -361,13 +332,11 @@ namespace ComradeMIN
                 return;
             }
 
-            // Проверяем, изменилось ли имя пользователя
             string newUserName = UserNameTextBox.Text.Trim();
             bool userNameChanged = newUserName != originalUserName;
 
             if (userNameChanged)
             {
-                // Проверяем уникальность нового имени
                 bool isUnique = await IsUserNameUniqueAsync(newUserName);
                 if (!isUnique)
                 {
@@ -376,7 +345,6 @@ namespace ComradeMIN
                 }
             }
 
-            // Проверка пароля, если пользователь пытается его изменить
             bool changePassword = !string.IsNullOrEmpty(NewPasswordBox.Password) ||
                                  !string.IsNullOrEmpty(ConfirmPasswordBox.Password);
 
@@ -386,24 +354,20 @@ namespace ComradeMIN
                     return;
             }
 
-            // Отключаем кнопку на время сохранения
             SaveBtn.IsEnabled = false;
             SaveBtn.Content = "СОХРАНЕНИЕ...";
 
             try
             {
-                // Сохраняем основные данные
                 bool success = await SaveUserDataAsync();
 
                 if (success && changePassword)
                 {
-                    // Сохраняем новый пароль
                     await SaveNewPasswordAsync();
                 }
 
                 if (success)
                 {
-                    // Обновляем оригинальное имя после успешного сохранения
                     if (userNameChanged)
                     {
                         originalUserName = newUserName;
@@ -411,7 +375,6 @@ namespace ComradeMIN
 
                     ShowSuccessMessage("Данные успешно сохранены!");
 
-                    // Возвращаемся через 1.5 секунды
                     await Task.Delay(1500);
 
                     if (NavigationService.CanGoBack)
@@ -429,7 +392,6 @@ namespace ComradeMIN
             }
         }
 
-        // Сохранение основных данных пользователя
         private async Task<bool> SaveUserDataAsync()
         {
             try
@@ -438,7 +400,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, изменился ли аватар
                     if (isAvatarChanged)
                     {
                         string query = @"
@@ -457,13 +418,11 @@ namespace ComradeMIN
                             var selectedStatus = (ComboBoxItem)StatusComboBox.SelectedItem;
                             command.Parameters.AddWithValue("@Status", selectedStatus.Tag.ToString());
 
-                            // Email (может быть NULL)
                             if (string.IsNullOrWhiteSpace(EmailTextBox.Text))
                                 command.Parameters.AddWithValue("@Email", DBNull.Value);
                             else
                                 command.Parameters.AddWithValue("@Email", EmailTextBox.Text.Trim());
 
-                            // Аватар
                             if (currentProfileImage != null && currentProfileImage.Length > 0)
                                 command.Parameters.AddWithValue("@ProfileImage", currentProfileImage);
                             else
@@ -475,7 +434,6 @@ namespace ComradeMIN
                     }
                     else
                     {
-                        // Аватар не меняли, обновляем только остальные поля
                         string query = @"
                             UPDATE Users 
                             SET UserName = @UserName, 
@@ -491,7 +449,6 @@ namespace ComradeMIN
                             var selectedStatus = (ComboBoxItem)StatusComboBox.SelectedItem;
                             command.Parameters.AddWithValue("@Status", selectedStatus.Tag.ToString());
 
-                            // Email (может быть NULL)
                             if (string.IsNullOrWhiteSpace(EmailTextBox.Text))
                                 command.Parameters.AddWithValue("@Email", DBNull.Value);
                             else
@@ -505,8 +462,7 @@ namespace ComradeMIN
             }
             catch (SqlException sqlEx)
             {
-                // Проверяем, не связано ли исключение с нарушением уникальности
-                if (sqlEx.Number == 2601 || sqlEx.Number == 2627) // Ошибки нарушения уникальности
+                if (sqlEx.Number == 2601 || sqlEx.Number == 2627)
                 {
                     MessageBox.Show("Это имя пользователя уже занято. Выберите другое.",
                         "Ошибка уникальности",
@@ -527,10 +483,8 @@ namespace ComradeMIN
             }
         }
 
-        // Валидация смены пароля
         private async Task<bool> ValidatePasswordChange()
         {
-            // Проверяем, что все поля заполнены
             if (string.IsNullOrEmpty(CurrentPasswordBox.Password))
             {
                 ShowErrorMessage("Введите текущий пароль", CurrentPasswordBox);
@@ -549,21 +503,18 @@ namespace ComradeMIN
                 return false;
             }
 
-            // Проверяем длину нового пароля
             if (NewPasswordBox.Password.Length < 6)
             {
                 ShowErrorMessage("Новый пароль должен содержать не менее 6 символов", NewPasswordBox);
                 return false;
             }
 
-            // Проверяем совпадение паролей
             if (NewPasswordBox.Password != ConfirmPasswordBox.Password)
             {
                 ShowErrorMessage("Новые пароли не совпадают", ConfirmPasswordBox);
                 return false;
             }
 
-            // Проверяем текущий пароль
             if (!await ValidateCurrentPasswordAsync())
             {
                 ShowErrorMessage("Текущий пароль неверен", CurrentPasswordBox);
@@ -573,7 +524,6 @@ namespace ComradeMIN
             return true;
         }
 
-        // Получение перца из конфигурации
         private string GetPepper()
         {
             try
@@ -591,18 +541,15 @@ namespace ComradeMIN
             }
         }
 
-        // Новый метод хэширования с перцем (как в DatabaseService)
         private string HashPasswordWithPepper(string password)
         {
             string pepper = GetPepper();
 
             using (var rng = RandomNumberGenerator.Create())
             {
-                // Генерируем уникальную соль для каждого пользователя
                 byte[] salt = new byte[32];
                 rng.GetBytes(salt);
 
-                // Создаем производный ключ с солью и перцем
                 using (var pbkdf2 = new Rfc2898DeriveBytes(
                     password + pepper,
                     salt,
@@ -611,8 +558,7 @@ namespace ComradeMIN
                 {
                     byte[] hash = pbkdf2.GetBytes(64);
 
-                    // Сохраняем соль и хэш вместе
-                    byte[] hashBytes = new byte[96]; // 32 (соль) + 64 (хэш)
+                    byte[] hashBytes = new byte[96];
                     Buffer.BlockCopy(salt, 0, hashBytes, 0, 32);
                     Buffer.BlockCopy(hash, 0, hashBytes, 32, 64);
 
@@ -621,20 +567,17 @@ namespace ComradeMIN
             }
         }
 
-        // Проверка пароля с перцем
         private bool VerifyPasswordWithPepper(string password, string storedHash)
         {
             try
             {
                 byte[] hashBytes = Convert.FromBase64String(storedHash);
 
-                // Извлекаем соль
                 byte[] salt = new byte[32];
                 Buffer.BlockCopy(hashBytes, 0, salt, 0, 32);
 
                 string pepper = GetPepper();
 
-                // Вычисляем хэш введенного пароля
                 using (var pbkdf2 = new Rfc2898DeriveBytes(
                     password + pepper,
                     salt,
@@ -643,7 +586,6 @@ namespace ComradeMIN
                 {
                     byte[] testHash = pbkdf2.GetBytes(64);
 
-                    // Сравниваем хэши
                     for (int i = 0; i < 64; i++)
                     {
                         if (testHash[i] != hashBytes[i + 32])
@@ -658,7 +600,6 @@ namespace ComradeMIN
             }
         }
 
-        // Обновленный метод проверки текущего пароля
         private async Task<bool> ValidateCurrentPasswordAsync()
         {
             try
@@ -681,7 +622,6 @@ namespace ComradeMIN
                         {
                             string storedHash = result.ToString();
 
-                            // Используем новый метод проверки с перцем
                             return VerifyPasswordWithPepper(CurrentPasswordBox.Password, storedHash);
                         }
                     }
@@ -695,7 +635,6 @@ namespace ComradeMIN
             return false;
         }
 
-        // Обновленный метод сохранения нового пароля
         private async Task SaveNewPasswordAsync()
         {
             try
@@ -712,18 +651,15 @@ namespace ComradeMIN
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", currentUserID);
-                        // Используем новый метод хэширования с перцем
                         string newHash = HashPasswordWithPepper(NewPasswordBox.Password);
                         command.Parameters.AddWithValue("@PasswordHash", newHash);
 
                         await command.ExecuteNonQueryAsync();
 
-                        // Очищаем поля паролей
                         CurrentPasswordBox.Password = "";
                         NewPasswordBox.Password = "";
                         ConfirmPasswordBox.Password = "";
 
-                        // Показываем сообщение
                         PasswordChangeMessage.Text = "Пароль успешно изменен";
                         PasswordChangeMessage.Foreground = System.Windows.Media.Brushes.Green;
                         PasswordChangeMessage.Visibility = Visibility.Visible;
@@ -737,7 +673,6 @@ namespace ComradeMIN
             }
         }
 
-        // Показать сообщение об ошибке
         private void ShowErrorMessage(string message, Control focusControl = null)
         {
             SaveMessage.Text = message;
@@ -748,7 +683,6 @@ namespace ComradeMIN
                 focusControl.Focus();
         }
 
-        // Показать сообщение об успехе
         private void ShowSuccessMessage(string message)
         {
             SaveMessage.Text = message;
@@ -756,7 +690,6 @@ namespace ComradeMIN
             SaveMessage.Visibility = Visibility.Visible;
         }
 
-        // Кнопка отмены
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
         {
             if (NavigationService.CanGoBack)

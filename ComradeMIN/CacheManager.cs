@@ -14,7 +14,6 @@ namespace ComradeMIN
         private readonly int _userId;
         private readonly Dictionary<string, CachedFileInfo> _fileCache = new();
 
-        // Класс для хранения информации о кэшированном файле
         public class CachedFileInfo
         {
             public string FileName { get; set; }
@@ -24,7 +23,6 @@ namespace ComradeMIN
             public DateTime CacheDate { get; set; }
         }
 
-        // Класс для сериализации кэша
         [Serializable]
         private class CacheData
         {
@@ -35,7 +33,6 @@ namespace ComradeMIN
         {
             _userId = userId;
 
-            // Папка кэша в AppData
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _cacheFolder = Path.Combine(appData, "ComradeMIN", "Cache", userId.ToString());
 
@@ -45,7 +42,6 @@ namespace ComradeMIN
             LoadCache();
         }
 
-        // Получение пути к папке кэша (публичный метод)
         public string GetCacheFolder()
         {
             return _cacheFolder;
@@ -64,7 +60,6 @@ namespace ComradeMIN
                     var cacheData = JsonSerializer.Deserialize<CacheData>(json);
                     if (cacheData?.FileCache != null)
                     {
-                        // Копируем данные, а не присваиваем ссылку
                         foreach (var item in cacheData.FileCache)
                         {
                             _fileCache[item.Key] = item.Value;
@@ -92,19 +87,16 @@ namespace ComradeMIN
             }
         }
 
-        // Проверка наличия файла в кэше
         public bool IsFileCached(string fileHash)
         {
             return _fileCache.ContainsKey(fileHash);
         }
 
-        // Получение кэшированного файла
         public CachedFileInfo GetCachedFile(string fileHash)
         {
             return _fileCache.TryGetValue(fileHash, out var info) ? info : null;
         }
 
-        // Кэширование файла
         public async Task CacheFileAsync(string fileHash, string fileName, string fileType, byte[] fileData)
         {
             try
@@ -129,7 +121,6 @@ namespace ComradeMIN
             }
         }
 
-        // Очистка старых файлов (старше 7 дней)
         public void CleanupOldFiles()
         {
             try
@@ -155,7 +146,6 @@ namespace ComradeMIN
             }
         }
 
-        // Получение размера кэша
         public long GetCacheSize()
         {
             long totalSize = 0;

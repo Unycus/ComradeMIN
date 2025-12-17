@@ -25,7 +25,7 @@ namespace ComradeMIN
 
         public event Action<int, int, string, int> OnMessageReceived;
         public event Action<int, int, string, int> OnFileReceived;
-        public event Action OnChatsUpdated; // НОВОЕ СОБЫТИЕ ДЛЯ ОБНОВЛЕНИЯ ЧАТОВ
+        public event Action OnChatsUpdated;
 
         public SignalRManager(int userId)
         {
@@ -33,7 +33,6 @@ namespace ComradeMIN
 
             try
             {
-                // Загрузка конфигурации
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
@@ -41,7 +40,6 @@ namespace ComradeMIN
 
                 _url = configuration["SignalR:Url"] ?? "http://26.19.50.66:5000/chatHub";
 
-                // Генерация токена подключения для безопасности
                 _connectionToken = GenerateConnectionToken(userId);
 
                 LoggingService.LogInfo($"SignalR Manager initialized for user {userId}");
@@ -72,7 +70,6 @@ namespace ComradeMIN
                 if (_isConnected && _hubConnection?.State == HubConnectionState.Connected)
                     return true;
 
-                // Закрываем существующее подключение, если есть
                 if (_hubConnection != null)
                 {
                     await SafeDisconnectAsync();
@@ -92,7 +89,6 @@ namespace ComradeMIN
 
                 SetupCallbacks();
 
-                // Подключение с таймаутом
                 using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
                     _globalCts.Token, timeoutCts.Token);
@@ -104,7 +100,6 @@ namespace ComradeMIN
 
                     LoggingService.LogInfo($"SignalR connected successfully. Connection ID: {_hubConnection.ConnectionId}");
 
-                    // Отправляем ожидающие сообщения
                     await SendPendingMessagesAsync();
 
                     return true;
@@ -155,7 +150,6 @@ namespace ComradeMIN
             {
                 LoggingService.LogDebug($"Received message {messageId} in chat {chatId}");
                 OnMessageReceived?.Invoke(chatId, userId, message, messageId);
-                // Триггерим обновление чатов
                 OnChatsUpdated?.Invoke();
             });
 
@@ -163,11 +157,9 @@ namespace ComradeMIN
             {
                 LoggingService.LogDebug($"Received file {fileName} in chat {chatId}");
                 OnFileReceived?.Invoke(chatId, userId, fileName, messageId);
-                // Триггерим обновление чатов
                 OnChatsUpdated?.Invoke();
             });
 
-            // НОВЫЙ КОЛБЭК ДЛЯ ОБНОВЛЕНИЯ ЧАТОВ
             _hubConnection.On("UpdateChats", () =>
             {
                 LoggingService.LogDebug("SignalR: Received chat list update notification");
@@ -179,7 +171,6 @@ namespace ComradeMIN
                 _isConnected = false;
                 LoggingService.LogWarning($"SignalR connection closed: {error?.Message}");
 
-                // Попытка переподключения через 5 секунд
                 await Task.Delay(5000);
                 await ConnectAsync();
             };
@@ -217,7 +208,6 @@ namespace ComradeMIN
             {
                 _pendingMessages.Enqueue((method, args));
 
-                // Попытка подключения, если не подключены
                 if (!_isConnected)
                 {
                     await ConnectAsync();
@@ -242,7 +232,6 @@ namespace ComradeMIN
                     }
                     else
                     {
-                        // Возвращаем в очередь, если не удалось отправить
                         _pendingMessages.Enqueue(message);
                         break;
                     }
@@ -281,7 +270,6 @@ namespace ComradeMIN
             }
         }
 
-        // НОВЫЙ МЕТОД ДЛЯ УВЕДОМЛЕНИЯ ОБ ОБНОВЛЕНИИ ЧАТОВ
         public async Task NotifyChatsUpdatedAsync(int userId)
         {
             try
@@ -294,7 +282,6 @@ namespace ComradeMIN
             }
         }
 
-        // Политика повторного подключения
         private class RetryPolicy : IRetryPolicy
         {
             public TimeSpan? NextRetryDelay(RetryContext retryContext)
@@ -319,7 +306,6 @@ namespace ComradeMIN
 
                 _connectionLock.Dispose();
 
-                // Асинхронное освобождение в синхронном методе
                 Task.Run(async () => await SafeDisconnectAsync()).Wait(5000);
             }
             catch (Exception ex)

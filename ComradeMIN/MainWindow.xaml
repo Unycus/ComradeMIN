@@ -13,6 +13,5 @@
     <Grid>
         <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
         
-        <!--переход между пайджс-->
     </Grid>
 </Window>

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace ComradeMIN
 {
-    // Класс для кэшированных сообщений
     public class CachedMessage
     {
         public int MessageId { get; set; }
@@ -16,7 +15,6 @@ namespace ComradeMIN
         public List<CachedFile> Files { get; set; } = new List<CachedFile>();
     }
 
-    // Класс для кэшированных файлов
     public class CachedFile
     {
         public int FileId { get; set; }

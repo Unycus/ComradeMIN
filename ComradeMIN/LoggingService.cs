@@ -11,7 +11,6 @@ namespace ComradeMIN
 
         static LoggingService()
         {
-            // Папка для логов в AppData
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _logDirectory = Path.Combine(appData, "ComradeMIN", "Logs");
 
@@ -28,15 +27,12 @@ namespace ComradeMIN
                     string logFile = Path.Combine(_logDirectory, $"app_{DateTime.Now:yyyyMMdd}.log");
                     string logEntry = $"{DateTime.Now:HH:mm:ss} [{level}] {message}";
 
-                    // Пишем в Debug
                     Debug.WriteLine(logEntry);
 
-                    // Пишем в файл
                     File.AppendAllText(logFile, logEntry + Environment.NewLine);
                 }
                 catch
                 {
-                    // Игнорируем ошибки логирования
                 }
             }
         }

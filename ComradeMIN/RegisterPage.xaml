@@ -22,7 +22,6 @@
             <Button.Template>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
-                        <!-- Овал с возможностью масштабирования -->
                         <Rectangle x:Name="Oval_registration_back"
                     Fill="#E0E0E0"
                     StrokeThickness="0"
@@ -34,7 +33,6 @@
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <!-- Контент (не увеличивается) -->
                         <ContentPresenter HorizontalAlignment="Center"
                     VerticalAlignment="Center"/>
                     </Grid>
@@ -54,7 +52,6 @@ MouseLeave="Register_Leave"
             <Button.Template>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Grid>
-                        <!-- Овал с возможностью масштабирования -->
                         <Rectangle x:Name="Oval_registration"
                 Fill="#E0E0E0"
                 StrokeThickness="0"
@@ -66,7 +63,6 @@ MouseLeave="Register_Leave"
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <!-- Контент (не увеличивается) -->
                         <ContentPresenter HorizontalAlignment="Center"
                 VerticalAlignment="Center"/>
                     </Grid>

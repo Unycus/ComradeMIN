@@ -106,7 +106,6 @@ public class ChatHub : Hub
     {
         try
         {
-            // Проверяем, что отправитель соответствует подключению
             var callerUserId = GetUserIdFromContext();
             if (callerUserId != userId)
             {
@@ -120,11 +119,9 @@ public class ChatHub : Hub
             _logger.LogDebug("User {UserId} sending message {MessageId} to chat {ChatId}",
                 userId, messageId, chatId);
 
-            // Отправляем сообщение всем в группе, кроме отправителя
             await Clients.GroupExcept(groupName, Context.ConnectionId)
                 .SendAsync("ReceiveMessage", chatId, userId, message, messageId);
 
-            // Отправляем подтверждение отправителю
             await Clients.Caller.SendAsync("MessageSent", new
             {
                 MessageId = messageId,
@@ -132,7 +129,6 @@ public class ChatHub : Hub
                 Timestamp = DateTime.UtcNow
             });
 
-            // Уведомляем всех участников чата об обновлении списка чатов
             await Clients.Group(groupName).SendAsync("UpdateChats");
         }
         catch (Exception ex)
@@ -147,7 +143,6 @@ public class ChatHub : Hub
     {
         try
         {
-            // Проверяем, что отправитель соответствует подключению
             var callerUserId = GetUserIdFromContext();
             if (callerUserId != userId)
             {
@@ -169,7 +164,6 @@ public class ChatHub : Hub
                 Timestamp = DateTime.UtcNow
             });
 
-            // Уведомляем всех участников чата об обновлении списка чатов
             await Clients.Group(groupName).SendAsync("UpdateChats");
         }
         catch (Exception ex)
@@ -179,7 +173,6 @@ public class ChatHub : Hub
         }
     }
 
-    // НОВЫЙ МЕТОД ДЛЯ УВЕДОМЛЕНИЯ ОБ ОБНОВЛЕНИИ ЧАТОВ
     [HubMethodName("NotifyChatsUpdated")]
     public async Task NotifyChatsUpdated(int userId)
     {
@@ -218,7 +211,6 @@ public class ChatHub : Hub
                     }
                 }
 
-                // Также проверяем Query для совместимости
                 if (httpContext.Request.Query.TryGetValue("userId", out var queryUserId))
                 {
                     if (int.TryParse(queryUserId, out int userId))

@@ -21,7 +21,6 @@ namespace ComradeMIN
         {
             try
             {
-                // Загрузка конфигурации из AppSettings.json
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("AppSettings.json", optional: true, reloadOnChange: false)
@@ -89,13 +88,11 @@ namespace ComradeMIN
                             {
                                 string storedHash = reader.GetString(1);
 
-                                // Проверяем хэш с перцем
                                 if (VerifyPasswordHash(password, storedHash))
                                 {
                                     int userId = reader.GetInt32(0);
                                     LoggingService.LogInfo($"User {username} authenticated successfully");
 
-                                    // Обновляем время последнего входа
                                     await UpdateLastLoginAsync(userId);
 
                                     return userId;
@@ -171,7 +168,6 @@ namespace ComradeMIN
                 {
                     await connection.OpenAsync();
 
-                    // Проверяем, не существует ли уже пользователь с таким логином
                     string checkUserQuery = "SELECT COUNT(*) FROM Users WHERE UserName = @UserName";
                     using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
                     {
@@ -185,22 +181,19 @@ namespace ComradeMIN
                         }
                     }
 
-                    // Загружаем аватар по умолчанию
                     byte[] defaultAvatar = LoadDefaultAvatarImage();
 
-                    // Создаем нового пользователя с новым форматом хэша и аватаром по умолчанию
                     string insertUserQuery = @"
                 INSERT INTO Users (UserName, PasswordHash, ProfileImage, CreatedDate, LastLoginDate) 
                 VALUES (@UserName, @PasswordHash, @ProfileImage, GETUTCDATE(), GETUTCDATE());
-                SELECT SCOPE_IDENTITY();"; // Получаем ID нового пользователя
+                SELECT SCOPE_IDENTITY();";
 
                     using (SqlCommand insertCommand = new SqlCommand(insertUserQuery, connection))
                     {
                         insertCommand.Parameters.AddWithValue("@UserName", username);
-                        string passwordHash = HashPasswordWithPepper(password); // Используем новый метод
+                        string passwordHash = HashPasswordWithPepper(password);
                         insertCommand.Parameters.AddWithValue("@PasswordHash", passwordHash);
 
-                        // Добавляем аватар по умолчанию
                         if (defaultAvatar != null && defaultAvatar.Length > 0)
                             insertCommand.Parameters.AddWithValue("@ProfileImage", defaultAvatar);
                         else
@@ -250,7 +243,6 @@ namespace ComradeMIN
                     }
                 }
 
-                // Если файл не найден, логируем предупреждение
                 LoggingService.LogWarning("Файл default_avatar.png не найден в папке Images");
                 return new byte[0];
             }
@@ -261,16 +253,13 @@ namespace ComradeMIN
             }
         }
 
-        // Безопасное хэширование с перцем
         private string HashPasswordWithPepper(string password)
         {
             using (var rng = RandomNumberGenerator.Create())
             {
-                // Генерируем уникальную соль для каждого пользователя
                 byte[] salt = new byte[32];
                 rng.GetBytes(salt);
 
-                // Создаем производный ключ с солью и перцем
                 using (var pbkdf2 = new Rfc2898DeriveBytes(
                     password + _pepper,
                     salt,
@@ -279,8 +268,7 @@ namespace ComradeMIN
                 {
                     byte[] hash = pbkdf2.GetBytes(64);
 
-                    // Сохраняем соль и хэш вместе
-                    byte[] hashBytes = new byte[96]; // 32 (соль) + 64 (хэш)
+                    byte[] hashBytes = new byte[96];
                     Buffer.BlockCopy(salt, 0, hashBytes, 0, 32);
                     Buffer.BlockCopy(hash, 0, hashBytes, 32, 64);
 
@@ -289,7 +277,6 @@ namespace ComradeMIN
             }
         }
 
-        // Проверка пароля с перцем
         private bool VerifyPasswordHash(string password, string storedHash)
         {
             try
@@ -298,15 +285,12 @@ namespace ComradeMIN
 
                 if (hashBytes.Length != 96)
                 {
-                    // Старый формат хэша (для обратной совместимости)
                     return VerifyLegacyHash(password, storedHash);
                 }
 
-                // Извлекаем соль
                 byte[] salt = new byte[32];
                 Buffer.BlockCopy(hashBytes, 0, salt, 0, 32);
 
-                // Вычисляем хэш введенного пароля
                 using (var pbkdf2 = new Rfc2898DeriveBytes(
                     password + _pepper,
                     salt,
@@ -315,7 +299,6 @@ namespace ComradeMIN
                 {
                     byte[] testHash = pbkdf2.GetBytes(64);
 
-                    // Сравниваем хэши
                     for (int i = 0; i < 64; i++)
                     {
                         if (testHash[i] != hashBytes[i + 32])
@@ -330,25 +313,21 @@ namespace ComradeMIN
             }
         }
 
-        // Для обратной совместимости со старыми хэшами
         private bool VerifyLegacyHash(string password, string storedHash)
         {
             try
             {
                 using (var sha256 = SHA256.Create())
                 {
-                    // Проверяем старый метод (без соли и перца)
                     byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
                     byte[] hash = sha256.ComputeHash(passwordBytes);
                     string computedHash = Convert.ToBase64String(hash);
 
                     if (computedHash == storedHash)
                     {
-                        // Миграция на новый формат при следующем входе
                         return true;
                     }
 
-                    // Проверяем старый метод с солью (если использовался)
                     string salt = "ComradeMIN_2025";
                     byte[] combinedBytes = new byte[salt.Length + passwordBytes.Length];
                     Encoding.UTF8.GetBytes(salt).CopyTo(combinedBytes, 0);
@@ -391,7 +370,6 @@ namespace ComradeMIN
             if (!_disposed)
             {
                 _disposed = true;
-                // Освобождение ресурсов, если есть
             }
         }
 

@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input; // Добавьте эту директиву
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -20,29 +20,26 @@ namespace ComradeMIN
     public partial class RegisterPage : Page
     {
         private DatabaseService _databaseService;
-        private bool _isRegistering = false; // Флаг для предотвращения повторного нажатия
+        private bool _isRegistering = false;
 
         public RegisterPage()
         {
             InitializeComponent();
             _databaseService = new DatabaseService();
 
-            // Подписываемся на события KeyDown для всех полей ввода
             Login_input.KeyDown += Input_KeyDown;
             Password_input.KeyDown += Input_KeyDown;
             Password_input2.KeyDown += Input_KeyDown;
         }
 
-        // Общий обработчик нажатия клавиш
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                // Если нажат Enter - вызываем регистрацию
                 if (!_isRegistering)
                 {
                     Register_Click(sender, e);
-                    e.Handled = true; // Предотвращаем дальнейшую обработку
+                    e.Handled = true;
                 }
             }
         }
@@ -108,7 +105,6 @@ namespace ComradeMIN
 
         private async void Register_Click(object sender, RoutedEventArgs e)
         {
-            // Защита от повторного нажатия
             if (_isRegistering) return;
 
             _isRegistering = true;
@@ -121,7 +117,6 @@ namespace ComradeMIN
                 bool success = true;
                 int errorCode = 0;
 
-                // Анимация нажатия
                 if (Register.Template.FindName("Oval_registration", Register) is Rectangle oval1)
                 {
                     if (oval1.Fill.IsFrozen)
@@ -141,7 +136,6 @@ namespace ComradeMIN
 
                 await Task.Delay(TimeSpan.FromSeconds(0.3));
 
-                // Валидация логина и пароля
                 if (username.Length < 3)
                 {
                     success = false;
@@ -164,28 +158,24 @@ namespace ComradeMIN
                     Password_input2.Focus();
                 }
 
-                // Регистрация в базе данных
                 if (success)
                 {
                     int? newUserId = await _databaseService.RegisterUserAndGetId(username, password);
                     if (newUserId.HasValue)
                     {
                         MessageBox.Show("Регистрация прошла успешно!");
-                        // Переходим сразу в чат с ID нового пользователя
                         NavigationService.Navigate(new UserDataBaseMessengePage(newUserId.Value));
-                        return; // Выходим, так как уже переходим на другую страницу
+                        return;
                     }
                     else
                     {
-                        // Ошибка уже показана в DatabaseService
                         success = false;
                         errorCode = 4;
                         Login_input.Focus();
                     }
                 }
 
-                // Анимация ошибки если нужно
-                if (!success && errorCode != 4) // errorCode 4 - ошибка уже обработана в DatabaseService
+                if (!success && errorCode != 4)
                 {
                     ShowErrorAnimation();
                 }
