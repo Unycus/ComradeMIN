@@ -109,19 +109,31 @@
       "DocumentGroups": [
         {
           "DockedHeight": 352,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "OptionsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\OptionsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\OptionsPage.xaml.cs",
-              "ViewState": "AgIAAJUCAAAAAAAAAAAmwB0AAAAoAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "RegisterPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T19:10:29.136Z",
+              "WhenOpened": "2025-12-16T23:50:29.937Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserDataBaseMessengePage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
+              "ViewState": "AgIAAIwAAAAAAAAAAAAIwKUAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T19:10:59.743Z",
               "EditorCaption": ""
             },
             {
@@ -133,21 +145,7 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml",
               "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-16T19:10:27.841Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "RegisterPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\RegisterPage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\RegisterPage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\RegisterPage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T23:50:29.937Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:27.841Z"
             },
             {
               "$type": "Document",
@@ -159,8 +157,7 @@
               "RelativeToolTip": "ComradeMIN\\SignalRManager.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T23:10:35.543Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T23:10:35.543Z"
             },
             {
               "$type": "Document",
@@ -171,21 +168,19 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml",
               "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-16T19:10:16.65Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:16.65Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UserDataBaseMessengePage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "RelativeDocumentMoniker": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "RelativeToolTip": "ComradeMIN\\UserDataBaseMessengePage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "OptionsPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml.cs",
+              "RelativeDocumentMoniker": "ComradeMIN\\OptionsPage.xaml.cs",
+              "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml.cs",
+              "RelativeToolTip": "ComradeMIN\\OptionsPage.xaml.cs",
+              "ViewState": "AgIAAJUCAAAAAAAAAAAmwB0AAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T19:10:59.743Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:29.136Z"
             },
             {
               "$type": "Document",
@@ -196,8 +191,7 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\OptionsPage.xaml",
               "RelativeToolTip": "ComradeMIN\\OptionsPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-16T19:10:33.939Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:33.939Z"
             },
             {
               "$type": "Document",
@@ -209,8 +203,7 @@
               "RelativeToolTip": "ComradeMIN\\MessageFile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T19:10:36.195Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:36.195Z"
             },
             {
               "$type": "Document",
@@ -222,8 +215,7 @@
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T19:10:38.847Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:10:38.847Z"
             },
             {
               "$type": "Document",
@@ -234,8 +226,7 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\MainWindow.xaml",
               "RelativeToolTip": "ComradeMIN\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-16T22:32:25.498Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T22:32:25.498Z"
             },
             {
               "$type": "Document",
@@ -247,8 +238,7 @@
               "RelativeToolTip": "ComradeMIN\\LoginPage.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T01:31:20.553Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:31:20.553Z"
             },
             {
               "$type": "Document",
@@ -259,8 +249,7 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\LoginPage.xaml",
               "RelativeToolTip": "ComradeMIN\\LoginPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-17T01:31:12.483Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:31:12.483Z"
             },
             {
               "$type": "Document",
@@ -272,8 +261,7 @@
               "RelativeToolTip": "ComradeMIN\\LoggingService.cs",
               "ViewState": "AgIAAEMAAAAAAAAAAAAwwA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T23:09:38.968Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T23:09:38.968Z"
             },
             {
               "$type": "Document",
@@ -285,8 +273,7 @@
               "RelativeToolTip": "ComradeMIN\\DatabaseService.cs",
               "ViewState": "AgIAAGcBAAAAAAAAAAAUwBcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T22:01:35.69Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T22:01:35.69Z"
             },
             {
               "$type": "Document",
@@ -298,8 +285,7 @@
               "RelativeToolTip": "ComradeMIN\\ChatModels.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T23:06:03.197Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T23:06:03.197Z"
             },
             {
               "$type": "Document",
@@ -311,8 +297,7 @@
               "RelativeToolTip": "ComradeMIN\\CacheManager.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-16T23:08:44.925Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T23:08:44.925Z"
             },
             {
               "$type": "Document",
@@ -324,8 +309,7 @@
               "RelativeToolTip": "ComradeMIN\\AssemblyInfo.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T01:30:28.424Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:30:28.424Z"
             },
             {
               "$type": "Document",
@@ -337,8 +321,7 @@
               "RelativeToolTip": "ComradeMIN\\AppSettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-17T01:17:20.953Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:17:20.953Z"
             },
             {
               "$type": "Document",
@@ -350,8 +333,7 @@
               "RelativeToolTip": "ComradeMIN\\App.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T01:30:12.174Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:30:12.174Z"
             },
             {
               "$type": "Document",
@@ -362,8 +344,7 @@
               "ToolTip": "C:\\Users\\\u0413\u043B\u0435\u0431-\u0421\u0430\u043D\\Documents\\GitHub\\ComradeMIN\\ComradeMIN\\App.xaml",
               "RelativeToolTip": "ComradeMIN\\App.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-12-17T01:29:56.467Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:29:56.467Z"
             },
             {
               "$type": "Document",
@@ -375,8 +356,7 @@
               "RelativeToolTip": "ComradeMIN\\App.config",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-12-17T01:29:48.644Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T01:29:48.644Z"
             },
             {
               "$type": "Document",
@@ -388,8 +368,7 @@
               "RelativeToolTip": "ComradeMIN\\ComradeMIN.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-12-16T19:37:26.768Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-16T19:37:26.768Z"
             },
             {
               "$type": "Document",
